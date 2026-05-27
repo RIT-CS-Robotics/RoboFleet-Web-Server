@@ -99,40 +99,44 @@ Enter the following commands on the SSH terminal
 # enable Apache proxy modules
 1. sudo a2enmod proxy
 2. sudo a2enmod proxy_http
+3. 3. sudo a2enmod rewrite
 # open the Apache site config file
-3. sudo nano /etc/apache2/sites-available/000-default.conf
+4. sudo nano /etc/apache2/sites-available/000-default.conf
 # replace the Apache config file with the following
 # (see code section of the README)
 ##################################################
 <VirtualHost *:80>
     ServerName robotics-project.gccis.rit.edu
-    DocumentRoot /var/www/html
 
-    # 1. Route for Express Backend (Passes /api traffic to port 3000)
     ProxyPreserveHost On
-    ProxyPass /api http://127.0.0
-    ProxyPassReverse /api http://127.0.0
 
-    # 2. Route for User Interaction Frontend (Port 5173)
-    ProxyPass /user http://127.0.0
-    ProxyPassReverse /user http://127.0.0
+    # 1. Express.js Backend (Port 3000)
+    # Accessible via: http://your-ip/api
+    ProxyPass /api http://localhost:3000/
+    ProxyPassReverse /api http://localhost:3000/
 
-    # 3. Route for Status Frontend (Port 5174)
-    ProxyPass /status http://127.0.0
-    ProxyPassReverse /status http://127.0.0
+    # 2. First React Frontend (Port 5173)
+    # Accessible via: http://your-ip/
+    ProxyPass /user http://localhost:5173/
+    ProxyPassReverse /user http://localhost:5173/
+
+    # 3. Second React Frontend (Port 5174)
+    # Accessible via: http://your-ip/app2
+    ProxyPass /status http://localhost:5174/
+    ProxyPassReverse /status http://localhost:5174/
 </VirtualHost>
 ##################################################
 # test and restart Apache
-4. sudo apache2ctl configtest
-5. sudo systemctl restart apache2
+5. sudo apache2ctl configtest
+6. sudo systemctl restart apache2
 # enter the following line above plugins in the defineconfig section in the vite.config.js directory (DO THIS ONLY IN THE USER_INTERACTION_FRONTEND REACT DIRECTORY)
 base: '/user/', 
 # enter the following line above plugins in the defineconfig section in the vite.config.js directory (DO THIS ONLY IN THE STATUS_FRONTEND REACT DIRECTORY)
 base: '/status/', 
 # ensure the backend and both frontends are running and everything should now be working
 # to manually start/stop/restart Apache, you can enter the following commands
-6. sudo systemctl start apache2
-7. sudo systemctl stop apache2
-8. sudo systemctl start apache2
+7. sudo systemctl start apache2
+8. sudo systemctl stop apache2
+9. sudo systemctl start apache2
 
 
