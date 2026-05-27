@@ -29,7 +29,8 @@ Go to the project root directory, create a backend directory, enter the followin
 #create the Express app file
 5. nano app.js
 # enter the following code inside of the app.js file
-
+# (see code section of the README)
+################################################## 
 const express = require('express');
 const app = express();
 const PORT = 3000;
@@ -43,7 +44,7 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
+################################################## 
 # allow RIT internet enabled computers to access the backend directly (will be helpful for rosbidge_suite)
 6. sudo ufw allow from 129.21.0.0/16 to any port 3000 proto tcp
 # run the backend server
@@ -61,7 +62,8 @@ Go to the project root directory and enter the following commands in the SSH ter
 # inside of package.json change the following line (DO THIS FOR BOTH REACT DIRECTORIES)
 4. "dev": "vite", ---> (CHANGE THIS TO) ---> "dev": "vite --host",
 # enter the following in vite.config.js (DO THIS ONLY IN THE USER_INTERACTION_FRONTEND REACT DIRECTORY)
-
+# (see code section of the README)
+################################################## 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -72,9 +74,10 @@ export default defineConfig({
     port: 5173
   }
 })
-
+################################################## 
 # enter the following in vite.config.js (DO THIS ONLY IN THE STATUS_FRONTEND REACT DIRECTORY)
-
+# (see code section of the README)
+################################################## 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -85,7 +88,7 @@ export default defineConfig({
     port: 5174
   }
 })
-
+################################################## 
 # enter a react directory and enter the following to run the react app in development mode
 5. npm run dev
 
