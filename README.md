@@ -108,31 +108,29 @@ Enter the following commands on the SSH terminal
 <VirtualHost *:80>
     ServerName robotics-project.gccis.rit.edu
 
-    ProxyPreserveHost On
+    # Express Backend
+    ProxyPass /api http://localhost:3000/api
+    ProxyPassReverse /api http://localhost:3000/api
 
-    # 1. Express.js Backend (Port 3000)
-    # Accessible via: http://your-ip/api
-    ProxyPass /api http://localhost:3000/
-    ProxyPassReverse /api http://localhost:3000/
+    # Frontend 2 (Must be placed above the root '/' proxy)
+    ProxyPass /status http://localhost:5174
+    ProxyPassReverse /status http://localhost:5174
 
-    # 2. First React Frontend (Port 5173)
-    # Accessible via: http://your-ip/
-    ProxyPass /user http://localhost:5173/
-    ProxyPassReverse /user http://localhost:5173/
-
-    # 3. Second React Frontend (Port 5174)
-    # Accessible via: http://your-ip/app2
-    ProxyPass /status http://localhost:5174/
-    ProxyPassReverse /status http://localhost:5174/
+    # Frontend 1 (Root site)
+    ProxyPass / http://localhost:5173/
+    ProxyPassReverse / http://localhost:5173/
 </VirtualHost>
 ##################################################
 # test and restart Apache
 5. sudo apache2ctl configtest
 6. sudo systemctl restart apache2
-# enter the following line above plugins in the defineconfig section in the vite.config.js directory (DO THIS ONLY IN THE USER_INTERACTION_FRONTEND REACT DIRECTORY)
-base: '/user/', 
 # enter the following line above plugins in the defineconfig section in the vite.config.js directory (DO THIS ONLY IN THE STATUS_FRONTEND REACT DIRECTORY)
 base: '/status/', 
+# replace the app.get() function in the app.js file in the backend with the following
+// Basic route
+app.get('/api', (req, res) => {
+  res.send('Hello World!');
+});
 # ensure the backend and both frontends are running and everything should now be working
 # to manually start/stop/restart Apache, you can enter the following commands
 7. sudo systemctl start apache2
