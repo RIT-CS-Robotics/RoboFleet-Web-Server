@@ -159,3 +159,24 @@ Enter the following commands in the SSH terminal
 9. pm2 restart all
 10. pm2 stop all
 # you will need to use pm2 restart all when code changes
+#
+#
+#
+# Setting Up ros2 Communication to the Web Server
+# stop the web server
+1. pm2 stop all
+# enter the following commands to install roslib, websockets, and cors on the SSH terminal while in the BACKEND directory
+2. npm install cors
+3. npm install ws
+4. npm install roslib@1.4.1
+# find the robot IP by running hostname -I on the robots laptop
+# add the robots IP to the app.js code in the BACKEND directory
+# enter the following command on the SSH terminal to run the web server again
+5. pm2 run all
+# on the robot laptop source a terminal and install rosbridge_server and web sockets with the following commands in the terminal
+6. sudo apt-get update
+7. sudo apt-get install ros-jazzy-rosbridge-server
+8. sudo apt-get install ros-jazzy-rosbridge-suite
+# run the robot with the websocket connection on the robots laptop
+9. ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+
