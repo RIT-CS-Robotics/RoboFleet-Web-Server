@@ -46,7 +46,7 @@ function initializeRobotConnection(robotId, ipAddress) {
 // ----------------------------------------------------
 // FLEET REGISTRATION: Add or edit your robots here!
 // ----------------------------------------------------
-initializeRobotConnection('robot_alpha', '192.168.1.50'); 
+initializeRobotConnection('robot_alpha', '129.21.136.147'); 
 initializeRobotConnection('robot_beta', '192.168.1.60'); 
 
 
@@ -59,9 +59,12 @@ app.get('/api', (req, res) => {
             online: connection.isConnected
         };
     }
-    res.json({ latestSavedText, fleet: statusReport }); 
-}); 
-
+    // Sends a clean JSON object that both frontends can read natively
+    res.json({ 
+        latestSavedText: latestSavedText, 
+        fleet: statusReport 
+    }); 
+});
 
 // 2. CHANGED: This route is now just '/api/save' instead of '/api/robot/:id/save'
 app.post('/api/save', (req, res) => {

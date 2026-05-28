@@ -7,25 +7,15 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to pull the latest robot connection states from the backend
   const fetchFleetStatus = async () => {
     try {
-      // Hits your core Express GET /api route
       const response = await fetch('/api');
       
-      // Since our backend returns a string with JSON inside it, 
-      // we parse the raw text response to handle it cleanly
-      const rawText = await response.text();
+      // Clean and simple: Read it straight as a JSON object!
+      const data = await response.json(); 
       
-      // Regular expressions to cleanly extract the variables from the backend string
-      const textMatch = rawText.match(/Latest Text: (.*?) \|/);
-      const fleetMatch = rawText.match(/Fleet Status: (.*)$/);
-
-      if (textMatch && fleetMatch) {
-        setLatestText(textMatch[1]);
-        setFleetData(JSON.parse(fleetMatch[1]));
-      }
-      
+      setLatestText(data.latestSavedText);
+      setFleetData(data.fleet);
       setError(null);
     } catch (err) {
       console.error("Error pulling status:", err);
@@ -35,15 +25,10 @@ export default function App() {
     }
   };
 
-  // Automatically runs when the page loads, and ticks every 3 seconds
   useEffect(() => {
-    fetchFleetStatus(); // Initial load
-    
-    const interval = setInterval(() => {
-      fetchFleetStatus();
-    }, 3000); // 3000ms = 3 seconds
-
-    return () => clearInterval(interval); // Clean up loop on exit
+    fetchFleetStatus();
+    const interval = setInterval(fetchFleetStatus, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <div style={{ padding: '20px' }}>Loading fleet matrix...</div>;
@@ -60,7 +45,7 @@ export default function App() {
 
       <div style={{ background: '#f3f4f6', padding: '15px', borderRadius: '6px', marginBottom: '20px' }}>
         <strong>Last Broadcast Command Sent:</strong> 
-        <span style={{ marginLeft: '10px', color: '#4b5563', italic: 'true' }}>"{latestText}"</span>
+        <span style={{ marginLeft: '10px', color: '#4b5563', fontStyle: 'italic' }}>"{latestText}"</span>
       </div>
 
       <h3>Robot Fleet Inventory ({Object.keys(fleetData).length})</h3>
@@ -88,7 +73,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Status indicator pill */}
             <span 
               style={{
                 padding: '6px 12px',
