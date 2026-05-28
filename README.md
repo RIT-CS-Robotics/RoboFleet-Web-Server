@@ -113,8 +113,8 @@ Enter the following commands on the SSH terminal
     ProxyPassReverse /api http://localhost:3000/api
 
     # Frontend 2 (Must be placed above the root '/' proxy)
-    ProxyPass /status http://localhost:5174
-    ProxyPassReverse /status http://localhost:5174
+    ProxyPass /status http://localhost:5174/status
+    ProxyPassReverse /status http://localhost:5174/status
 
     # Frontend 1 (Root site)
     ProxyPass / http://localhost:5173/
@@ -125,7 +125,7 @@ Enter the following commands on the SSH terminal
 5. sudo apache2ctl configtest
 6. sudo systemctl restart apache2
 # enter the following line above plugins in the defineconfig section in the vite.config.js directory (DO THIS ONLY IN THE STATUS_FRONTEND REACT DIRECTORY)
-base: '/status/', 
+base: '/status', 
 # replace the app.get() function in the app.js file in the backend with the following
 // Basic route
 app.get('/api', (req, res) => {
