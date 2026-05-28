@@ -1,122 +1,110 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [fleetData, setFleetData] = useState({});
+  const [latestText, setLatestText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Function to pull the latest robot connection states from the backend
+  const fetchFleetStatus = async () => {
+    try {
+      // Hits your core Express GET /api route
+      const response = await fetch('/api');
+      
+      // Since our backend returns a string with JSON inside it, 
+      // we parse the raw text response to handle it cleanly
+      const rawText = await response.text();
+      
+      // Regular expressions to cleanly extract the variables from the backend string
+      const textMatch = rawText.match(/Latest Text: (.*?) \|/);
+      const fleetMatch = rawText.match(/Fleet Status: (.*)$/);
+
+      if (textMatch && fleetMatch) {
+        setLatestText(textMatch[1]);
+        setFleetData(JSON.parse(fleetMatch[1]));
+      }
+      
+      setError(null);
+    } catch (err) {
+      console.error("Error pulling status:", err);
+      setError("Failed to sync with backend server.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Automatically runs when the page loads, and ticks every 3 seconds
+  useEffect(() => {
+    fetchFleetStatus(); // Initial load
+    
+    const interval = setInterval(() => {
+      fetchFleetStatus();
+    }, 3000); // 3000ms = 3 seconds
+
+    return () => clearInterval(interval); // Clean up loop on exit
+  }, []);
+
+  if (loading) return <div style={{ padding: '20px' }}>Loading fleet matrix...</div>;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto' }}>
+      <h2>🛸 RoboFleet Live Monitor Panel</h2>
+      
+      {error && (
+        <div style={{ padding: '10px', background: '#fee2e2', color: '#dc2626', borderRadius: '4px', marginBottom: '15px' }}>
+          <strong>Error:</strong> {error}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      )}
 
-      <div className="ticks"></div>
+      <div style={{ background: '#f3f4f6', padding: '15px', borderRadius: '6px', marginBottom: '20px' }}>
+        <strong>Last Broadcast Command Sent:</strong> 
+        <span style={{ marginLeft: '10px', color: '#4b5563', italic: 'true' }}>"{latestText}"</span>
+      </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <h3>Robot Fleet Inventory ({Object.keys(fleetData).length})</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {Object.entries(fleetData).map(([robotId, info]) => (
+          <div 
+            key={robotId} 
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '15px',
+              borderRadius: '6px',
+              border: '1px solid #e5e7eb',
+              background: info.online ? '#f0fdf4' : '#fef2f2',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+            }}
+          >
+            <div>
+              <strong style={{ textTransform: 'capitalize', fontSize: '1.1em' }}>
+                {robotId.replace('_', ' ')}
+              </strong>
+              <div style={{ fontSize: '0.85em', color: '#6b7280', marginTop: '2px' }}>
+                Network IP: {info.ip}
+              </div>
+            </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+            {/* Status indicator pill */}
+            <span 
+              style={{
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontSize: '0.85em',
+                fontWeight: 'bold',
+                color: info.online ? '#15803d' : '#b91c1c',
+                background: info.online ? '#dcfce7' : '#fee2e2',
+                border: `1px solid ${info.online ? '#bbf7d0' : '#fecaca'}`
+              }}
+            >
+              {info.online ? '● ONLINE' : '○ OFFLINE'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
-
-export default App
