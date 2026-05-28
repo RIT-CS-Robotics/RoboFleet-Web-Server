@@ -136,5 +136,26 @@ app.get('/api', (req, res) => {
 7. sudo systemctl start apache2
 8. sudo systemctl stop apache2
 9. sudo systemctl start apache2
-
-
+#
+#
+#
+# Keeping the Web Server Online 24/7 Instructions
+Enter the following commands in the SSH terminal
+# install pm2 for keeping the web server open through proccesses that constantly run
+1. npm install pm2 -g
+2. pm2 -v
+# navigate to the BACKEND directory
+3. pm2 start app.js --name "robotics-api"
+# navigate to the USER_INTERACTION_FRONTEND directory
+4. pm2 start "npm run dev -- --port 5173" --name "robotics-main"
+# navigate to the STATUS_FRONTEND directory
+5. pm2 start "npm run dev -- --port 5174" --name "robotics-status"
+# navigate to the project root directory and save these changes
+6. pm2 save
+# now each part of the web server will stay up and run through a proccess
+# the following is a list of helpful pm2 commands to run in the SSH terminal if needed
+7. pm2 list
+8. pm2 logs
+9. pm2 restart all
+10. pm2 stop all
+# you will need to use pm2 restart all when code changes
