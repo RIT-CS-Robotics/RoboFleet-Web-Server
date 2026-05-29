@@ -60,7 +60,8 @@ function initializeRobotConnection(robotId, ipAddress) {
         robotConnections[robotId] = {
             ip: ipAddress,
             isConnected: false,
-            instance: null
+            instance: null,
+            position: {x: 0, y: 0},
         };
     }
 
@@ -90,6 +91,24 @@ function initializeRobotConnection(robotId, ipAddress) {
         console.log(`SUCCESS: Connected via ROSLIB to ${robotId} at ${ipAddress}`);
         robotConnections[robotId].isConnected = true;
         robotConnections[robotId].instance = rosInstance;
+
+        const odomTopic = new ROSLIB.Topic({
+            ros: rosInstance,
+            name: "/odom",
+            messageType: "nav_msgs/msg/Odometry",
+        });
+        let lastProccessedTime = 0;
+        const THROTTLE_MS = 500;
+
+        odomTopic.subscribe((message) => {
+            const now = Date.now();
+            if (now - lastProccessedTime > THROTTLE_MS) {
+                lastProccessedTime = now;
+                const xPos = message.pose.pose.position.x;
+                const yPos = message.pose.pose.position.y;
+                robotConnections[robotId].position = { x: Number(xPos.toFixed(3)), y: Number(yPos.toFixed(3))};
+            }
+        });
     });
 
     rosInstance.on('error', (error) => {
@@ -117,7 +136,8 @@ app.get('/api', verifyPassKey, (req, res) => {
     for (const [id, trackingData] of Object.entries(robotConnections)) { // stores the ip of each robot in an id temp variable and the connection details in a trackingData temp variable
         statusReport[id] = { 
             ip: trackingData.ip, 
-            online: trackingData.isConnected 
+            online: trackingData.isConnected,
+            position: trackingData.position 
         };
     }
     res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the status page
