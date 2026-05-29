@@ -12,6 +12,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        secure: false,
+        headers: {
+            'x-dashboard-token': 'CS@RIT-70'
+            }
       }
     }
   }

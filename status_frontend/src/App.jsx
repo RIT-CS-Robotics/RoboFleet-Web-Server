@@ -9,11 +9,20 @@ export default function App() {
 
   const fetchFleetStatus = async () => {
     try {
-      const response = await fetch('/api');
-      
-      // Clean and simple: Read it straight as a JSON object!
-      const data = await response.json(); 
-      
+      // 1. ADDED: Add your secret token header to authorize this GET request
+      const response = await fetch('/api', {
+        method: 'GET',
+        headers: {
+          'x-dashboard-token': 'CS@RIT-70'
+        }
+      });
+
+      // Handle raw non-200 responses safely (e.g. if the backend rejects the token)
+      if (!response.ok) {
+        throw new Error(`Server returned status code ${response.status}`);
+      }
+
+      const data = await response.json();
       setLatestText(data.latestSavedText);
       setFleetData(data.fleet);
       setError(null);
@@ -36,7 +45,7 @@ export default function App() {
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto' }}>
       <h2>🛸 RoboFleet Live Monitor Panel</h2>
-      
+
       {error && (
         <div style={{ padding: '10px', background: '#fee2e2', color: '#dc2626', borderRadius: '4px', marginBottom: '15px' }}>
           <strong>Error:</strong> {error}
@@ -49,17 +58,18 @@ export default function App() {
       </div>
 
       <h3>Robot Fleet Inventory ({Object.keys(fleetData).length})</h3>
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {Object.entries(fleetData).map(([robotId, info]) => (
           <div 
             key={robotId} 
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '15px',
-              borderRadius: '6px',
-              border: '1px solid #e5e7eb',
+            style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              padding: '15px', 
+              borderRadius: '6px', 
+              border: '1px solid #e5e7eb', 
               background: info.online ? '#f0fdf4' : '#fef2f2',
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
             }}
@@ -72,16 +82,15 @@ export default function App() {
                 Network IP: {info.ip}
               </div>
             </div>
-
             <span 
-              style={{
-                padding: '6px 12px',
-                borderRadius: '20px',
-                fontSize: '0.85em',
-                fontWeight: 'bold',
-                color: info.online ? '#15803d' : '#b91c1c',
-                background: info.online ? '#dcfce7' : '#fee2e2',
-                border: `1px solid ${info.online ? '#bbf7d0' : '#fecaca'}`
+              style={{ 
+                padding: '6px 12px', 
+                borderRadius: '20px', 
+                fontSize: '0.85em', 
+                fontWeight: 'bold', 
+                color: info.online ? '#15803d' : '#b91c1c', 
+                background: info.online ? '#dcfce7' : '#fee2e2', 
+                border: `1px solid ${info.online ? '#bbf7d0' : '#fecaca'}` 
               }}
             >
               {info.online ? '● ONLINE' : '○ OFFLINE'}
