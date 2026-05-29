@@ -46,8 +46,9 @@ function initializeRobotConnection(robotId, ipAddress) {
 // ----------------------------------------------------
 // FLEET REGISTRATION: Add or edit your robots here!
 // ----------------------------------------------------
-initializeRobotConnection('robot_alpha', '129.21.136.147'); 
-initializeRobotConnection('robot_beta', '192.168.1.60'); 
+initializeRobotConnection('robot 1', '129.21.118.12');
+initializeRobotConnection('robot 2', '129.21.136.147'); 
+initializeRobotConnection('robot 3', '129.21.65.243'); 
 
 
 // 1. CHANGED: This route is now just '/api' instead of '/api/status'
