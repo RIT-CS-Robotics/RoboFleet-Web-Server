@@ -164,7 +164,6 @@ app.get('/api', verifyPassKey, (req, res) => {
 app.post('/api/save', verifyPassKey, (req, res) => { // req is the incoming data from the frontend and res is the responce to send back
     const robotId = req.body.robotId || 'robot_default'; 
     const userText = req.body.text;
-    latestSavedText = userText;
 
     console.log(`Received data from frontend for ${robotId}:`, userText);
 
@@ -176,6 +175,7 @@ app.post('/api/save', verifyPassKey, (req, res) => { // req is the incoming data
 
     // Check if we have a live websocket instance running and if we do then a ros topic is created
     if (trackingData.isConnected && trackingData.instance) {
+        latestSavedText = userText;
         // Instantiate the topic directly on the current live instance
         const textTopic = new ROSLIB.Topic({ // this is the new topic that is created
             ros: trackingData.instance, // this is like the highway to the robot
@@ -189,7 +189,7 @@ app.post('/api/save', verifyPassKey, (req, res) => { // req is the incoming data
         console.log(`Forwarded "${userText}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${userText}"` });
     } else {
-        return res.status(503).json({ message: `Saved locally, but ${robotId} is offline.` });
+        return res.status(503).json({ message: `Message not saved, ${robotId} is offline.` });
     }
 });
 
