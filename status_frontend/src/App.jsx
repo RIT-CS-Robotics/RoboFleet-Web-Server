@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import GolisanoMap from './MapComponent'; 
+import GolisanoMap from './MapComponent';
+
+export function getRobotColor(robotId) {
+    let robotColor = "gray";
+    if (robotId.includes("1")) robotColor = "red";
+    if (robotId.includes("2")) robotColor = "blue";
+    if (robotId.includes("3")) robotColor = "green";
+    return robotColor;
+} 
 
 export default function App() {
   const [fleetData, setFleetData] = useState({});
@@ -70,6 +78,12 @@ export default function App() {
                   marginBottom: '12px'
                 }}
               >
+
+                <div 
+                  className="robot-id-dot" 
+                  style={{ backgroundColor: getRobotColor(robotId) }} 
+                />
+
                 <div>
                   <strong style={{ textTransform: 'capitalize', fontSize: '1.1em' }}>
                     {robotId.replace('_', ' ')}

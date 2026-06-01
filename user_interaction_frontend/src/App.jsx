@@ -35,7 +35,7 @@ export default function App() {
       setStatusMessage(data.message);
     } catch (error) {
       console.error("Transmission error:", error);
-      setStatusMessage('Error connecting to server or invalid security token');
+      setStatusMessage('Error connecting to robot');
     }
   };
 
