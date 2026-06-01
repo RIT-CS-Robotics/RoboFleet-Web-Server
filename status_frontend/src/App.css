@@ -182,3 +182,52 @@
     border-right-color: var(--border);
   }
 }
+
+/* Sets the overall constraints of your web platform page */
+.dashboard-container {
+  padding: 20px;
+  font-family: sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Force the text panel and the map panel to stand side-by-side */
+.dashboard-layout {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+/* Allocation rules for the left text-metrics list column */
+.status-column {
+  flex: 1;
+  min-width: 320px;
+}
+
+/* Allocation rules for the right map-canvas display column */
+.map-column {
+  flex: 1.5;
+  min-width: 350px;
+}
+
+/* Extra decorative cleanups for your text panels */
+.broadcast-box {
+  background: #f3f4f6;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.broadcast-text {
+  margin-left: 10px;
+  color: #4b5563;
+  font-style: italic;
+}
+
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

@@ -1,11 +1,14 @@
 // These lines are essentially the same as imports
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const ROSLIB = require('roslib');
+const dns = require('dns');
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Tells the app to use cors and json
 app.use(cors());
@@ -13,15 +16,29 @@ app.use(express.json());
 
 // Security
 app.set('trust proxy', true);
-const SECRET_PASSKEY = 'CS@RIT-70';
+const passkey = process.env.PASSKEY;
 
 // Specific IP addresses of computers with direct access to the backend
-const ALLOWED_IPS = [
-    '129.21.34.84', // whirlpool lab pc
-    '129.21.118.12', // robot 1
-    '129.21.136.147', // robot 2
-    '129.21.65.243', // robot 3
-];
+const ALLOWED_HOSTS = process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [];
+
+const allowedIPsFromHosts = new Set();
+
+// Resolve hostnames to IPs
+ALLOWED_HOSTS.forEach(host => {
+    const cleanHost = host.trim();
+    if (/^[0-9.]+$/.test(cleanHost)) {
+        allowedIPsFromHosts.add(cleanHost);
+    } else {
+        dns.lookup(cleanHost, (err, address) => {
+            if (!err) {
+                allowedIPsFromHosts.add(address);
+                console.log(`DNS: Resolved ${cleanHost} to ${address}`);
+            } else {
+                console.error(`DNS Error: Could not resolve hostname ${cleanHost}`);
+            }
+        });
+    }
+});
 
 let latestSavedText = 'Hello World!';
 
@@ -34,10 +51,10 @@ function verifyPassKey(req, res, next) {
     const clientIp = req.ip;
 
     // Does the visitor have the correct secret token header?
-    const hasValidToken = (clientToken === SECRET_PASSKEY);
+    const hasValidToken = (clientToken === passkey);
 
     // Is the visitor's computer on the approved IP list?
-    const isApprovedIp = ALLOWED_IPS.includes(clientIp);
+    const isApprovedIp = allowedIPsFromHosts.has(clientIp);
 
     // If either check is true, grant full access to the backend
     if (hasValidToken || isApprovedIp) {
@@ -58,7 +75,7 @@ function initializeRobotConnection(robotId, ipAddress) {
     // Ensure we have a placeholder state object in our tracker if it doesn't exist
     if (!robotConnections[robotId]) {
         robotConnections[robotId] = {
-            ip: ipAddress,
+            host: ipAddress,
             isConnected: false,
             instance: null,
             position: {x: 0, y: 0},
@@ -126,16 +143,16 @@ function initializeRobotConnection(robotId, ipAddress) {
 // ----------------------------------------------------
 // FLEET REGISTRATION: Add or edit your robots here!
 // ----------------------------------------------------
-initializeRobotConnection('robot 1', '129.21.118.12');
-initializeRobotConnection('robot 2', '129.21.136.147');
-initializeRobotConnection('robot 3', '129.21.65.243');
+initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS || 'gcis-zxbvcs-rl1.ad.rit.edu');
+initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS || 'gcis-zxbvcs-rl2.ad.rit.edu');
+initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS || 'gcis-zxbvcs-rl3.ad.rit.edu');
 
 // read from the new tracking object structure
 app.get('/api', verifyPassKey, (req, res) => {
     const statusReport = {};
     for (const [id, trackingData] of Object.entries(robotConnections)) { // stores the ip of each robot in an id temp variable and the connection details in a trackingData temp variable
         statusReport[id] = { 
-            ip: trackingData.ip, 
+            host: trackingData.host, 
             online: trackingData.isConnected,
             position: trackingData.position 
         };
