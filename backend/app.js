@@ -87,6 +87,7 @@ function initializeRobotConnection(robotId, ipAddress) {
             host: ipAddress,
             isConnected: false,
             instance: null,
+            odometry: {x: 0, y: 0},
             position: {x: 0, y: 0},
         };
     }
@@ -118,20 +119,45 @@ function initializeRobotConnection(robotId, ipAddress) {
         robotConnections[robotId].isConnected = true;
         robotConnections[robotId].instance = rosInstance;
 
+        // ----------------------------------------------------
+        // TOPICS
+        // ----------------------------------------------------
+
         const odomTopic = new ROSLIB.Topic({
             ros: rosInstance,
             name: "/odom",
             messageType: "nav_msgs/msg/Odometry",
         });
-        let lastProccessedTime = 0;
+
+        const posTopic = new ROSLIB.Topic({
+            ros: rosInstance,
+            name: "/robot_pos",
+            messageType: "geometry_msgs/msg/PoseStamped",
+        });
+
+        // timer for topics
         const THROTTLE_MS = 500;
+
+        // time refreshers for each topic
+        let lastProcessedTime_odom = 0;
+        let lastProcessedTime_pos = 0;
 
         odomTopic.subscribe((message) => {
             const now = Date.now();
-            if (now - lastProccessedTime > THROTTLE_MS) {
-                lastProccessedTime = now;
-                const xPos = message.pose.pose.position.x;
-                const yPos = message.pose.pose.position.y;
+            if (now - lastProcessedTime_odom > THROTTLE_MS) {
+                lastProcessedTime_odom = now;
+                const xOdom = message.pose.pose.position.x;
+                const yOdom = message.pose.pose.position.y;
+                robotConnections[robotId].odometry = { x: Number(xOdom.toFixed(3)), y: Number(yOdom.toFixed(3))};
+            }
+        });
+
+        posTopic.subscribe((message) => {
+            const now = Date.now();
+            if (now - lastProcessedTime_pos > THROTTLE_MS) {
+                lastProcessedTime_pos = now;
+                const xPos = message.pose.position.x;
+                const yPos = message.pose.position.y;
                 robotConnections[robotId].position = { x: Number(xPos.toFixed(3)), y: Number(yPos.toFixed(3))};
             }
         });
@@ -156,7 +182,8 @@ app.get('/api', verifyPassKey, (req, res) => {
         statusReport[id] = { 
             host: trackingData.host, 
             online: trackingData.isConnected,
-            position: trackingData.position 
+            odometry: trackingData.odometry,
+            position: trackingData.position, 
         };
     }
     res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the status page
