@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const ROSLIB = require('roslib');
-const dns = require('dns');
+const dns = require('dns').promises;
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -24,22 +24,26 @@ const ALLOWED_HOSTS = process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.spli
 const allowedIPsFromHosts = new Set();
 
 // Resolve hostnames to IPs
-ALLOWED_HOSTS.forEach(host => {
-    const cleanHost = host.trim();
-    if (/^[0-9.]+$/.test(cleanHost)) {
-        allowedIPsFromHosts.add(cleanHost);
-    } else {
-        dns.lookup(cleanHost, (err, address) => {
-            if (!err) {
-                allowedIPsFromHosts.add(address);
-                console.log(`DNS: Resolved ${cleanHost} to ${address}`);
-            } else {
-                console.error(`DNS Error: Could not resolve hostname ${cleanHost}`);
-            }
-        });
-    }
-});
+async function initializeAllowedIPs() {
+    for (const host of ALLOWED_HOSTS) {
+        const cleanHost = host.trim(); // simply just removes white spaces and non-needed characters of host name
+        
+        // If it's already an IP, add it directly
+        if (/^[0-9a-fA-F:.]+$/.test(cleanHost)) { // checks to see if its a numerical IP
+            allowedIPsFromHosts.add(cleanHost);
+            continue; // go to the next host
+        }
 
+        // If it's a domain, await the resolution
+        try {
+            const result = await dns.lookup(cleanHost); // checks to see if the host name is a valid dns to use
+            allowedIPsFromHosts.add(result.address);
+            console.log(`DNS: Resolved ${cleanHost} to ${result.address}`);
+        } catch (err) {
+            console.error(`DNS Error: Could not resolve ${cleanHost}`, err.message);
+        }
+    }
+}
 let latestSavedText = 'Hello World!';
 
 // This will now hold an object tracking status AND the active instance
@@ -48,7 +52,12 @@ const robotConnections = {};
 // Check to make sure the request is coming from an allowed place
 function verifyPassKey(req, res, next) {
     const clientToken = req.headers['x-dashboard-token'];
-    const clientIp = req.ip;
+    let clientIp = req.ip;
+
+    // removes ipv6 wrapper
+    if (clientIp && clientIp.startsWith('::ffff:')) {
+        clientIp = clientIp.substring(7);
+    }
 
     // Does the visitor have the correct secret token header?
     const hasValidToken = (clientToken === passkey);
@@ -140,13 +149,6 @@ function initializeRobotConnection(robotId, ipAddress) {
     });
 }
 
-// ----------------------------------------------------
-// FLEET REGISTRATION: Add or edit your robots here!
-// ----------------------------------------------------
-initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS || 'gcis-zxbvcs-rl1.ad.rit.edu');
-initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS || 'gcis-zxbvcs-rl2.ad.rit.edu');
-initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS || 'gcis-zxbvcs-rl3.ad.rit.edu');
-
 // read from the new tracking object structure
 app.get('/api', verifyPassKey, (req, res) => {
     const statusReport = {};
@@ -193,6 +195,20 @@ app.post('/api/save', verifyPassKey, (req, res) => { // req is the incoming data
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Backend hub running on port ${PORT}`);
+// ----------------------------------------------------
+// FLEET REGISTRATION: Add or edit your robots here!
+// ----------------------------------------------------
+initializeAllowedIPs().then(() => { // init IPs and then run the server
+    // Start robot tracking loops after security is ready
+    initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS || 'gcis-zxbvcs-rl1.ad.rit.edu'); 
+    initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS || 'gcis-zxbvcs-rl2.ad.rit.edu'); 
+    initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS || 'gcis-zxbvcs-rl3.ad.rit.edu'); 
+
+    // Open the HTTP gateway
+    app.listen(PORT, () => { 
+        console.log(`Backend hub running on port ${PORT}`); 
+    }); 
+}).catch(err => {
+    console.error('CRITICAL ERROR: Security failed to initialize.', err);
+    process.exit(1);
 });
