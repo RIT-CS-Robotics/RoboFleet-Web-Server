@@ -9,13 +9,14 @@ const path = require('path');
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
 const PORT = process.env.PORT;
+const bridge = process.env.ONLY_CONNECT;
 
 // Tells the app to use cors and json
 app.use(cors());
 app.use(express.json());
 
 // Security
-app.set('trust proxy', true);
+app.set('trust proxy', false);
 const passkey = process.env.PASSKEY;
 
 const USERS_FILE = path.join(__dirname, 'users.json');
@@ -72,7 +73,6 @@ const robotConnections = {};
 
 // Check to make sure the request is coming from an allowed place
 function verifyPassKey(req, res, next) {
-  const clientToken = req.headers['x-dashboard-token'];
   let clientIp = req.ip;
 
   // removes ipv6 wrapper
@@ -80,14 +80,11 @@ function verifyPassKey(req, res, next) {
     clientIp = clientIp.substring(7);
   }
 
-  // Does the visitor have the correct secret token header?
-  const hasValidToken = (clientToken === passkey);
-
   // Is the visitor's computer on the approved IP list?
   const isApprovedIp = allowedIPsFromHosts.has(clientIp);
 
-  // If either check is true, grant full access to the backend
-  if (hasValidToken || isApprovedIp) {
+  // If check is true give direct access to the backend
+  if (isApprovedIp || clientIp === '::1') {
     return next();
   }
 
@@ -323,7 +320,7 @@ initializeAllowedIPs().then(() => { // init IPs and then run the server
     initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS); 
 
     // Open the HTTP gateway
-    app.listen(PORT, () => { 
+    app.listen(PORT, bridge,  () => { 
         console.log(`Backend hub running on port ${PORT}`); 
     }); 
 }).catch(err => {
