@@ -2,12 +2,33 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import GolisanoMap from './MapComponent';
 
+// Base padding offsets to push (0,0) slightly out from the sharp cut lines of the image border
+const MAP_SIZE_X = 2012;
+const MAP_SIZE_Y = 3069;
+
 export function getRobotColor(robotId) {
     let robotColor = "gray";
     if (robotId.includes("1")) robotColor = "red";
     if (robotId.includes("2")) robotColor = "blue";
     if (robotId.includes("3")) robotColor = "green";
     return robotColor;
+}
+
+export function robotPlacement(metersX, metersY) {
+  const PIXEl_PER_METER = 25.773;
+
+  const pixelConX = metersX * PIXEl_PER_METER;
+  const pixelConY = metersY * PIXEl_PER_METER;
+  
+  // FIXED: Moving UP from the bottom now means ADDING height pixels to our baseline anchor
+  const percentX = (pixelConX / MAP_SIZE_X) * 100;
+  const percentY = (pixelConY / MAP_SIZE_Y) * 100;
+
+  // FIXED: Return raw numerical strings so the CSS translate calc block reads them cleanly
+  return {
+    x: `${percentX}%`,
+    y: `${percentY}%`
+  };
 } 
 
 export default function App() {
@@ -20,7 +41,6 @@ export default function App() {
     try {
       const response = await fetch('/api', {
         method: 'GET',
-        headers: { 'x-dashboard-token': 'CS@RIT-70' }
       });
       if (!response.ok) {
         throw new Error(`Server returned status code ${response.status}`);
@@ -39,7 +59,8 @@ export default function App() {
 
   useEffect(() => {
     fetchFleetStatus();
-    const interval = setInterval(fetchFleetStatus, 3000);
+    // Real-time engine syncing data twice every second
+    const interval = setInterval(fetchFleetStatus, 500);
     return () => clearInterval(interval);
   }, []);
 
@@ -100,17 +121,51 @@ export default function App() {
               </div>
             ))}
             <div className="broadcast-box">
-            <strong>Last Broadcast Command Sent:</strong>
-            <span className="broadcast-text">"{latestText}"</span>
-          </div>
-
-
+              <strong>Last Broadcast Command Sent:</strong>
+              <span className="broadcast-text">"{latestText}"</span>
+            </div>
           </div>
         </div>
 
         {/* Right Column */}
         <div className="map-column">
-          <GolisanoMap />
+          <GolisanoMap 
+            dots={
+              Object.entries(fleetData || {}).map(([robotId, info]) => {
+                if (!info?.online || info?.position?.x === undefined || info?.position?.y === undefined ) return null;
+                
+                const { x, y } = robotPlacement(info.position.x, info.position.y);
+                
+                return (
+                    <div
+                    key={robotId}
+                    title={robotId} 
+                    style={{
+                      position: 'absolute',
+                      width: '14px',
+                      height: '14px',
+                      borderRadius: '50%',
+                      border: '2px solid white',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                      backgroundColor: getRobotColor(robotId),
+                      zIndex: 10,
+                      pointerEvents: 'none',
+      
+                      // Use percentages to pin the dot to the map scale
+                      left: x,
+                      bottom: y, 
+      
+                      // Center the dot over the precise percentage coordinates (-50%, -50% handles its own width/height)
+                      // Note: We change -${y} to +50% because 'bottom' already pushes it up natively!
+                      transform: 'translate(-50%, 50%)',
+      
+                      transition: 'left 0.5s linear, bottom 0.5s linear'
+                    }}
+                  />
+                );
+              })
+            } 
+          />
         </div>
 
       </div>

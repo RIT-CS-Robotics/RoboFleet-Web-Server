@@ -10,7 +10,6 @@ export default function Admin({ onLogout }) {
   const fetchStudents = async () => {
     try {
       const response = await fetch('/api/users', {
-        headers: { 'x-dashboard-token': 'CS@RIT-70' }
       });
       if (response.ok) {
         const data = await response.json();
@@ -34,8 +33,7 @@ export default function Admin({ onLogout }) {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'x-dashboard-token': 'CS@RIT-70' 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ username: newUsername.trim(), password: newPassword })
       });
@@ -63,7 +61,6 @@ export default function Admin({ onLogout }) {
     try {
       const response = await fetch(`/api/users/${usernameToDelete}`, {
         method: 'DELETE',
-        headers: { 'x-dashboard-token': 'CS@RIT-70' }
       });
 
       const data = await response.json();

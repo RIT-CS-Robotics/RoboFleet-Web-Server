@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const ROSLIB = require('roslib');
-const dns = require('dns').promises;
 const fs = require('fs');
 const path = require('path');
 
@@ -16,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Security
-app.set('trust proxy', false);
+app.set('trust proxy', true);
 const passkey = process.env.PASSKEY;
 
 const USERS_FILE = path.join(__dirname, 'users.json');
@@ -44,54 +43,8 @@ function saveUsers(usersObj) {
   }
 }
 
-// Specific IP addresses of computers with direct access to the backend
-const ALLOWED_HOSTS = process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [];
-const allowedIPsFromHosts = new Set();
-
-// Resolve hostnames to IPs
-async function initializeAllowedIPs() {
-  for (const host of ALLOWED_HOSTS) {
-    const cleanHost = host.trim(); // simply just removes white spaces and non-needed characters of host name
-    // If it's already an IP, add it directly
-    if (/^[0-9a-fA-F:.]+$/.test(cleanHost)) { // checks to see if its a numerical IP
-      allowedIPsFromHosts.add(cleanHost);
-      continue; // go to the next host
-    }
-    // If it's a domain, await the resolution
-    try {
-      const result = await dns.lookup(cleanHost); // checks to see if the host name is a valid dns to use
-      allowedIPsFromHosts.add(result.address);
-      console.log(`DNS: Resolved ${cleanHost} to ${result.address}`);
-    } catch (err) {
-      console.error(`DNS Error: Could not resolve ${cleanHost}`, err.message);
-    }
-  }
-}
-
 let latestSavedText = 'Hello World!'; // This will now hold an object tracking status AND the active instance
 const robotConnections = {};
-
-// Check to make sure the request is coming from an allowed place
-function verifyPassKey(req, res, next) {
-  let clientIp = req.ip;
-
-  // removes ipv6 wrapper
-  if (clientIp && clientIp.startsWith('::ffff:')) {
-    clientIp = clientIp.substring(7);
-  }
-
-  // Is the visitor's computer on the approved IP list?
-  const isApprovedIp = allowedIPsFromHosts.has(clientIp);
-
-  // If check is true give direct access to the backend
-  if (isApprovedIp || clientIp === '::1') {
-    return next();
-  }
-
-  // Access denied
-  console.log(`SECURITY: Blocked unauthorized request from IP: ${clientIp}`);
-  return res.status(403).json({ error: "Direct API access is disabled."});
-}
 
 /**
  * Helper function to dynamically connect to a robot and track its status
@@ -210,7 +163,7 @@ app.post('/api/login', (req, res) => {
   return res.status(401).json({ message: "Invalid username or password. Access denied." });
 });
 
-app.post('/api/register', verifyPassKey, (req, res) => {
+app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -232,7 +185,7 @@ app.post('/api/register', verifyPassKey, (req, res) => {
 });
 
 // 3. GET ALL USERS (Excludes sensitive passwords from being exposed to frontend)
-app.get('/api/users', verifyPassKey, (req, res) => {
+app.get('/api/users', (req, res) => {
   const users = loadUsers();
   // Get an array of just the usernames
   const usernames = Object.keys(users);
@@ -240,7 +193,7 @@ app.get('/api/users', verifyPassKey, (req, res) => {
 });
 
 // 4. DELETE USER ENDPOINT
-app.delete('/api/users/:username', verifyPassKey, (req, res) => {
+app.delete('/api/users/:username', (req, res) => {
   const userToDelete = req.params.username.trim();
   const users = loadUsers();
 
@@ -263,7 +216,7 @@ app.delete('/api/users/:username', verifyPassKey, (req, res) => {
 });
 
 // read from the new tracking object structure
-app.get('/api', verifyPassKey, (req, res) => {
+app.get('/api', (req, res) => {
   const statusReport = {};
   for (const [id, trackingData] of Object.entries(robotConnections)) {
     // stores the ip of each robot in an id temp variable and the connection details in a trackingData temp variable
@@ -278,7 +231,7 @@ app.get('/api', verifyPassKey, (req, res) => {
 });
 
 // publish to the fresh active instance securely
-app.post('/api/save', verifyPassKey, (req, res) => { // req is the incoming data from the frontend and res is the responce to send back
+app.post('/api/save', (req, res) => { // req is the incoming data from the frontend and res is the responce to send back
     const robotId = req.body.robotId || 'robot_default'; 
     const userText = req.body.text;
 
@@ -313,17 +266,13 @@ app.post('/api/save', verifyPassKey, (req, res) => { // req is the incoming data
 // ----------------------------------------------------
 // FLEET REGISTRATION: Add or edit your robots here!
 // ----------------------------------------------------
-initializeAllowedIPs().then(() => { // init IPs and then run the server
-    // Start robot tracking loops after security is ready
-    initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS); 
-    initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS); 
-    initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS); 
 
-    // Open the HTTP gateway
-    app.listen(PORT, bridge,  () => { 
-        console.log(`Backend hub running on port ${PORT}`); 
-    }); 
-}).catch(err => {
-    console.error('CRITICAL ERROR: Security failed to initialize.', err);
-    process.exit(1);
+// Start robot tracking loops (Reaches OUT to robots directly on port 9090)
+initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS); 
+initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS); 
+initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS); 
+
+// Open the HTTP gateway bound securely to the local bridge
+app.listen(PORT, bridge, () => { 
+    console.log(`Backend hub running securely on port ${PORT} via loopback ${bridge}`); 
 });

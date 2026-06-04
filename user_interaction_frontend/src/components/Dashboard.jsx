@@ -14,7 +14,6 @@ export default function Dashboard({ onLogout, currentUser }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-dashboard-token': 'CS@RIT-70'
         },
         body: JSON.stringify({ text: inputText, robotId: selectedRobot }),
       });
