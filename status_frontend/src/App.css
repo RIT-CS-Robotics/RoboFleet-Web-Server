@@ -1,301 +1,209 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
+/* src/App.css */
+
+/* 1. GLOBAL DESIGN TOKENS */ 
+:root { 
+  /* Almost Black Canvas Tones */ 
+  --bg-primary: #030712;      /* Midnight Core Page Canvas */ 
+  --bg-secondary: #0b1329;    /* Dark Onyx Workspace Blocks */ 
+  --text-main: #f8fafc;       /* Off-White Text */ 
+  --text-muted: #64748b;      /* Slate Gray Subtext */ 
+  --border: #1e293b;          /* Dark Faded Outlines */ 
+  
+  /* High-Contrast Cyber Accents */ 
+  --accent: #38bdf8;          /* Bright Terminal Cyan */ 
+  --accent-hover: #0ea5e9; 
+  --danger: #ef4444;          /* Crimson Red */ 
+  --danger-hover: #dc2626; 
+  --success-bg: #022c22;      /* Deep Emerald Status Log (Dark Room Friendly) */ 
+  
+  /* Global Layout Tokens */ 
+  --radius: 6px; 
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
+} 
+
+/* 2. GLOBAL RESET & BASE RULES */ 
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+} 
+
+body { 
+  font-family: var(--font-sans); 
+  background-color: var(--bg-primary); 
+  color: var(--text-main); 
+  line-height: 1.5; 
+  -webkit-font-smoothing: antialiased; 
+} 
+
+button { 
+  font-family: inherit; 
+  font-size: 14px; 
+  transition: background-color 0.2s ease, transform 0.1s ease; 
+} 
+
+button:active { 
+  transform: scale(0.98); 
+}
+
+/* 3. MONITOR PANEL LAYOUT CONSTRAINTS */ 
+.dashboard-container { 
+  padding: 20px; /* Restored original page padding */
+  font-family: var(--font-sans); 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  background-color: var(--bg-primary);
+} 
+
+.dashboard-container h2 {
+  font-size: 34px; /* Big header font scale */
+  color: var(--text-main);
   margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+  font-weight: bold;
+  letter-spacing: -0.025em;
 }
 
-.hero {
-  position: relative;
+/* Force the metrics list panel and the map-canvas panel to stand side-by-side */ 
+.dashboard-layout { 
+  display: flex; 
+  gap: 30px; 
+  flex-wrap: wrap; 
+  align-items: flex-start; 
+  margin-top: 20px; 
+} 
 
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
+/* Allocation rules for the left text-metrics list column */ 
+.status-column { 
+  flex: 1; 
+  min-width: 320px; 
+} 
 
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
-}
-
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
-  width: 100%;
-
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
-
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
-}
-
-/* Sets the overall constraints of your web platform page */
-.dashboard-container {
-  padding: 20px;
-  font-family: sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Force the text panel and the map panel to stand side-by-side */
-.dashboard-layout {
-  display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  margin-top: 20px;
-}
-
-/* Allocation rules for the left text-metrics list column */
-.status-column {
-  flex: 1;
-  min-width: 320px;
-}
-
-/* Allocation rules for the right map-canvas display column */
-.map-column {
-  flex: 1.5;
-  min-width: 350px;
-}
-
-/* Extra decorative cleanups for your text panels */
-.broadcast-box {
-  background: #f3f4f6;
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-.broadcast-text {
-  margin-left: 10px;
-  color: #4b5563;
-  font-style: italic;
-}
-
-.inventory-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* Individual layout block for each robot tracking sheet entry */
-.robot-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  margin-bottom: 12px;
-}
-
-/* Background color rules based on connectivity status */
-.robot-card.online { background-color: #f0fdf4; }
-.robot-card.offline { background-color: #fef2f2; }
-
-/* Forces the circle dot and text profile details into a unified horizontal row */
-.card-profile-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* THE STATUS CIRCLE: Completely controlled visually by CSS */
-.robot-id-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-
-/* Profile text configurations */
-.robot-title {
-  text-transform: capitalize;
-  font-size: 1.1em;
-}
-
-.robot-coordinates {
-  font-size: 0.85em;
-  color: #6b7280;
-  margin-top: 2px;
-}
-
-.robot-coordinates p {
-  margin: 2px 0;
-}
-
-/* Universal badge stylings */
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.85em;
+.status-column h3 {
+  font-size: 24px; /* Large column headers */
+  color: var(--text-muted); /* Slate gray structural subheaders */
+  margin-bottom: 16px;
   font-weight: bold;
 }
 
-.robot-card.online .status-badge {
-  color: #15803d;
-  background-color: #dcfce7;
-  border: 1px solid #bbf7d0;
+/* Allocation rules for the right map-canvas display column */ 
+.map-column { 
+  flex: 1.5; 
+  min-width: 350px; 
+} 
+
+/* Terminal log layout for broadcast alert banners */ 
+.broadcast-box { 
+  background: var(--bg-secondary); /* Dark Onyx block color */
+  border: 1px solid var(--border); /* Dark Faded Outlines */
+  border-radius: var(--radius);
+  padding: 20px; /* Enhanced box paddings */
+  margin-top: 24px; 
+  font-size: 20px; /* Expanded typography size */
+  color: var(--text-main);
+} 
+
+.broadcast-text { 
+  margin-left: 10px; 
+  color: var(--accent); /* Bright Terminal Cyan accent command text */
+  font-family: var(--font-mono);
+  font-weight: bold;
+} 
+
+.inventory-list { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 15px; /* Amplified padding split gaps */
+} 
+
+/* Individual heavy card workspace container for each tracking sheet entry */ 
+.robot-card { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 20px; /* Amplified internal paddings */
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); 
+  margin-bottom: 0; 
+} 
+
+/* Background color connectivity assignments */ 
+.robot-card.online { 
+  background-color: var(--bg-secondary); /* Onyx Block tracking background */
+} 
+
+.robot-card.offline { 
+  background-color: rgba(239, 68, 68, 0.04); /* Low-intensity crimson alert hue */
+} 
+
+/* Forces profile details into a single row alignment layout */ 
+.card-profile-group { 
+  display: flex; 
+  align-items: center; 
+  gap: 16px; 
+} 
+
+/* Real-time indicator light bulbs */ 
+.robot-id-dot { 
+  width: 16px; /* Scaled color beacon width bigger */
+  height: 16px; 
+  border-radius: 50%; 
+  flex-shrink: 0; 
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6); 
+} 
+
+/* Target item headings layout text */ 
+.robot-title { 
+  text-transform: capitalize; 
+  font-size: 22px; /* Enhanced profile subtitle hierarchy */
+  color: var(--text-main);
+  font-weight: bold;
+} 
+
+/* Numeric telemetry lines formatted as a data log matrix */ 
+.robot-coordinates { 
+  font-size: 16px; /* Expanded parameters detail fonts */
+  color: var(--text-muted); 
+  margin-top: 4px; 
+  font-family: var(--font-mono); /* Terminal styling for raw metrics */
+} 
+
+.robot-coordinates p { 
+  margin: 4px 0; 
+} 
+
+/* Universal tracking component sub-badges */ 
+.status-badge { 
+  padding: 8px 16px; /* Heavy button boundary size adjustments */
+  border-radius: 20px; 
+  font-size: 14px; /* Expanded badge typography scale */
+  font-weight: bold; 
+  font-family: var(--font-mono);
+} 
+
+.robot-card.online .status-badge { 
+  color: #34d399; /* Bright green link connectivity log text */
+  background-color: var(--success-bg); /* Deep Room Emerald status log */
+  border: 1px solid #064e3b; 
+} 
+
+.robot-card.offline .status-badge { 
+  color: var(--danger); 
+  background-color: rgba(239, 68, 68, 0.1); 
+  border: 1px solid rgba(239, 68, 68, 0.2); 
 }
 
-.robot-card.offline .status-badge {
-  color: #b91c1c;
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
+/* Floating Matrix Absolute Pin Dots: RESTORED EXACTLY FROM ORIGINAL CODE */
+.robot-map-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  z-index: 10;
+  pointer-events: none;
+  transform: translate(-50%, 50%);
+  transition: left 0.5s linear, bottom 0.5s linear;
 }
