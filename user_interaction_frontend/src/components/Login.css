@@ -1,0 +1,75 @@
+/* src/components/Login.css */
+
+.login-container {
+  padding: 50px 30px; /* Increased internal container depth spacing */
+  font-family: var(--font-sans);
+  background-color: var(--bg-secondary); /* Dark Onyx workspace block */
+  max-width: 500px; /* Expanded box scale width from 400px to 500px */
+  width: 90%;
+  margin: 120px auto; /* Centered with a bit more top page margin spacing */
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); /* Slightly amplified cyber glow */
+}
+
+.login-title {
+  margin-top: 0;
+  margin-bottom: 30px; /* Increased margin spacing below title block */
+  color: var(--text-main);
+  font-size: 34px; /* Scaled header text larger */
+  font-weight: bold;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Widened tracking spacing layout gap between forms fields */
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-input {
+  padding: 14px; /* Increased input element wall click boundaries padding */
+  width: 100%; /* Fields stretch all the way across the form grid window */
+  font-size: 20px; /* Expanded text character visibility font scaling */
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary); /* Almost Black Canvas background */
+  color: var(--text-main);
+  caret-color: var(--accent);
+  outline: none;
+  font-family: var(--font-mono); /* Terminal styling for credentials input */
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+}
+
+.btn-submit {
+  padding: 14px 24px; /* Heightened click action region container boundaries */
+  cursor: pointer;
+  background: var(--accent); /* Bright Terminal Cyan accent token */
+  color: #030712; /* High-contrast dark text on cyan background */
+  border: none;
+  border-radius: var(--radius);
+  width: 100%; /* Stretches submit button fully across horizontal box rows */
+  font-size: 20px; /* Match large fonts of input elements */
+  font-weight: bold;
+  margin: 10px auto 0 auto;
+}
+
+.btn-submit:hover {
+  background: var(--accent-hover);
+}
+
+.error-message {
+  color: var(--danger); /* Crimson red token for error log visibility */
+  margin-top: 20px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: bold;
+}

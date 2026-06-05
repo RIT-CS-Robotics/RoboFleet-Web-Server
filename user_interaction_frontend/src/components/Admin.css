@@ -1,0 +1,159 @@
+/* src/components/Admin.css */
+
+.admin-container {
+  padding: 40px;
+  font-family: var(--font-sans);
+  background-color: var(--bg-secondary); /* Dark Onyx block color */
+  max-width: 1200px; /* Expanded from 450px to fill large desktop displays */
+  width: 90%; /* Allows breathing room on standard screens */
+  margin: 40px auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); /* Slightly scaled theme glow */
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 15px;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 32px; /* Increased header text scaling */
+  color: var(--text-main);
+}
+
+.btn-logout {
+  padding: 10px 20px; /* Expanded target click area */
+  font-size: 16px;
+  cursor: pointer;
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: bold;
+}
+
+.btn-logout:hover {
+  background: var(--danger-hover);
+}
+
+.section-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 22px; /* Clean structural headers matching your text scaling layout */
+  color: var(--text-muted);
+}
+
+.admin-form {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Adds consistent vertical tracking room */
+}
+
+.form-group {
+  margin-bottom: 0; /* Managed cleanly via flex layout gap values above */
+}
+
+.form-input {
+  padding: 14px; /* Increased padding inside input boxes */
+  width: 100%; /* Form elements expand to stretch across full workspace grid container space */
+  font-size: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  caret-color: var(--accent);
+  outline: none;
+  font-family: var(--font-mono);
+}
+
+.form-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+}
+
+.btn-register {
+  padding: 12px 24px;
+  font-size: 18px;
+  cursor: pointer;
+  background: var(--accent);
+  color: #030712;
+  border: none;
+  border-radius: var(--radius);
+  width: 100%; /* Stretches horizontally to block level format widths */
+  font-weight: bold;
+}
+
+.btn-register:hover {
+  background: var(--accent-hover);
+}
+
+.status-message {
+  padding: 14px;
+  background: var(--success-bg);
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: bold;
+  border-left: 4px solid var(--accent);
+  color: #34d399;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 30px 0;
+}
+
+.empty-roster {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 18px;
+}
+
+.student-list {
+  list-style-type: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.student-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px; /* Widened internal row paddings */
+  background-color: var(--bg-primary); /* Places subtle card depth over the workspace block background */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.student-name {
+  font-weight: 500;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 18px;
+}
+
+.btn-delete {
+  padding: 8px 16px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: var(--danger);
+  color: white;
+}

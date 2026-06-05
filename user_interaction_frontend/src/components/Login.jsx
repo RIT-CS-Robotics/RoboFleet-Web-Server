@@ -1,5 +1,6 @@
 // src/components/Login.jsx
 import { useState } from 'react';
+import './Login.css'; // Imported stylesheet here
 
 export default function Login({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -9,12 +10,14 @@ export default function Login({ onLoginSuccess }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-
+    
     try {
       // Send credentials directly to your backend server
       const response = await fetch('/api/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json' 
+        },
         body: JSON.stringify({ username: username.trim(), password })
       });
 
@@ -24,43 +27,44 @@ export default function Login({ onLoginSuccess }) {
       }
 
       const data = await response.json();
-      
       // Pass the username returned from backend up to App
-      onLoginSuccess(data.username); 
+      onLoginSuccess(data.username);
     } catch (err) {
       setError(err.message);
     }
   };
 
   return (
-    <div style={{ padding: '40px 20px', fontFamily: 'sans-serif', maxWidth: '400px', margin: '100px auto', textAlign: 'center', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>RoboFleet Login</h2>
-      <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: '15px' }}>
+    <div className="login-container">
+      <h2 className="login-title">RoboFleet Login</h2>
+      
+      <form onSubmit={handleLogin} className="login-form">
+        <div className="form-group">
           <input 
             type="text" 
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
             placeholder="Username" 
-            style={{ padding: '10px', width: '80%', borderRadius: '4px', border: '1px solid #ccc' }}
+            className="form-input"
             required 
           />
         </div>
-        <div style={{ marginBottom: '15px' }}>
+        <div className="form-group">
           <input 
             type="password" 
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
             placeholder="Password" 
-            style={{ padding: '10px', width: '80%', borderRadius: '4px', border: '1px solid #ccc' }}
+            className="form-input"
             required 
           />
         </div>
-        <button type="submit" style={{ padding: '10px 20px', cursor: 'pointer', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', width: '85%' }}>
+        <button type="submit" className="btn-submit">
           Access Dashboard
         </button>
       </form>
-      {error && <p style={{ color: 'red', marginTop: '15px' }}>{error}</p>}
+
+      {error && <p className="error-message">❌ {error}</p>}
     </div>
   );
 }
