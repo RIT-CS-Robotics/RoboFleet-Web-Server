@@ -75,6 +75,7 @@ function initializeRobotConnection(robotId, ipAddress) {
       // Clean up event listeners to prevent Node.js memory leaks
       rosInstance.removeAllListeners();
       robotConnections[robotId].isConnected = false;
+      robotConnections[robotId].position = { x: 0, y: 0};
       robotConnections[robotId].instance = null;
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);

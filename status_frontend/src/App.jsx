@@ -155,8 +155,6 @@ export default function App() {
                       left: x,
                       bottom: y, 
       
-                      // Center the dot over the precise percentage coordinates (-50%, -50% handles its own width/height)
-                      // Note: We change -${y} to +50% because 'bottom' already pushes it up natively!
                       transform: 'translate(-50%, 50%)',
       
                       transition: 'left 0.5s linear, bottom 0.5s linear'
