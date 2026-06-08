@@ -1,200 +1,277 @@
 /* src/App.css */
 
-/* 1. GLOBAL DESIGN TOKENS */ 
-:root { 
-  /* Almost Black Canvas Tones */ 
-  --bg-primary: #030712;      /* Midnight Core Page Canvas */ 
-  --bg-secondary: #0b1329;    /* Dark Onyx Workspace Blocks */ 
-  --text-main: #f8fafc;       /* Off-White Text */ 
-  --text-muted: #64748b;      /* Slate Gray Subtext */ 
-  --border: #1e293b;          /* Dark Faded Outlines */ 
-  
-  /* High-Contrast Cyber Accents */ 
-  --accent: #38bdf8;          /* Bright Terminal Cyan */ 
-  --accent-hover: #0ea5e9; 
-  --danger: #ef4444;          /* Crimson Red */ 
-  --danger-hover: #dc2626; 
-  --success-bg: #022c22;      /* Deep Emerald Status Log (Dark Room Friendly) */ 
-  
-  /* Global Layout Tokens */ 
-  --radius: 6px; 
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
-} 
+/* 1. GLOBAL DESIGN TOKENS */
+:root {
+  /* Almost Black Canvas Tones */
+  --bg-primary: #030712; /* Midnight Core Page Canvas */
+  --bg-secondary: #0b1329; /* Dark Onyx Workspace Blocks */
+  --text-main: #f8fafc; /* Off-White Text */
+  --text-muted: #64748b; /* Slate Gray Subtext */
+  --border: #1e293b; /* Dark Faded Outlines */
 
-/* 2. GLOBAL RESET & BASE RULES */ 
-* { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
-} 
+  /* High-Contrast Cyber Accents */
+  --accent: #38bdf8; /* Bright Terminal Cyan */
+  --accent-hover: #0ea5e9;
+  --danger: #ef4444; /* Crimson Red */
+  --danger-hover: #dc2626;
+  --success-bg: #022c22; /* Deep Emerald Status Log (Dark Room Friendly) */
 
-body { 
-  font-family: var(--font-sans); 
-  background-color: var(--bg-primary); 
-  color: var(--text-main); 
-  line-height: 1.5; 
-  -webkit-font-smoothing: antialiased; 
-} 
-
-button { 
-  font-family: inherit; 
-  font-size: 14px; 
-  transition: background-color 0.2s ease, transform 0.1s ease; 
-} 
-
-button:active { 
-  transform: scale(0.98); 
+  /* Global Layout Tokens */
+  --radius: 6px;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* 3. MONITOR PANEL LAYOUT CONSTRAINTS */ 
-.dashboard-container { 
-  padding: 20px; /* Restored original page padding */
-  font-family: var(--font-sans); 
-  max-width: 1200px; 
-  margin: 0 auto; 
+/* 2. GLOBAL RESET & BASE RULES */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
   background-color: var(--bg-primary);
-} 
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  font-size: 14px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* 3. MONITOR PANEL LAYOUT CONSTRAINTS */
+.dashboard-container {
+  padding: 20px;
+  font-family: var(--font-sans);
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--bg-primary);
+}
 
 .dashboard-container h2 {
-  font-size: 34px; /* Big header font scale */
+  font-size: 34px;
   color: var(--text-main);
   margin-bottom: 24px;
   font-weight: bold;
   letter-spacing: -0.025em;
 }
 
-/* Force the metrics list panel and the map-canvas panel to stand side-by-side */ 
-.dashboard-layout { 
-  display: flex; 
-  gap: 30px; 
-  flex-wrap: wrap; 
-  align-items: flex-start; 
-  margin-top: 20px; 
-} 
+/* Force the metrics list panel and the map-canvas panel to stand side-by-side */
+.dashboard-layout {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 20px;
+}
 
-/* Allocation rules for the left text-metrics list column */ 
-.status-column { 
-  flex: 1; 
-  min-width: 320px; 
-} 
+/* Allocation rules for the left text-metrics list column */
+.status-column {
+  flex: 1;
+  min-width: 320px;
+}
 
 .status-column h3 {
-  font-size: 24px; /* Large column headers */
-  color: var(--text-muted); /* Slate gray structural subheaders */
+  font-size: 24px;
+  color: var(--text-muted);
   margin-bottom: 16px;
   font-weight: bold;
 }
 
-/* Allocation rules for the right map-canvas display column */ 
-.map-column { 
-  flex: 1.5; 
-  min-width: 350px; 
-} 
-
-/* Terminal log layout for broadcast alert banners */ 
-.broadcast-box { 
-  background: var(--bg-secondary); /* Dark Onyx block color */
-  border: 1px solid var(--border); /* Dark Faded Outlines */
-  border-radius: var(--radius);
-  padding: 20px; /* Enhanced box paddings */
-  margin-top: 24px; 
-  font-size: 20px; /* Expanded typography size */
-  color: var(--text-main);
-} 
-
-.broadcast-text { 
-  margin-left: 10px; 
-  color: var(--accent); /* Bright Terminal Cyan accent command text */
-  font-family: var(--font-mono);
-  font-weight: bold;
-} 
-
-.inventory-list { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 15px; /* Amplified padding split gaps */
-} 
-
-/* Individual heavy card workspace container for each tracking sheet entry */ 
-.robot-card { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  padding: 20px; /* Amplified internal paddings */
-  border-radius: var(--radius); 
-  border: 1px solid var(--border); 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); 
-  margin-bottom: 0; 
-} 
-
-/* Background color connectivity assignments */ 
-.robot-card.online { 
-  background-color: var(--bg-secondary); /* Onyx Block tracking background */
-} 
-
-.robot-card.offline { 
-  background-color: rgba(239, 68, 68, 0.04); /* Low-intensity crimson alert hue */
-} 
-
-/* Forces profile details into a single row alignment layout */ 
-.card-profile-group { 
-  display: flex; 
-  align-items: center; 
-  gap: 16px; 
-} 
-
-/* Real-time indicator light bulbs */ 
-.robot-id-dot { 
-  width: 16px; /* Scaled color beacon width bigger */
-  height: 16px; 
-  border-radius: 50%; 
-  flex-shrink: 0; 
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6); 
-} 
-
-/* Target item headings layout text */ 
-.robot-title { 
-  text-transform: capitalize; 
-  font-size: 22px; /* Enhanced profile subtitle hierarchy */
-  color: var(--text-main);
-  font-weight: bold;
-} 
-
-/* Numeric telemetry lines formatted as a data log matrix */ 
-.robot-coordinates { 
-  font-size: 16px; /* Expanded parameters detail fonts */
-  color: var(--text-muted); 
-  margin-top: 4px; 
-  font-family: var(--font-mono); /* Terminal styling for raw metrics */
-} 
-
-.robot-coordinates p { 
-  margin: 4px 0; 
-} 
-
-/* Universal tracking component sub-badges */ 
-.status-badge { 
-  padding: 8px 16px; /* Heavy button boundary size adjustments */
-  border-radius: 20px; 
-  font-size: 14px; /* Expanded badge typography scale */
-  font-weight: bold; 
-  font-family: var(--font-mono);
-} 
-
-.robot-card.online .status-badge { 
-  color: #34d399; /* Bright green link connectivity log text */
-  background-color: var(--success-bg); /* Deep Room Emerald status log */
-  border: 1px solid #064e3b; 
-} 
-
-.robot-card.offline .status-badge { 
-  color: var(--danger); 
-  background-color: rgba(239, 68, 68, 0.1); 
-  border: 1px solid rgba(239, 68, 68, 0.2); 
+/* Allocation rules for the right map-canvas display column */
+.map-column {
+  flex: 1.5;
+  min-width: 350px;
 }
 
-/* Floating Matrix Absolute Pin Dots: RESTORED EXACTLY FROM ORIGINAL CODE */
+/* Terminal log layout for broadcast alert banners */
+.broadcast-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 24px;
+  font-size: 20px;
+  color: var(--text-main);
+}
+
+.broadcast-text {
+  margin-left: 10px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: bold;
+}
+
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Individual heavy card workspace container for each tracking sheet entry */
+.robot-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Handles multiple stacked panels nicely */
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  margin-bottom: 0;
+}
+
+/* Background color connectivity assignments */
+.robot-card.online {
+  background-color: var(--bg-secondary);
+}
+
+.robot-card.offline {
+  background-color: rgba(239, 68, 68, 0.04);
+}
+
+/* Forces profile details into a single row alignment layout */
+.card-profile-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1; /* CRITICAL: Forces profile group container to consume maximal width */
+}
+
+/* NEW: Enforces horizontal uniformity on the text block container across different cards */
+.card-profile-group > div:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Real-time indicator light bulbs */
+.robot-id-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+  margin-top: 6px; /* Balance position relative to the main profile title text */
+}
+
+/* Target item headings layout text */
+.robot-title {
+  text-transform: capitalize;
+  font-size: 22px;
+  color: var(--text-main);
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+/* 4. EXPANDABLE TELEMETRY DROPDOWN ARCHITECTURE */
+
+/* Arranges the dropdowns vertically and forces a crisp left alignment */
+.robot-dropdown-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start; /* Forces all elements flush against the same left wall */
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* Force each dropdown element to stand on its own separate line layout */
+.robot-dropdown {
+  display: block;
+  width: 100%;
+}
+
+.robot-dropdown summary {
+  cursor: pointer;
+  list-style: none; /* Removes default triangle arrow marker in Chrome/Firefox */
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--accent);
+  user-select: none;
+  transition: color 0.2s ease;
+  display: flex; /* Changed inline-flex to flex to help align to the parent's layout starting wall */
+  align-items: center;
+  text-align: left;
+  width: max-content; /* Locks typography bounds tightly around text length */
+}
+
+/* Removes default triangle arrow marker in Safari */
+.robot-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.robot-dropdown summary:hover {
+  color: var(--accent-hover);
+}
+
+/* Custom terminal layout arrow icon */
+.robot-dropdown summary::before {
+  content: "▶ ";
+  font-size: 10px;
+  display: inline-block;
+  margin-right: 8px; /* Strict spacing gap after arrow */
+  width: 12px;       /* Fixed footprint prevents text labels from shifting alignment */
+  text-align: left;
+  flex-shrink: 0;    /* Safeguards arrow size from layout squishing */
+  transition: transform 0.2s ease;
+}
+
+/* Rotate indicator arrow when details box expands open */
+.robot-dropdown[open] summary::before {
+  transform: rotate(90deg);
+}
+
+/* Telemetry data box grid container styling */
+.robot-dropdown-content {
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(3, 7, 18, 0.6);
+  border-left: 2px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  width: 260px; /* Constrains card growth parameters */
+}
+
+.robot-dropdown-content p {
+  margin: 4px 0;
+}
+
+/* 5. STATUS BADGES & PIN DOTS */
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+.robot-card.online .status-badge {
+  color: #34d399;
+  background-color: var(--success-bg);
+  border: 1px solid #064e3b;
+}
+
+.robot-card.offline .status-badge {
+  color: var(--danger);
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Floating Matrix Absolute Pin Dots */
 .robot-map-dot {
   position: absolute;
   width: 14px;

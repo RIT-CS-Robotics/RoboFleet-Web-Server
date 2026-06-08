@@ -3,6 +3,8 @@ import { useState } from 'react';
 import './Dashboard.css';
 
 export default function Dashboard({ onLogout, currentUser }) {
+  document.title = "RoboFleet Dashboard";
+
   const [inputText, setInputText] = useState('');
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
   const [statusMessage, setStatusMessage] = useState('Ready');
@@ -52,6 +54,10 @@ export default function Dashboard({ onLogout, currentUser }) {
       }, 0);
     }
   };
+
+  const deploy=() => {
+    window.open('status', '_blank');
+    };
 
 
   return (
@@ -141,8 +147,8 @@ export default function Dashboard({ onLogout, currentUser }) {
         />
 
         <div className="action-row">
-          <button type="submit" className="btn-deploy">
-            Deploy Code
+          <button type="submit" className="btn-deploy" onClick={deploy}>
+            Deploy
           </button>
           <div className="status-display">
             <strong>Status:</strong> &nbsp; {statusMessage}

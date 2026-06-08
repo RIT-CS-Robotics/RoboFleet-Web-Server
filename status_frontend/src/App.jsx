@@ -29,6 +29,8 @@ export function robotPlacement(metersX, metersY) {
 } 
 
 export default function App() { 
+  document.title = "RoboFleet Status";
+
   const [fleetData, setFleetData] = useState({}); 
   const [latestText, setLatestText] = useState(''); 
   const [loading, setLoading] = useState(true); 
@@ -74,9 +76,9 @@ export default function App() {
       )} 
 
       <div className="dashboard-layout"> 
-        {/* Left Column */} 
+        {/* Left Robot Display */} 
         <div className="status-column"> 
-          <h3>Robot Fleet Inventory ({Object.keys(fleetData || {}).length})</h3> 
+          <h3>Robots ({Object.keys(fleetData || {}).length})</h3> 
           <div className="inventory-list"> 
             {Object.entries(fleetData || {}).map(([robotId, info]) => ( 
               <div key={robotId} className={`robot-card ${info?.online ? 'online' : 'offline'}`} > 
@@ -85,18 +87,45 @@ export default function App() {
                   <div className="robot-id-dot" style={{ backgroundColor: getRobotColor(robotId) }} /> 
                   <div> 
                     <strong className="robot-title"> {robotId.replace('_', ' ')} </strong> 
-                    <div className="robot-coordinates"> 
-                      <p>Current X Coordinate: {info?.position?.x ?? 'N/A'}</p> 
-                      <hr style={{ border: '0', borderTop: '1px solid var(--border)', margin: '4px 0' }} /> 
-                      <p>Current Y Coordinate: {info?.position?.y ?? 'N/A'}</p> 
-                    </div> 
+
+                    {/* Robot Dropdowns */} 
+                    <div className="robot-dropdown-group">
+
+                      <details className="robot-dropdown position-dropdown">
+                          <summary>Position Info</summary>
+                             <div className="robot-dropdown-content position-dropdown-content">
+                                <p>Current X Coordinate: {info?.position?.x ?? 'N/A'}</p> 
+                                <hr style={{ border: '0', borderTop: '1px solid var(--border)', margin: '4px 0' }} /> 
+                                <p>Current Y Coordinate: {info?.position?.y ?? 'N/A'}</p> 
+                              </div>
+                      </details>
+
+                      <details className="robot-dropdown destination-dropdown">
+                          <summary>Destination Info</summary>
+                            <div className="robot-dropdown-content destination-dropdown-content">
+                               <p>Current Destination: </p> 
+                            </div>
+                      </details>
+
+                      <details className="robot-dropdown camera-dropdown">
+                          <summary>Live Footage</summary>
+                            <div className="robot-dropdown-content camera-dropdown-content">
+                            </div>
+                      </details>
+
+                    </div>
+
                   </div> 
                 </div> 
+
+                 {/* Online Status */} 
                 <span className="status-badge"> 
                   {info?.online ? '● ONLINE' : '○ OFFLINE'} 
                 </span> 
               </div> 
             ))} 
+
+            {/* Broadcast Box */} 
             <div className="broadcast-box"> 
               <strong>Last Broadcast Command Sent:</strong> 
               <span className="broadcast-text">"{latestText}"</span> 
@@ -104,7 +133,7 @@ export default function App() {
           </div> 
         </div> 
 
-        {/* Right Column */} 
+        {/* Right Map Display */} 
         <div className="map-column"> 
           <GolisanoMap dots={ 
             Object.entries(fleetData || {}).map(([robotId, info]) => { 

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import './Login.css'; // Imported stylesheet here
 
 export default function Login({ onLoginSuccess }) {
+  document.title = "RoboFleet Login";
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import './Admin.css'; // Imported stylesheet here
 
 export default function Admin({ onLogout }) {
+document.title = "RoboFleet Admin";
+
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [studentList, setStudentList] = useState([]);
