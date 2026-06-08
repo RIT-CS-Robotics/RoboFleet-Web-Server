@@ -4,6 +4,7 @@ const cors = require('cors');
 const ROSLIB = require('roslib');
 const fs = require('fs');
 const path = require('path');
+const {getDestination} = require('./destinations.js');
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -57,8 +58,9 @@ function initializeRobotConnection(robotId, ipAddress) {
       host: ipAddress,
       isConnected: false,
       instance: null,
-      odometry: {x: 0, y: 0},
       position: {x: 0, y: 0},
+      destination: {x: 0, y: 0,},
+      destination_name: 'N/A'
     };
   }
 
@@ -77,6 +79,8 @@ function initializeRobotConnection(robotId, ipAddress) {
       robotConnections[robotId].isConnected = false;
       robotConnections[robotId].position = { x: 0, y: 0};
       robotConnections[robotId].instance = null;
+      robotConnections[robotId].destination = {x: 0, y: 0,};
+      robotConnections[robotId].destination_name = 'N/A';
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);
       }, 5000); // Retry every 5 seconds
@@ -91,11 +95,6 @@ function initializeRobotConnection(robotId, ipAddress) {
     // ----------------------------------------------------
     // TOPICS
     // ----------------------------------------------------
-    const odomTopic = new ROSLIB.Topic({
-      ros: rosInstance,
-      name: "/odom",
-      messageType: "nav_msgs/msg/Odometry",
-    });
 
     const posTopic = new ROSLIB.Topic({
       ros: rosInstance,
@@ -103,30 +102,43 @@ function initializeRobotConnection(robotId, ipAddress) {
       messageType: "geometry_msgs/msg/PoseStamped",
     });
 
-    // timer for topics
-    const THROTTLE_MS = 500; // time refreshers for each topic
-    let lastProcessedTime_odom = 0;
-    let lastProcessedTime_pos = 0;
-
-    odomTopic.subscribe((message) => {
-      const now = Date.now();
-      if (now - lastProcessedTime_odom > THROTTLE_MS) {
-        lastProcessedTime_odom = now;
-        const xOdom = message.pose.pose.position.x;
-        const yOdom = message.pose.pose.position.y;
-        robotConnections[robotId].odometry = { x: Number(xOdom.toFixed(3)), y: Number(yOdom.toFixed(3))};
-      }
+    const destinationTopic = new ROSLIB.Topic({
+      ros: rosInstance,
+      name: '/nav_destination',
+      messageType: 'geometry_msgs/msg/PoseStamped',
     });
 
+    // timer for topics
+    const THROTTLE_MS = 500; // time refreshers for each topic
+    let lastProcessedTime_pos = 0;
+    let lastProcessedTime_dest = 0;
+
     posTopic.subscribe((message) => {
+      console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", message);
       const now = Date.now();
       if (now - lastProcessedTime_pos > THROTTLE_MS) {
         lastProcessedTime_pos = now;
         const xPos = message.pose.position.x;
         const yPos = message.pose.position.y;
-        robotConnections[robotId].position = { x: Number(xPos.toFixed(3)), y: Number(yPos.toFixed(3))};
+        robotConnections[robotId].position = { x: Number(xPos.toFixed(3)), y: Number(yPos.toFixed(3)) };
       }
     });
+
+    destinationTopic.subscribe((message) => {
+      console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", message);
+      const now = Date.now();
+      if (now - lastProcessedTime_dest > THROTTLE_MS) {
+        lastProcessedTime_dest = now;
+        const xDest = message.pose.position.x;
+        const yDest = message.pose.position.y;
+        robotConnections[robotId].destination = { x: Number(xDest.toFixed(3)), y: Number(yDest.toFixed(3)) };
+        const destName = getDestination(xDest, yDest);
+        if (destName !== undefined) {
+          robotConnections[robotId].destination_name = destName;
+        }
+      }
+    });
+
   });
 
   rosInstance.on('error', (error) => {
@@ -224,8 +236,9 @@ app.get('/api', (req, res) => {
     statusReport[id] = {
       host: trackingData.host,
       online: trackingData.isConnected,
-      odometry: trackingData.odometry,
       position: trackingData.position,
+      destination_coords: trackingData.destination,
+      destination_name: trackingData.destination_name
     };
   }
   res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the status page

@@ -103,7 +103,11 @@ export default function App() {
                       <details className="robot-dropdown destination-dropdown">
                           <summary>Destination Info</summary>
                             <div className="robot-dropdown-content destination-dropdown-content">
-                               <p>Current Destination: </p> 
+                                <p>Destination Name: {info?.destination_name || 'N/A'}</p> 
+                                <hr style={{ border: '0', borderTop: '1px solid var(--border)', margin: '4px 0' }} /> 
+                                <p>Destination X Coordinate: {info?.destination?.x ?? 'N/A'}</p> 
+                                <hr style={{ border: '0', borderTop: '1px solid var(--border)', margin: '4px 0' }} /> 
+                                <p>Destination Y Coordinate: {info?.destination?.y ?? 'N/A'}</p> 
                             </div>
                       </details>
 
