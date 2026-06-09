@@ -94,9 +94,9 @@ export default function App() {
                       <details className="robot-dropdown position-dropdown">
                           <summary>Position Info</summary>
                              <div className="robot-dropdown-content position-dropdown-content">
-                                <p>Current X Coordinate: {info?.position?.x ?? 'N/A'}</p> 
+                                <p>Current X Coordinate: {info?.position?.x ?? '0'}</p> 
                                 <hr style={{ border: '0', borderTop: '1px solid var(--border)', margin: '4px 0' }} /> 
-                                <p>Current Y Coordinate: {info?.position?.y ?? 'N/A'}</p> 
+                                <p>Current Y Coordinate: {info?.position?.y ?? '0'}</p> 
                               </div>
                       </details>
 

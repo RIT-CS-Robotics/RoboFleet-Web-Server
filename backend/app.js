@@ -290,7 +290,7 @@ app.get('/api', (req, res) => {
       host: trackingData.host,
       online: trackingData.isConnected,
       position: trackingData.position,
-      destination_coords: trackingData.destination,
+      destination: trackingData.destination,
       destination_name: trackingData.destination_name
     };
   }
