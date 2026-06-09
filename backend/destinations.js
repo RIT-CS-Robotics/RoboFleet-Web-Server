@@ -1,13 +1,30 @@
-require('dotenv').config();
-const fs = require('fs');
-const path = require('path');
+/**
+ * File: destinations.js
+ * @author Aidan Sanderson
+ * Date: 6/9/2026
+ * 
+ * Functionality: Creates a system for mapping x and y coordinates to location names in the RIT Golisano building 
+ * and allows for O(1) retreival of location names when the x and y coordinates are used to search for them.
+ */
 
-const destinationData_path = path.join(__dirname, process.env.DESTINATIONS);
-const destinationData = fs.readFileSync(destinationData_path, 'utf-8');
+require('dotenv').config(); // Version: dotenv@17.4.2
+const fs = require('fs'); // Version: node@24.16.0
+const path = require('path'); // Version: node@24.16.0
 
-// Coordinate to Destination Map
+const destinationData_path = path.join(__dirname, process.env.DESTINATIONS); // path to the destinations database
+const destinationData = fs.readFileSync(destinationData_path, 'utf-8'); // reads destination database in and saves to variable
+
+// Coordinate to Destination Map: O(1)
 const destinationMap = new Map();
 
+/**
+ * Constructs a key using the x and y coordinates in the RIT Golisano building. 
+ * Valid keys will map to a location name in the building.
+ * 
+ * @param xCoord: The x coordinate of the location in the RIT Golisano building.
+ * @param yCoord: The y coordinate of the location in the RIT Golisano building.
+ * @returns A key combining the x and y coordinate for its location name in the Map().
+ */
 function createKey(xCoord, yCoord) {
     const xKey = Number(xCoord).toFixed(3);
     const yKey = Number(yCoord).toFixed(3);
@@ -15,16 +32,28 @@ function createKey(xCoord, yCoord) {
     return key;
 }
 
+/**
+ * Constructs a key using the x and y coordinates in the RIT Golisano building 
+ * and uses it to return a location that its mapped to in the destination Map().
+ * 
+ * @param xCoord: The x coordinate of the location in the RIT Golisano building.
+ * @param yCoord: The y coordinate of the location in the RIT Golisano building.
+ * @returns A location name mapped to the x and y coordinates, or undefined if the key has no mapping.
+ */
 function getDestination(xCoord, yCoord) {
     const key = createKey(xCoord, yCoord);
     return destinationMap.get(key);
 }
 
+/**
+ * Constructs a Map() which maps x and y coordinate keys to location names in the RIT Golisano building. Does so by reading 
+ * in location data from a database and then constructs x and y coordinate keys which then map to their respective location names.
+ */
 function buildDestinationMap() {
     const lines = destinationData.split('\n');
     for (const line of lines) {
-        const cleanLine = line.trim();
-        if (cleanLine === "") {
+        const cleanLine = line.trim(); // removes whitespaces
+        if (cleanLine === "") { // skips empty lines
             continue;
         }
         else {
@@ -40,4 +69,6 @@ function buildDestinationMap() {
 }
 
 buildDestinationMap();
+
+// Use as an import in app.js
 module.exports = {getDestination};

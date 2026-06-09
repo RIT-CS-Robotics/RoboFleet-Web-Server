@@ -1,10 +1,19 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const ROSLIB = require('roslib');
-const fs = require('fs');
-const path = require('path');
-const {getDestination} = require('./destinations.js');
+/**
+ * File: app.js
+ * @author Aidan Sanderson
+ * Date: 6/9/2026
+ * 
+ * Functionality: The backend architecture for the RoboFleet webserver.
+ */
+
+require('dotenv').config(); // Version: dotenv@17.4.2
+const express = require('express'); // Version: express@5.2.1
+const cors = require('cors'); // Version: cors@2.8.6
+const ROSLIB = require('roslib'); // Version: roslib@1.4.1
+const fs = require('fs'); // Version: node@24.16.0
+const path = require('path'); // Version: node@24.16.0
+
+const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -12,11 +21,11 @@ const PORT = process.env.PORT;
 const bridge = process.env.ONLY_CONNECT;
 
 // Tells the app to use cors and json
-app.use(cors());
+app.use(cors()); // Note: May be able to remove later if apache can do 100% of everything under the hood.
 app.use(express.json());
 
 // Security
-app.set('trust proxy', true);
+app.set('trust proxy', true); // allows any connections that apache provides, giving it reverse proxy controls
 const passkey = process.env.PASSKEY;
 
 const USERS_FILE = path.join(__dirname, 'users.json');
@@ -44,11 +53,15 @@ function saveUsers(usersObj) {
   }
 }
 
-let latestSavedText = 'Hello World!'; // This will now hold an object tracking status AND the active instance
-const robotConnections = {};
+let latestSavedText = 'Hello World!'; // broadcast message
+const robotConnections = {}; // each robot is saved here
 
 /**
- * Helper function to dynamically connect to a robot and track its status
+ * Helper function to dynamically manage connection to a robot and track its online/offline status. 
+ * Also sets the information for each robot that the frontend will need, and manages ros2 topics.
+ * 
+ * @param robotId: The id number to give the robot
+ * @param ipAddress: The IP/Hostname of the robot
  */
 function initializeRobotConnection(robotId, ipAddress) {
   console.log(`Initializing connection loop for ${robotId} at ${ipAddress}...`);
@@ -64,13 +77,17 @@ function initializeRobotConnection(robotId, ipAddress) {
     };
   }
 
-  const wsUrl = `ws://${ipAddress}:9090`;
-  const rosInstance = new ROSLIB.Ros({ url: wsUrl });
+  const wsUrl = `ws://${ipAddress}:9090`; // rosbridge websocket url
+  const rosInstance = new ROSLIB.Ros({ url: wsUrl }); // rosbridge websocket connection
 
-  // Track if a retry timer is already pending for this cycle
+  // Track if a connection retry timer is already pending for this cycle
   let retryTriggered = false;
 
-  // This will only run when a robot connection dies to check every 5 seconds to restart the connection
+  /**
+   * Function that checks for a robot without connection, resets its information values, 
+   * and continuously tries to check if the robot is trying to connect again. 
+   * This will only run when a robot connection dies to check every 5 seconds to restart the connection
+  */
   const triggerRetry = () => {
     if (!retryTriggered) {
       retryTriggered = true;
@@ -87,13 +104,19 @@ function initializeRobotConnection(robotId, ipAddress) {
     }
   };
 
+  /**
+   * When a robot is connected, ste its web socket connection and subscribe to topics to
+   * continuously update its current information that the frontend needs to display real time robotic information.
+   */
   rosInstance.on('connection', () => {
     console.log(`SUCCESS: Connected via ROSLIB to ${robotId} at ${ipAddress}`);
     robotConnections[robotId].isConnected = true;
+
+    // Sets its instance as a specific ros instance and uses it to communicate to rosbridge over its specific web socket connection
     robotConnections[robotId].instance = rosInstance;
 
     // ----------------------------------------------------
-    // TOPICS
+    // TOPIC INITIALIZATION
     // ----------------------------------------------------
 
     const posTopic = new ROSLIB.Topic({
@@ -108,11 +131,21 @@ function initializeRobotConnection(robotId, ipAddress) {
       messageType: 'geometry_msgs/msg/PoseStamped',
     });
 
-    // timer for topics
+    // timers for the backend to refresh how often to take in topic information.
     const THROTTLE_MS = 500; // time refreshers for each topic
     let lastProcessedTime_pos = 0;
     let lastProcessedTime_dest = 0;
 
+    // ----------------------------------------------------
+    // TOPIC SUBSCRIPTIONS
+    // ----------------------------------------------------
+
+    /**
+     * Subscribes to a topic /robot_pos that continuously gets the robots read from the new tracking object structure current position 
+     * in the building in x and y coordinates and updates them in the backend.
+     * 
+     * @param message: The message being received from the topic publisher.
+     */
     posTopic.subscribe((message) => {
       console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", message);
       const now = Date.now();
@@ -124,6 +157,13 @@ function initializeRobotConnection(robotId, ipAddress) {
       }
     });
 
+    /**
+     * Subscribes to a topic /nav_destination that continuously gets the x and y coordinates for the current 
+     * goal destination and updates them in the backend. Also uses them as a key to look for the actual 
+     * location name in a Map() if there is a location name mapped to those coordinates.
+     * 
+     * @param message: The message being received from the topic publisher.
+     */
     destinationTopic.subscribe((message) => {
       console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", message);
       const now = Date.now();
@@ -141,12 +181,18 @@ function initializeRobotConnection(robotId, ipAddress) {
 
   });
 
+  /**
+   * Ends connection if there is an error with the robot web socket connection, then starts its reconnection triggering phase.
+   * Note: roslib always fires 'close' right after 'error', but this trigger retry safely as an extra safeguard.
+   */
   rosInstance.on('error', (error) => {
     console.log(`ROSLIB Status: ${robotId} at ${ipAddress} is offline or unreachable.`);
-    // Note: roslib always fires 'close' right after 'error', but we trigger retry safely
     triggerRetry();
   });
 
+  /**
+   * Ends connection if the robot web socket connection is closed, then starts its reconnection triggering phase.
+   */
   rosInstance.on('close', () => {
     console.log(`ROSLIB Connection to ${robotId} closed.`);
     triggerRetry();
@@ -228,11 +274,18 @@ app.delete('/api/users/:username', (req, res) => {
   return res.json({ message: `Account "${userToDelete}" has been removed.` });
 });
 
-// read from the new tracking object structure
+
+// ====================================================
+// ROBOT DATA COMMUNICATION ROUTES
+// ====================================================
+
+/**
+ * REST get command used to retrieve robot information and broadcast message information from the backend.
+ */
 app.get('/api', (req, res) => {
   const statusReport = {};
   for (const [id, trackingData] of Object.entries(robotConnections)) {
-    // stores the ip of each robot in an id temp variable and the connection details in a trackingData temp variable
+    // stores the connection details and info of each robot using its id.
     statusReport[id] = {
       host: trackingData.host,
       online: trackingData.isConnected,
@@ -241,23 +294,27 @@ app.get('/api', (req, res) => {
       destination_name: trackingData.destination_name
     };
   }
-  res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the status page
+  res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the frontend
 });
 
-// publish to the fresh active instance securely
-app.post('/api/save', (req, res) => { // req is the incoming data from the frontend and res is the responce to send back
-    const robotId = req.body.robotId || 'robot_default'; 
-    const userText = req.body.text;
+/**
+ * REST post command that saves the broadcast message in the backend and forwards it to the robot.
+ */
+app.post('/api/save', (req, res) => {
+    const robotId = req.body.robotId || 'robot_default';  // robot_default is for unconfigured robots
+    const userText = req.body.text; // broadcast message
 
     console.log(`Received data from frontend for ${robotId}:`, userText);
 
+    // selects the correct robot
     const trackingData = robotConnections[robotId];
 
     if (!trackingData) {
         return res.status(404).json({ message: `Robot ID "${robotId}" is not configured.` });
     }
 
-    // Check if we have a live websocket instance running and if we do then a ros topic is created
+    // If the selected robot is online and connected to rosbridge then it creates a new topic /frontend_commands and publishes to it.
+    // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
     if (trackingData.isConnected && trackingData.instance) {
         latestSavedText = userText;
         // Instantiate the topic directly on the current live instance
@@ -278,10 +335,8 @@ app.post('/api/save', (req, res) => { // req is the incoming data from the front
 });
 
 // ----------------------------------------------------
-// FLEET REGISTRATION: Add or edit your robots here!
+// ROBOFLEET REGISTRATION: add or edit robots here!
 // ----------------------------------------------------
-
-// Start robot tracking loops (Reaches OUT to robots directly on port 9090)
 initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS); 
 initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS); 
 initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS); 
