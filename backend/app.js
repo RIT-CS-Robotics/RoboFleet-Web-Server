@@ -98,6 +98,7 @@ function initializeRobotConnection(robotId, ipAddress) {
       robotConnections[robotId].instance = null;
       robotConnections[robotId].destination = {x: 0, y: 0,};
       robotConnections[robotId].destination_name = 'N/A';
+
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);
       }, 5000); // Retry every 5 seconds
@@ -146,13 +147,13 @@ function initializeRobotConnection(robotId, ipAddress) {
      * 
      * @param message: The message being received from the topic publisher.
      */
-    posTopic.subscribe((message) => {
-      console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", message);
+    posTopic.subscribe((posMessage) => {
+      console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", posMessage);
       const now = Date.now();
       if (now - lastProcessedTime_pos > THROTTLE_MS) {
         lastProcessedTime_pos = now;
-        const xPos = message.pose.position.x;
-        const yPos = message.pose.position.y;
+        const xPos = posMessage.pose.position.x;
+        const yPos = posMessage.pose.position.y;
         robotConnections[robotId].position = { x: Number(xPos.toFixed(3)), y: Number(yPos.toFixed(3)) };
       }
     });
@@ -164,13 +165,13 @@ function initializeRobotConnection(robotId, ipAddress) {
      * 
      * @param message: The message being received from the topic publisher.
      */
-    destinationTopic.subscribe((message) => {
-      console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", message);
+    destinationTopic.subscribe((destMessage) => {
+      console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", destMessage);
       const now = Date.now();
       if (now - lastProcessedTime_dest > THROTTLE_MS) {
         lastProcessedTime_dest = now;
-        const xDest = message.pose.position.x;
-        const yDest = message.pose.position.y;
+        const xDest = destMessage.pose.position.x;
+        const yDest = destMessage.pose.position.y;
         robotConnections[robotId].destination = { x: Number(xDest.toFixed(3)), y: Number(yDest.toFixed(3)) };
         const destName = getDestination(xDest, yDest);
         if (destName !== undefined) {

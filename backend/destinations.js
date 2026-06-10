@@ -14,6 +14,39 @@ const path = require('path'); // Version: node@24.16.0
 const destinationData_path = path.join(__dirname, process.env.DESTINATIONS); // path to the destinations database
 const destinationData = fs.readFileSync(destinationData_path, 'utf-8'); // reads destination database in and saves to variable
 
+/**
+ * Calculates all pairings to create keys for a specific locations pixel coordinates to include a 1 pixel margin of error
+ * 
+ * @param xPxl: The x pixel coordinate
+ * @param yPxl: The y pixel coordinate
+ * @returns All combinations of x and y coordinate pairings with a 1 pixel margin of error (both x and y, - and +)
+ */
+function pixelError(xPxl, yPxl) {
+    const xRange = [xPxl-1, xPxl, xPxl+1];
+    const yRange = [yPxl-1, yPxl, yPxl+1];
+    const cartesianProduct = [];
+
+    for (let x = 0; x <= 2; x++) {
+        for (let y = 0; y <= 2; y++) {
+            const pairing = [xRange[x], yRange[y]];
+            cartesianProduct.push(pairing);
+        }
+    }
+    return cartesianProduct;
+}
+
+/**
+ * Converts the destination coordinate from meters to pixels
+ * 
+ * @param coord: The coordinate in meters to convert to pixels
+ * @returns the destination coordinate in pixels
+ */
+function pixelConverter(coord) {
+    const PIXEL_PER_METER = 25.773; 
+    const pixelCon = coord * PIXEL_PER_METER; 
+    return pixelCon;
+}
+
 // Coordinate to Destination Map: O(1)
 const destinationMap = new Map();
 
@@ -26,8 +59,8 @@ const destinationMap = new Map();
  * @returns A key combining the x and y coordinate for its location name in the Map().
  */
 function createKey(xCoord, yCoord) {
-    const xKey = Number(xCoord).toFixed(3);
-    const yKey = Number(yCoord).toFixed(3);
+    const xKey = Math.floor(xCoord);
+    const yKey = Math.floor(yCoord);
     const key = `x:${xKey},y:${yKey}`;
     return key;
 }
@@ -41,7 +74,9 @@ function createKey(xCoord, yCoord) {
  * @returns A location name mapped to the x and y coordinates, or undefined if the key has no mapping.
  */
 function getDestination(xCoord, yCoord) {
-    const key = createKey(xCoord, yCoord);
+    const x = pixelConverter(xCoord);
+    const y = 3069 - pixelConverter(yCoord); // because top left is origin and down is positive, it must reverse the conversion so it uses the map height -   y coordinate in pixels
+    const key = createKey(x, y);
     return destinationMap.get(key);
 }
 
@@ -59,11 +94,14 @@ function buildDestinationMap() {
         else {
             const parts = cleanLine.split(/\s+/);
             const destination = parts[0];
-            const xCoord = parts[1];
-            const yCoord = parts[2];
+            const xCoord = Number(parts[1]);
+            const yCoord = Number(parts[2]);
             
-            const key = createKey(xCoord, yCoord);
-            destinationMap.set(key, destination);
+            const pairings = pixelError(xCoord, yCoord);
+            for (const pair of pairings) {
+                const key = createKey(pair[0], pair[1]);
+                destinationMap.set(key, destination);
+            }
         }
     }
 }
