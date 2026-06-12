@@ -6,9 +6,7 @@ class Robot:
 		Create a new Robot object and connect to the robot.
 		"""
 
-		#self.robot_ip = os.environ.get("ROBOT_IP")
-		self.robot_ip = "129.21.65.243" # laptop 2
-		#self.robot_ip = "129.21.118.12" # laptop 3
+		self.robot_ip = os.environ.get("ROBOT_HOST")
 		self.port = 10001
 
 		# create task queues

@@ -14,6 +14,7 @@ const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
+const {robot_run} = require('./robocom.js'); // running student code
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -148,7 +149,7 @@ function initializeRobotConnection(robotId, ipAddress) {
      * @param message: The message being received from the topic publisher.
      */
     posTopic.subscribe((posMessage) => {
-      console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", posMessage);
+      //console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", posMessage);
       const now = Date.now();
       if (now - lastProcessedTime_pos > THROTTLE_MS) {
         lastProcessedTime_pos = now;
@@ -166,7 +167,7 @@ function initializeRobotConnection(robotId, ipAddress) {
      * @param message: The message being received from the topic publisher.
      */
     destinationTopic.subscribe((destMessage) => {
-      console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", destMessage);
+      //console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", destMessage);
       const now = Date.now();
       if (now - lastProcessedTime_dest > THROTTLE_MS) {
         lastProcessedTime_dest = now;
@@ -327,6 +328,8 @@ app.post('/api/save', (req, res) => {
 
         const msg = new ROSLIB.Message({ data: userText }); // new message for the textTopic is created with the user inputed text from the frontend and is then published
         textTopic.publish(msg);
+
+        robot_run(0,robotId); // runs the robot
 
         console.log(`Forwarded "${userText}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${userText}"` });
