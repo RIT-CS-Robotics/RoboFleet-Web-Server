@@ -11,7 +11,15 @@ const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 const { spawn } = require('child_process');
 
-const scriptPath = path.join(__dirname, 'python_files', 'core', 'code_runner.py');
+const script = process.env.MAIN_SCRIPT_PY;
+const code1 = process.env.CODE_1_PY
+const code2 = process.env.CODE_2_PY
+const code3 = process.env.CODE_3_PY
+
+//const scriptPath = path.join(__dirname, 'python_files', 'core', script);
+const code1Path = path.join(__dirname, 'python_files', code1);
+const code2Path = path.join(__dirname, 'python_files', code2);
+const code3Path = path.join(__dirname, 'python_files', code3);
 
 /**
  * Uses the written to robot code file to run the students code on the specified robot.
@@ -21,18 +29,30 @@ const scriptPath = path.join(__dirname, 'python_files', 'core', 'code_runner.py'
  */
 function robot_run(code, robotId) {
     let robotHost;
+    let scriptPath;
 
     if (robotId === 'robot 1') {
         robotHost = process.env.ROBOT_1_ADDRESS;
+        scriptPath = code1Path;
     }
     else if (robotId === 'robot 2') {
         robotHost = process.env.ROBOT_2_ADDRESS;
+        scriptPath = code2Path;
     }
     else if (robotId === 'robot 3') {
         robotHost = process.env.ROBOT_3_ADDRESS;
+        scriptPath = code3Path;
     }
     else {
-        console.error(`Invalid Robot ID: ${robotId}`);
+        console.error(`Failed to run python Script. Invalid robot ID: ${robotId}`);
+        return;
+    }
+
+    try {
+        write_code(code, scriptPath, true);
+    }
+    catch (err) {
+        console.error(`Could not write student code to script -> Error: ${err}`);
         return;
     }
     
@@ -42,7 +62,7 @@ function robot_run(code, robotId) {
             ROBOT_HOST: robotHost
         }
     });
-    console.log(`This line was reached in the robocom.js!`);
+    console.log(`Running robot with ID: ${robotId}`);
 }
 
 /**
@@ -51,8 +71,13 @@ function robot_run(code, robotId) {
  * @param code: The students code
  * @param robotId: The robot to run the code on
  */
-function save_code(code, robotId) {
-
+function write_code(code, writePath, toRun) {
+    let fileContent = '';
+    if (toRun) {
+        fileContent = 'import sys\nimport os\n';
+    }
+    fileContent += code;
+    fs.writeFileSync(writePath, fileContent, 'utf-8');
 }
 
 /**
@@ -70,7 +95,7 @@ function clear_code(robotId) {
  * @param code: The code to log
  * @param student: The student to log the code to
  * @param key: The key to use when logging the code
- */
+ */scriptPath = code1Path;
 function log_save(code, student, key) {
 // later implementation
 }

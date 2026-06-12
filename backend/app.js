@@ -329,7 +329,7 @@ app.post('/api/save', (req, res) => {
         const msg = new ROSLIB.Message({ data: userText }); // new message for the textTopic is created with the user inputed text from the frontend and is then published
         textTopic.publish(msg);
 
-        robot_run(0,robotId); // runs the robot
+        robot_run(userText,robotId); // runs the robot
 
         console.log(`Forwarded "${userText}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${userText}"` });
