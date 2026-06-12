@@ -4,5 +4,5 @@ from robot import Robot
 
 robot = Robot()
 
-robot.nav_to("AtriumW")
+robot.nav_to("Office3509")
 robot.nav_to("RNDLab")

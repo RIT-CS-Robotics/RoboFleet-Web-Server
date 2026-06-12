@@ -16,10 +16,14 @@ const code1 = process.env.CODE_1_PY
 const code2 = process.env.CODE_2_PY
 const code3 = process.env.CODE_3_PY
 
+let robot1_active = false;
+let robot2_active = false;
+let robot3_active = false;
+
 //const scriptPath = path.join(__dirname, 'python_files', 'core', script);
-const code1Path = path.join(__dirname, 'python_files', code1);
-const code2Path = path.join(__dirname, 'python_files', code2);
-const code3Path = path.join(__dirname, 'python_files', code3);
+const code1_path = path.join(__dirname, 'python_files', code1);
+const code2_path = path.join(__dirname, 'python_files', code2);
+const code3_path = path.join(__dirname, 'python_files', code3);
 
 /**
  * Uses the written to robot code file to run the students code on the specified robot.
@@ -27,21 +31,36 @@ const code3Path = path.join(__dirname, 'python_files', code3);
  * @param code: The students code
  * @param robotId: The robot to run the code on
  */
-function robot_run(code, robotId) {
-    let robotHost;
-    let scriptPath;
+function robotRun(code, robotId) {
+    let robot_host;
+    let script_path;
 
     if (robotId === 'robot 1') {
-        robotHost = process.env.ROBOT_1_ADDRESS;
-        scriptPath = code1Path;
+        if (robot1_active) {
+            console.error(`Failed to run python Script. Robot ID: ${robotId} is already active`);
+            return;
+        }
+        robot_host = process.env.ROBOT_1_ADDRESS;
+        script_path = code1_path;
+        robot1_active = true;
     }
     else if (robotId === 'robot 2') {
-        robotHost = process.env.ROBOT_2_ADDRESS;
-        scriptPath = code2Path;
+        if (robot2_active) {
+            console.error(`Failed to run python Script. Robot ID: ${robotId} is already active`);
+            return;
+        }
+        robot_host = process.env.ROBOT_2_ADDRESS;
+        script_path = code2_path;
+        robot2_active = true;
     }
     else if (robotId === 'robot 3') {
-        robotHost = process.env.ROBOT_3_ADDRESS;
-        scriptPath = code3Path;
+        if (robot3_active) {
+            console.error(`Failed to run python Script. Robot ID: ${robotId} is already active`);
+            return;
+        }
+        robot_host = process.env.ROBOT_3_ADDRESS;
+        script_path = code3_path;
+        robot3_active = true;
     }
     else {
         console.error(`Failed to run python Script. Invalid robot ID: ${robotId}`);
@@ -49,20 +68,25 @@ function robot_run(code, robotId) {
     }
 
     try {
-        write_code(code, scriptPath, true);
+        writeCode(code, script_path, true);
     }
     catch (err) {
         console.error(`Could not write student code to script -> Error: ${err}`);
         return;
     }
     
-     const pythonScript = spawn('python3', ['-u', scriptPath], {
+     const pythonScript = spawn('python3', ['-u', script_path], {
         env: {
             ...process.env,
-            ROBOT_HOST: robotHost
+            ROBOT_HOST: robot_host
         }
     });
     console.log(`Running robot with ID: ${robotId}`);
+
+    pythonScript.on('close', () => {
+        console.log(`Python script closed. Robot ID: ${robotId}`);
+        resetActive(robotId);
+    });
 }
 
 /**
@@ -71,7 +95,7 @@ function robot_run(code, robotId) {
  * @param code: The students code
  * @param robotId: The robot to run the code on
  */
-function write_code(code, writePath, toRun) {
+function writeCode(code, writePath, toRun) {
     let fileContent = '';
     if (toRun) {
         fileContent = 'import sys\nimport os\n';
@@ -81,12 +105,20 @@ function write_code(code, writePath, toRun) {
 }
 
 /**
- * Clears the code from the specified robot code file.
+ * Makes the given robots active identifier false to allow it to spawn python processes again.
  * 
- * @param robotId: The robot to clear the current code for
+ * @param robotId: The id of the robot to set the active identifier false for
  */
-function clear_code(robotId) {
-// later implementation
+function resetActive(robotId) {
+    if (robotId === 'robot 1') {
+        robot1_active = false;
+    }
+    else if (robotId === 'robot 2') {
+        robot2_active = false;
+    }
+    else if (robotId === 'robot 3') {
+        robot3_active = false;
+    }
 }
 
 /**
@@ -95,8 +127,8 @@ function clear_code(robotId) {
  * @param code: The code to log
  * @param student: The student to log the code to
  * @param key: The key to use when logging the code
- */scriptPath = code1Path;
-function log_save(code, student, key) {
+ */
+function logSave(code, student, key) {
 // later implementation
 }
 
@@ -107,7 +139,7 @@ function log_save(code, student, key) {
  * @param student: The student that the code is logged to
  * @param key: The key to fetch the logged code
  */
-function log_pull(robotId, student, key) {
+function logLoad(robotId, student, key) {
 // later implementation
 }
 
@@ -117,9 +149,9 @@ function log_pull(robotId, student, key) {
  * @param code: The code to validate
  * @returns: True if the code is safe to run, False otherwise.
  */
-function validate_code(code) {
+function validateCode(code) {
 
 }
 
 // Use as an import in app.js
-module.exports = {robot_run};
+module.exports = {robotRun};

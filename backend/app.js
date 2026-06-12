@@ -14,7 +14,7 @@ const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
-const {robot_run} = require('./robocom.js'); // running student code
+const {robotRun} = require('./robocom.js'); // running student code
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -329,7 +329,7 @@ app.post('/api/save', (req, res) => {
         const msg = new ROSLIB.Message({ data: userText }); // new message for the textTopic is created with the user inputed text from the frontend and is then published
         textTopic.publish(msg);
 
-        robot_run(userText,robotId); // runs the robot
+        robotRun(userText,robotId); // runs the robot
 
         console.log(`Forwarded "${userText}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${userText}"` });
