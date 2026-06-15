@@ -19,6 +19,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "roslib": "^1.4.1",
+    "tmp": "^0.2.7",
     "ws": "^8.21.0"
   },
   "devDependencies": {

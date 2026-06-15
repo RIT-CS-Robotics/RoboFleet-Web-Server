@@ -10,20 +10,20 @@ require('dotenv').config(); // Version: dotenv@17.4.2
 const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 const { spawn } = require('child_process');
+const tmp = require('tmp'); // Version: tmp@0.2.7
 
-const script = process.env.MAIN_SCRIPT_PY;
-const code1 = process.env.CODE_1_PY
-const code2 = process.env.CODE_2_PY
-const code3 = process.env.CODE_3_PY
+// file options for temp files for running code
+const temps = {
+    postfix: '.py',
+    keep: false, // cleanup
+    tmpdir: path.join(__dirname, 'python_files')
+}
 
-let robot1_active = false;
-let robot2_active = false;
-let robot3_active = false;
-
-//const scriptPath = path.join(__dirname, 'python_files', 'core', script);
-const code1_path = path.join(__dirname, 'python_files', code1);
-const code2_path = path.join(__dirname, 'python_files', code2);
-const code3_path = path.join(__dirname, 'python_files', code3);
+// file options for student logs
+const logs = {
+    postfix: '.py',
+    keep: true // saves in the backend
+}
 
 /**
  * Uses the written to robot code file to run the students code on the specified robot.
@@ -32,60 +32,57 @@ const code3_path = path.join(__dirname, 'python_files', code3);
  * @param robotId: The robot to run the code on
  */
 function robotRun(code, robotId) {
-    let robot_host;
     let script_path;
-
-    if (robotId === 'robot 1') {
-        if (robot1_active) {
-            console.error(`Failed to run python Script. Robot ID: ${robotId} is already active`);
-            return;
-        }
-        robot_host = process.env.ROBOT_1_ADDRESS;
-        script_path = code1_path;
-        robot1_active = true;
-    }
-    else if (robotId === 'robot 2') {
-        if (robot2_active) {
-            console.error(`Failed to run python Script. Robot ID: ${robotId} is already active`);
-            return;
-        }
-        robot_host = process.env.ROBOT_2_ADDRESS;
-        script_path = code2_path;
-        robot2_active = true;
-    }
-    else if (robotId === 'robot 3') {
-        if (robot3_active) {
-            console.error(`Failed to run python Script. Robot ID: ${robotId} is already active`);
-            return;
-        }
-        robot_host = process.env.ROBOT_3_ADDRESS;
-        script_path = code3_path;
-        robot3_active = true;
-    }
-    else {
-        console.error(`Failed to run python Script. Invalid robot ID: ${robotId}`);
-        return;
-    }
-
+    let code_file;
     try {
+        code_file = tmp.fileSync(temps);
+        script_path = code_file.name;
+        console.log(`temp code file created with path: ${script_path}`);
         writeCode(code, script_path, true);
     }
     catch (err) {
         console.error(`Could not write student code to script -> Error: ${err}`);
         return;
     }
+
+    const host = selectHost(robotId);
+    if (host === null) {
+        console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
+        return;
+    }
+    console.log(`robot host selected to run script with ID: ${robotId}`);
     
-     const pythonScript = spawn('python3', ['-u', script_path], {
+    const pythonScript = spawn('python3', ['-u', script_path], {
         env: {
             ...process.env,
-            ROBOT_HOST: robot_host
+            ROBOT_HOST: host
         }
     });
-    console.log(`Running robot with ID: ${robotId}`);
 
+    pythonScript.stdout.on('data', (data) => {
+        console.log(`Robot standard output with ID: ${robotId} -> ${data.toString().trim()}`);
+    });
+
+    pythonScript.stderr.on('data', (data) => {
+        console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
+    });
+
+    pythonScript.on('spawn', () => {
+        console.log(`Python script spawned with robot ID: ${robotId}`);
+        console.log(`Running robot with ID: ${robotId}`);
+    });
+
+    pythonScript.on('error', (err) => {
+        console.error(`Error while running python script with path: ${script_path} on robot ID: ${robotId}`)
+        console.error(`Python error: ${err}`)
+        cleanupFile(code_file, script_path);
+        code_file = null;
+    });
     pythonScript.on('close', () => {
-        console.log(`Python script closed. Robot ID: ${robotId}`);
-        resetActive(robotId);
+        console.log(`Python script closed with robot ID: ${robotId}`);
+        console.log(`Disconnecting robot with ID: ${robotId}`);
+        cleanupFile(code_file, script_path);
+        code_file = null;
     });
 }
 
@@ -104,20 +101,51 @@ function writeCode(code, writePath, toRun) {
     fs.writeFileSync(writePath, fileContent, 'utf-8');
 }
 
+/////////////////////////
+////ADD HOSTS HERE///////
+/////////////////////////
+
 /**
- * Makes the given robots active identifier false to allow it to spawn python processes again.
+ * Gets the hostname of a selected robot
  * 
- * @param robotId: The id of the robot to set the active identifier false for
+ * @param robotId: The id of the robot
+ * @returns the hostname of the robot
  */
-function resetActive(robotId) {
-    if (robotId === 'robot 1') {
-        robot1_active = false;
+function selectHost(robotId) {
+    let host;
+    switch (robotId) {
+        case 'robot 1':
+            host = process.env.ROBOT_1_ADDRESS;
+            break;
+        case 'robot 2':
+            host = process.env.ROBOT_2_ADDRESS;
+            break;
+        case 'robot 3':
+            host = process.env.ROBOT_3_ADDRESS;
+            break;
+        default:
+            host = null;
+            break;
     }
-    else if (robotId === 'robot 2') {
-        robot2_active = false;
-    }
-    else if (robotId === 'robot 3') {
-        robot3_active = false;
+    return host;
+}
+
+/**
+ * Deletes a file from the backend.
+ * 
+ * @param file_obj: the file object to delete
+ * @param path: the path of the file to delete
+ */
+function cleanupFile(file_obj, path) {
+    if (file_obj) {
+        try {
+            file_obj.removeCallback();
+            console.log(`Cleaned up file with path: ${path}`);
+        }
+        catch (err) {
+            console.error(`Could not cleanup temp code file with path: ${path}`);
+            console.error(`removeCallback() error: ${err}`);
+        }
     }
 }
 
