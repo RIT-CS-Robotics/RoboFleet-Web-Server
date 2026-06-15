@@ -31,9 +31,15 @@ const logs = {
  * @param code: The students code
  * @param robotId: The robot to run the code on
  */
-function robotRun(code, robotId) {
+function robotRun(code, robotId, host) {
     let script_path;
     let code_file;
+
+    if (host === null) {
+        console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
+        return;
+    }
+
     try {
         code_file = tmp.fileSync(temps);
         script_path = code_file.name;
@@ -44,13 +50,6 @@ function robotRun(code, robotId) {
         console.error(`Could not write student code to script -> Error: ${err}`);
         return;
     }
-
-    const host = selectHost(robotId);
-    if (host === null) {
-        console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
-        return;
-    }
-    console.log(`robot host selected to run script with ID: ${robotId}`);
     
     const pythonScript = spawn('python3', ['-u', script_path], {
         env: {
@@ -98,36 +97,8 @@ function writeCode(code, writePath, toRun) {
         fileContent = 'import sys\nimport os\n';
     }
     fileContent += code;
+    //fileContent += '\nsys.exit(0)';
     fs.writeFileSync(writePath, fileContent, 'utf-8');
-}
-
-/////////////////////////
-////ADD HOSTS HERE///////
-/////////////////////////
-
-/**
- * Gets the hostname of a selected robot
- * 
- * @param robotId: The id of the robot
- * @returns the hostname of the robot
- */
-function selectHost(robotId) {
-    let host;
-    switch (robotId) {
-        case 'robot 1':
-            host = process.env.ROBOT_1_ADDRESS;
-            break;
-        case 'robot 2':
-            host = process.env.ROBOT_2_ADDRESS;
-            break;
-        case 'robot 3':
-            host = process.env.ROBOT_3_ADDRESS;
-            break;
-        default:
-            host = null;
-            break;
-    }
-    return host;
 }
 
 /**
@@ -137,14 +108,14 @@ function selectHost(robotId) {
  * @param path: the path of the file to delete
  */
 function cleanupFile(file_obj, path) {
-    if (file_obj) {
+    if (file_obj && fs.existsSync(path)) {
         try {
-            file_obj.removeCallback();
-            console.log(`Cleaned up file with path: ${path}`);
+            fs.unlinkSync(path);
+            console.log(`Removed file with path: ${path}`);
         }
         catch (err) {
-            console.error(`Could not cleanup temp code file with path: ${path}`);
-            console.error(`removeCallback() error: ${err}`);
+            console.error(`Could not remove temp code file with path: ${path}`);
+            console.error(`unlinkSync() error: ${err}`);
         }
     }
 }

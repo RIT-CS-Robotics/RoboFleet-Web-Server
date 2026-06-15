@@ -65,7 +65,7 @@ const robotConnections = {}; // each robot is saved here
  * @param ipAddress: The IP/Hostname of the robot
  */
 function initializeRobotConnection(robotId, ipAddress) {
-  console.log(`Initializing connection loop for ${robotId} at ${ipAddress}...`);
+  //console.log(`Initializing connection loop for ${robotId} at ${ipAddress}...`);
   // Ensure we have a placeholder state object in our tracker if it doesn't exist
   if (!robotConnections[robotId]) {
     robotConnections[robotId] = {
@@ -310,6 +310,7 @@ app.post('/api/save', (req, res) => {
 
     // selects the correct robot
     const trackingData = robotConnections[robotId];
+    const hostName = trackingData.host;
 
     if (!trackingData) {
         return res.status(404).json({ message: `Robot ID "${robotId}" is not configured.` });
@@ -329,7 +330,7 @@ app.post('/api/save', (req, res) => {
         const msg = new ROSLIB.Message({ data: userText }); // new message for the textTopic is created with the user inputed text from the frontend and is then published
         textTopic.publish(msg);
 
-        robotRun(userText,robotId); // runs the robot
+        robotRun(userText,robotId, hostName); // runs the robot
 
         console.log(`Forwarded "${userText}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${userText}"` });

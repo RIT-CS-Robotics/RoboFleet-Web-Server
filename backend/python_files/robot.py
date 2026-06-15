@@ -20,6 +20,8 @@ class Robot:
 		self.sock.connect((self.robot_ip, self.port))
 		self.running_program = True
 
+		print("ROBOT: Start threading")
+
 		# start threading
 		self.listener_thread = threading.Thread(target=self.listener, daemon=True)
 		self.listener_thread.start()
@@ -28,12 +30,15 @@ class Robot:
 		self.non_block_thread = threading.Thread(target=self.queue_executor, daemon=False)
 		self.non_block_thread.start()
 
+		print("ROBOT: CONTINUE threading")
+
 	def listener(self):
 		"""
 		Handle communication sent back from the robot (listener)
 		and blocking commands.
 		"""
 		buffer = ""
+		print("ROBOT: listener loop start")
 		while self.running_program:
 			try:	# same bit as listener.py
 				data = self.sock.recv(1024).decode("utf-8")
