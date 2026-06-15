@@ -15,6 +15,7 @@ const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
+const {createUserLog, removeUserLog} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -240,6 +241,7 @@ app.post('/api/register', (req, res) => {
 
   users[cleanUsername] = password;
   saveUsers(users);
+  createUserLog(cleanUsername);
 
   console.log(`ADMIN ACTION: Registered a new student account: "${cleanUsername}"`);
   return res.status(201).json({ message: "Student account created successfully." });
@@ -271,6 +273,7 @@ app.delete('/api/users/:username', (req, res) => {
   // Remove user from the object and save changes
   delete users[userToDelete];
   saveUsers(users);
+  removeUserLog(userToDelete);
 
   console.log(`ADMIN ACTION: Deleted student account: "${userToDelete}"`);
   return res.json({ message: `Account "${userToDelete}" has been removed.` });
