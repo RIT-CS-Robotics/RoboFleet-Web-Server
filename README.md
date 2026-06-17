@@ -179,4 +179,10 @@ Enter the following commands in the SSH terminal
 8. sudo apt-get install ros-jazzy-rosbridge-suite
 # run the robot with the websocket connection on the robots laptop
 9. ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+#
+#
+#
+General Notes:
+1. Be sure to only allow web server access through the reverse proxy apache by configuring its file to have all routing done exclusivly through the proxy. You can however add a few manual diract access IPs by adding them as exceptions to the apache configuration file.
+2. The web server initially runs on the web via http, however it should be changed to https by enabling the use of an SSL certificate. This will add encryption to your web services and open up a wider range of things that modern browsers can do on the website.
 
