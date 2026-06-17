@@ -8,5 +8,8 @@ export default defineConfig({
   server: {
     port: 5174,
     host: true,
+    allowedHosts: [
+      'robotics-project.gccis.rit.edu'
+    ]
   }
 })

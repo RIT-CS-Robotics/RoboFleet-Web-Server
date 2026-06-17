@@ -23,11 +23,15 @@ const PORT = process.env.PORT;
 const bridge = process.env.ONLY_CONNECT;
 
 // Tells the app to use cors and json
-app.use(cors()); // Note: May be able to remove later if apache can do 100% of everything under the hood.
+app.use(cors({
+  origin: 'https://robotics-project.gccis.rit.edu',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+})); // Note: May be able to remove later if apache can do 100% of everything under the hood.
 app.use(express.json());
 
 // Security
-app.set('trust proxy', true); // allows any connections that apache provides, giving it reverse proxy controls
+app.set('trust proxy', 'loopback'); // allows any connections that apache provides, giving it reverse proxy controls
 const passkey = process.env.PASSKEY;
 
 const USERS_FILE = path.join(__dirname, 'users.json');

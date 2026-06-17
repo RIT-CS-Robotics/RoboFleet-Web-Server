@@ -96,22 +96,23 @@
   display: flex;
   flex-direction: row;
   align-items: center; /* Aligns items perfectly across their horizontal midpoints */
-  gap: 150px;            /* INCREASED: Forces clear visible separation between the controls */
-  margin-bottom: 15px;  /* Spacing block directly above the textarea window */
+  gap: 150px; /* INCREASED: Forces clear visible separation between the controls */
+  margin-bottom: 15px; /* Spacing block directly above the textarea window */
 }
 
-/* Individual flex structural rule for loader element placement */
+/* Horizontal bar lining up import and export buttons together side-by-side */
 .file-loader-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 12px; /* Clean horizontal gap between your buttons */
 }
 
 /* The dark navy file loader visual button layout styles */
 .btn-file-loader {
-  display: inline-flex;  /* NEW: Forces icon image and text baseline to sit next to each other */
-  align-items: center;   /* NEW: Centers vector and label word to the exact vertical middle */
+  display: inline-flex; /* NEW: Forces icon image and text baseline to sit next to each other */
+  align-items: center; /* NEW: Centers vector and label word to the exact vertical middle */
   justify-content: center;
-  gap: 12px;             /* NEW: Adds 12px horizontal padding room between drawing and text */
+  gap: 12px; /* NEW: Adds 12px horizontal padding room between drawing and text */
   padding: 8px 20px;
   font-size: 20px;
   font-weight: bold;
@@ -132,7 +133,7 @@
 
 /* NEW: Layout boundaries formatting for the inline SVG vector icon */
 .btn-icon {
-  width: 24px;           /* Crisp proportions to pair smoothly with 20px text size */
+  width: 24px; /* Crisp proportions to pair smoothly with 20px text size */
   height: 24px;
   color: var(--text-muted);
   transition: color 0.2s ease;
@@ -178,19 +179,19 @@
   width: 100%;
   flex: 1;
   box-sizing: border-box;
-  font-family: var(--font-mono); 
+  font-family: var(--font-mono);
   font-size: 20px;
   margin-bottom: 15px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background-color: var(--bg-secondary); 
+  background-color: var(--bg-secondary);
   color: var(--text-main);
-  caret-color: var(--accent);            
-  outline: none;                          
-  resize: none;                           
-  overflow-y: auto; 
-  white-space: pre; 
-  overflow-x: auto; 
+  caret-color: var(--accent);
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  white-space: pre;
+  overflow-x: auto;
 }
 
 /* Subtly glows the code box outline when the user clicks inside */
@@ -213,7 +214,7 @@
   border-radius: var(--radius);
   border: none;
   background: var(--accent); /* Using Global Variable */
-  color: #030712;            /* Dark text on bright button for readability */
+  color: #030712; /* Dark text on bright button for readability */
 }
 
 .btn-deploy:hover {
@@ -226,7 +227,7 @@
   padding: 10px 15px;
   background: var(--success-bg); /* Using Global Variable */
   border-radius: var(--radius);
-  color: #34d399;                /* Bright Green Status Text for high visibility */
+  color: #34d399; /* Bright Green Status Text for high visibility */
   display: flex;
   align-items: center;
   border: 1px solid #064e3b;
@@ -238,6 +239,7 @@
     height: auto;
     gap: 20px;
   }
+  
   .dashboard-sidebar {
     width: 100%;
     border-right: none;
@@ -245,18 +247,28 @@
     padding-right: 0;
     padding-bottom: 20px;
   }
+  
   .controls-row-wrapper {
     flex-direction: column;
     align-items: flex-start;
     gap: 30px;
   }
+  
+  /* Stacks buttons vertically on tablet/mobile screens */
+  .file-loader-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
   .btn-file-loader {
     width: 100%;
   }
+  
   .robot-selector-group {
     width: 100%;
     justify-content: space-between;
   }
+  
   .robot-select-dropdown {
     width: 100%;
     max-width: 250px;

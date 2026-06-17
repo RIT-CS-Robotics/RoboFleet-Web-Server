@@ -9,6 +9,7 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
   const [statusMessage, setStatusMessage] = useState('Ready');
 
+  // Handles API transmission and safely opens status window on success
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage(`Sending to ${selectedRobot}...`);
@@ -26,39 +27,59 @@ export default function Dashboard({ onLogout, currentUser }) {
       }
       const data = await response.json();
       setStatusMessage(data.message);
+      
+      // Fixed: Only opens the window after a successful database save
+      window.open('status', '_blank');
     } catch (error) {
       console.error("Transmission error:", error);
       setStatusMessage('Error connecting to robot');
     }
   };
 
-  // Makes Tab key press inside the textarea does an indent
-  const handleTabPress= (tabEvent) => {
+  // Makes Tab key press inside the textarea do an indent
+  const handleTabPress = (tabEvent) => {
     if (tabEvent.key === 'Tab') {
-      tabEvent.preventDefault(); // Stops the browser from moving to the next button
+      tabEvent.preventDefault();
       
       const textarea = tabEvent.target;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       
-      const indent = '  '; 
+      const indent = '    '; 
       
-      // Inserts the indentation spaces directly into your current text position
       const newText = inputText.substring(0, start) + indent + inputText.substring(end);
       setInputText(newText);
       
-      // Crucial: Moves your blinking typing cursor right past the new indentation spaces
-      // We use a small timeout to let React finish rendering the state update first
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + indent.length;
       }, 0);
     }
   };
 
-  const deploy=() => {
-    window.open('status', '_blank');
-    };
+  // Modern Export system with standard automatic fallback for Safari/Firefox
+  async function handleExport() {
+    try {
+      const fileHandler = await window.showSaveFilePicker({
+        suggestedName: 'RoboFleet-code.py',
+        types: [{
+          description: 'Code Files',
+          accept: {'text/x-python': ['.py'], 'text/x-java-source': ['.java']}
+        }]
+      });
 
+      const writable = await fileHandler.createWritable();
+      await writable.write(inputText);
+      await writable.close();
+      console.log(`Code file saved for user: ${currentUser}`);
+      alert('File Saved');
+    }
+    catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error(`Could not save file for user: ${currentUser} -> Error: ${err.message}`);
+        alert('Failed to Save File');
+      }
+    }
+  }
 
   return (
     <div className="dashboard-container">
@@ -70,7 +91,6 @@ export default function Dashboard({ onLogout, currentUser }) {
             <h2 className="dashboard-account-title">RoboFleet Account:</h2>
             <p className="dashboard-username">{currentUser}</p>
           </div>
-          {/* Instructions Box Section */}
           <div className="instructions-section">
             <h3 className="instructions-title">Instructions:</h3>
             <div className="instructions-box">
@@ -91,21 +111,13 @@ export default function Dashboard({ onLogout, currentUser }) {
         <div className="controls-row-wrapper">
           <div className="file-loader-group">
             
-            {/* FIXED: The SVG is now tucked inside the label tags, right before the text */}
+            {/* Import Button */}
             <label htmlFor="code-file-upload" className="btn-file-loader">
-              <svg 
-                className="btn-icon" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2.5" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />
                 <line x1="12" y1="18" x2="12" y2="12" />
-                <polyline points="9 15 12 12 15 15" />
+                <polyline points="9 15 12 18 15 15" />
               </svg>
               <span>Import Code</span>
             </label>
@@ -113,7 +125,7 @@ export default function Dashboard({ onLogout, currentUser }) {
             <input
               id="code-file-upload"
               type="file"
-              accept=".txt,.py,.css" // acceptable file types to import
+              accept=".txt,.py,.css"
               style={{ display: 'none' }}
               onChange={(changeEvent) => {
                 const file = changeEvent.target.files[0];
@@ -126,8 +138,19 @@ export default function Dashboard({ onLogout, currentUser }) {
                 reader.readAsText(file);
               }}
             />
+            
+            {/* Export Button */}
+            <button type="button" onClick={handleExport} className="btn-file-loader btn-file-exporter">
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="12" x2="12" y2="18" />
+                <polyline points="9 15 12 12 15 15" />
+              </svg>
+              <span>Export Code</span>
+            </button>
           </div>
-        
+          
           <div className="robot-selector-group">
             <label className="robot-selector-label">Target Robot:</label>
             <select value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)} className="robot-select-dropdown">
@@ -147,7 +170,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         />
 
         <div className="action-row">
-          <button type="submit" className="btn-deploy" onClick={deploy}>
+          <button type="submit" className="btn-deploy">
             Deploy
           </button>
           <div className="status-display">
