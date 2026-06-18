@@ -1,276 +1,333 @@
-/* src/components/Dashboard.css */
+/* src/components/Dashboard.css */ 
 
-.dashboard-container {
-  height: 100vh;
-  padding: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-}
+.dashboard-container { 
+  height: 100vh; 
+  padding: 20px; 
+  width: 100%; 
+  display: flex; 
+  flex-direction: row; 
+  gap: 30px; 
+  box-sizing: border-box; /* Fixed: Prevents screen borders from creating scrollbars */
+} 
 
-.dashboard-sidebar {
-  width: 320px; /* Widened to fit larger text sizes and instructions box */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border-right: 1px solid var(--border); /* Using Global Variable */
-  padding-right: 20px;
-}
+.dashboard-sidebar { 
+  width: 320px; /* Widened to fit larger text sizes and instructions box */ 
+  height: calc(100vh - 40px); /* Fixed: Constrains sidebar to screen size minus container padding */
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  border-right: 1px solid var(--border); /* Using Global Variable */ 
+  padding-right: 20px; 
+  box-sizing: border-box; /* Fixed: Prevents padding from breaking layout math */
+} 
 
-.sidebar-top-group {
-  display: flex;
-  flex-direction: column;
-  gap: 50px; /* Tightly stacks instructions directly under user name */
-}
+.sidebar-top-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 50px; /* Tightly stacks instructions directly under user name */ 
+  flex-grow: 1; /* Fixed: Lets the group expand to preserve bottom space for logout button */
+} 
 
-.dashboard-account-title {
-  margin-top: 0;
-  color: var(--text-main);
-  font-size: 30px;
-  line-height: 1.2;
-}
+.dashboard-account-title { 
+  margin-top: 0; 
+  color: var(--text-main); 
+  font-size: 30px; 
+  line-height: 1.2; 
+} 
 
-.dashboard-username {
-  font-size: 26px;
-  color: var(--text-muted); /* Using Global Variable */
-  margin-top: 0px; /* Removed gap to pull it up closer to title */
-}
+.dashboard-username { 
+  font-size: 26px; 
+  color: var(--text-muted); /* Using Global Variable */ 
+  margin-top: 0px; /* Removed gap to pull it up closer to title */ 
+} 
 
-/* Layout wrappers for the instructions area */
-.instructions-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+/* Layout wrappers for the instructions area */ 
+.instructions-section { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  margin-top: auto;   /* Fixed: Centers the box neatly inside the sidebar track */
+  margin-bottom: auto; /* Fixed: Centers the box neatly inside the sidebar track */
+} 
 
-.instructions-title {
-  color: var(--text-main);
-  font-size: 22px; /* Set slightly smaller than username for hierarchy */
-  margin: 0;
-}
+.instructions-title { 
+  color: var(--text-main); 
+  font-size: 22px; /* Set slightly smaller than username for hierarchy */ 
+  margin: 0; 
+} 
 
-.instructions-box {
-  background-color: var(--bg-secondary); /* Dark Onyx block color */
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 20px;
-}
+.instructions-box { 
+  background-color: var(--bg-secondary); /* Dark Onyx block color */ 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 14px; 
+  color: var(--text-muted); 
+  line-height: 1.6; 
+  font-size: 20px; 
+} 
 
-.instructions-box p {
-  margin-bottom: 10px;
-}
+.instructions-box p { 
+  margin-bottom: 10px; 
+} 
 
-.instructions-box p:last-child {
-  margin-bottom: 0; /* Prevents extra hanging whitespace at the bottom */
-}
+.instructions-box p:last-child { 
+  margin-bottom: 0; /* Prevents extra hanging whitespace at the bottom */ 
+} 
 
-.btn-logout {
-  padding: 12px; /* Increased padding to match large text size */
-  font-size: 20px;
-  cursor: pointer;
-  background: var(--danger); /* Using Global Variable */
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  width: 100%;
-  font-weight: bold;
-}
+.btn-logout { 
+  padding: 12px; /* Increased padding to match large text size */ 
+  font-size: 20px; 
+  cursor: pointer; 
+  background: var(--danger); /* Using Global Variable */ 
+  color: white; 
+  border: none; 
+  border-radius: var(--radius); 
+  width: 100%; 
+  font-weight: bold; 
+} 
 
-.btn-logout:hover {
-  background: var(--danger-hover);
-}
+.btn-logout:hover { 
+  background: var(--danger-hover); 
+} 
 
-.dashboard-main-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
+.dashboard-main-form { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 0; 
+} 
 
-/* Horizontal bar container lining up file buttons and robot selections */
-.controls-row-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center; /* Aligns items perfectly across their horizontal midpoints */
-  gap: 150px; /* INCREASED: Forces clear visible separation between the controls */
-  margin-bottom: 15px; /* Spacing block directly above the textarea window */
-}
+/* Horizontal bar container lining up file buttons and robot selections */ 
+.controls-row-wrapper { 
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; /* Aligns items perfectly across their horizontal midpoints */ 
+  justify-content: space-between; /* Fixed: Pushes buttons/input left, and dropdown right cleanly */
+  gap: 20px; /* Fixed: Swapped 150px gap to a clean 20px so input shares row space */
+  margin-bottom: 15px; /* Spacing block directly above the textarea window */ 
+} 
 
-/* Horizontal bar lining up import and export buttons together side-by-side */
-.file-loader-group {
-  display: flex;
-  flex-direction: row;
-  gap: 12px; /* Clean horizontal gap between your buttons */
-}
-
-/* The dark navy file loader visual button layout styles */
-.btn-file-loader {
-  display: inline-flex; /* NEW: Forces icon image and text baseline to sit next to each other */
-  align-items: center; /* NEW: Centers vector and label word to the exact vertical middle */
-  justify-content: center;
-  gap: 12px; /* NEW: Adds 12px horizontal padding room between drawing and text */
-  padding: 8px 20px;
-  font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  color: var(--text-main);
-  text-align: center;
-  user-select: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.btn-file-loader:hover {
-  background-color: var(--border);
-  border-color: var(--accent);
-}
-
-/* NEW: Layout boundaries formatting for the inline SVG vector icon */
-.btn-icon {
-  width: 24px; /* Crisp proportions to pair smoothly with 20px text size */
-  height: 24px;
-  color: var(--text-muted);
-  transition: color 0.2s ease;
-}
-
-/* NEW: Prompts the document drawing lines to glow cyan during active mouseovers */
-.btn-file-loader:hover .btn-icon {
-  color: var(--accent);
-}
-
-/* Reconfigured to display side-by-side with loader components inside wrapper */
-.robot-selector-group {
-  margin-bottom: 0; /* Cleared out old margin style */
-  display: flex;
-  flex-direction: row;
+/* Horizontal bar lining up import and export buttons together side-by-side */ 
+.file-loader-group { 
+  display: flex; 
+  flex-direction: row; 
   align-items: center;
-}
+  gap: 12px; /* Clean horizontal gap between your buttons */ 
+  flex-grow: 1; /* Fixed: Lets the group stretch across the available row real estate */
+} 
 
-.robot-selector-label {
-  margin-right: 10px;
+/* The dark navy file loader visual button layout styles */ 
+.btn-file-loader { 
+  display: inline-flex; /* NEW: Forces icon image and text baseline to sit next to each other */ 
+  align-items: center; /* NEW: Centers vector and label word to the exact vertical middle */ 
+  justify-content: center; 
+  gap: 12px; /* NEW: Adds 12px horizontal padding room between drawing and text */ 
+  padding: 8px 20px; 
+  font-size: 20px; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  text-align: center; 
+  user-select: none; 
+  transition: background-color 0.2s ease, border-color 0.2s ease; 
+} 
+
+.btn-file-loader:hover { 
+  background-color: var(--border); 
+  border-color: var(--accent); 
+} 
+
+/* NEW: Layout boundaries formatting for the inline SVG vector icon */ 
+.btn-icon { 
+  width: 24px; /* Crisp proportions to pair smoothly with 20px text size */ 
+  height: 24px; 
+  color: var(--text-muted); 
+  transition: color 0.2s ease; 
+} 
+
+/* NEW: Prompts the document drawing lines to glow cyan during active mouseovers */ 
+.btn-file-loader:hover .btn-icon { 
+  color: var(--accent); 
+} 
+
+/* 🔮 Cyber-themed text input box to match your text area and buttons */
+.log-name-text-box {
+  padding: 8px 15px;
+  font-family: var(--font-mono); /* Uses terminal coding font style */
+  font-size: 20px;               /* Matches button tracking sizes */
   font-weight: bold;
-  font-size: 20px;
-  white-space: nowrap; /* Keeps label cleanly tracked on a single line space */
-}
-
-.robot-select-dropdown {
-  padding: 8px;
-  font-size: 20px;
   border-radius: var(--radius);
-  width: 250px;
   border: 1px solid var(--border);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary); 
   color: var(--text-main);
+  caret-color: var(--accent);            /* Glowing text cursor point */
   outline: none;
-}
-
-.robot-select-dropdown:focus {
-  border-color: var(--accent);
-}
-
-.code-editor-textarea {
-  padding: 12px;
-  width: 100%;
-  flex: 1;
+  min-width: 180px;
+  flex-grow: 1;                          /* Lets input stretch fluidly across layouts */
+  height: 43px;                          /* Custom vertical pixel lock to buttons */
   box-sizing: border-box;
-  font-family: var(--font-mono);
-  font-size: 20px;
-  margin-bottom: 15px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  color: var(--text-main);
-  caret-color: var(--accent);
-  outline: none;
-  resize: none;
-  overflow-y: auto;
-  white-space: pre;
-  overflow-x: auto;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Subtly glows the code box outline when the user clicks inside */
-.code-editor-textarea:focus {
+/* 🔮 Custom Cyberpunk focus pulse glow when clicked */
+.log-name-text-box:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); 
 }
 
-.action-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+/* Fades the inner placeholder text cleanly into the dark obsidian environment */
+.log-name-text-box::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
-.btn-deploy {
-  padding: 12px 25px;
-  font-size: 20px;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: var(--radius);
-  border: none;
-  background: var(--accent); /* Using Global Variable */
-  color: #030712; /* Dark text on bright button for readability */
-}
+/* Reconfigured to display side-by-side with loader components inside wrapper */ 
+.robot-selector-group { 
+  margin-bottom: 0; /* Cleared out old margin style */ 
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; 
+} 
 
-.btn-deploy:hover {
-  background: var(--accent-hover);
-}
+.robot-selector-label { 
+  margin-right: 10px; 
+  font-weight: bold; 
+  font-size: 20px; 
+  white-space: nowrap; /* Keeps label cleanly tracked on a single line space */ 
+} 
 
-.status-display {
-  flex: 1;
-  font-size: 20px;
-  padding: 10px 15px;
-  background: var(--success-bg); /* Using Global Variable */
-  border-radius: var(--radius);
-  color: #34d399; /* Bright Green Status Text for high visibility */
-  display: flex;
-  align-items: center;
-  border: 1px solid #064e3b;
-}
+.robot-select-dropdown { 
+  padding: 8px; 
+  font-size: 20px; 
+  border-radius: var(--radius); 
+  width: 250px; 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-primary); 
+  color: var(--text-main); 
+  outline: none; 
+} 
 
-@media (max-width: 1024px) {
-  .dashboard-container {
-    flex-direction: column;
-    height: auto;
+.robot-select-dropdown:focus { 
+  border-color: var(--accent); 
+} 
+
+.code-editor-textarea { 
+  padding: 12px; 
+  width: 100%; 
+  flex: 1; 
+  box-sizing: border-box; 
+  font-family: var(--font-mono); 
+  font-size: 20px; 
+  margin-bottom: 15px; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  caret-color: var(--accent); 
+  outline: none; 
+  resize: none; 
+  overflow-y: auto; 
+  white-space: pre; 
+  overflow-x: auto; 
+} 
+
+/* Subtly glows the code box outline when the user clicks inside */ 
+.code-editor-textarea:focus { 
+  border-color: var(--accent); 
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); 
+} 
+
+.action-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+} 
+
+.btn-deploy { 
+  padding: 12px 25px; 
+  font-size: 20px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  border-radius: var(--radius); 
+  border: none; 
+  background: var(--accent); /* Using Global Variable */ 
+  color: #030712; /* Dark text on bright button for readability */ 
+} 
+
+.btn-deploy:hover { 
+  background: var(--accent-hover); 
+} 
+
+.status-display { 
+  flex: 1; 
+  font-size: 20px; 
+  padding: 10px 15px; 
+  background: var(--success-bg); /* Using Global Variable */ 
+  border-radius: var(--radius); 
+  color: #34d399; /* Bright Green Status Text for high visibility */ 
+  display: flex; 
+  align-items: center; 
+  border: 1px solid #064e3b; 
+} 
+
+@media (max-width: 1024px) { 
+  .dashboard-container { 
+    flex-direction: column; 
+    height: auto; 
+    gap: 20px; 
+  } 
+  
+  .dashboard-sidebar { 
+    width: 100%; 
+    height: auto; /* Fixed: Overrides full-screen height constraint for flat devices */
+    border-right: none; 
+    border-bottom: 1px solid var(--border); 
+    padding-right: 0; 
+    padding-bottom: 20px; 
+  } 
+
+  .sidebar-top-group {
     gap: 20px;
   }
-  
-  .dashboard-sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding-right: 0;
-    padding-bottom: 20px;
-  }
-  
-  .controls-row-wrapper {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 30px;
-  }
-  
-  /* Stacks buttons vertically on tablet/mobile screens */
-  .file-loader-group {
-    flex-direction: column;
-    width: 100%;
-  }
 
-  .btn-file-loader {
-    width: 100%;
+  .instructions-section {
+    margin-top: 0;
+    margin-bottom: 20px;
   }
   
-  .robot-selector-group {
+  .controls-row-wrapper { 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 20px; /* Fixed: Aligned mobile spacing variables */
+  } 
+  
+  /* Stacks buttons vertically on tablet/mobile screens */ 
+  .file-loader-group { 
+    flex-direction: column; 
+    width: 100%; 
+    gap: 15px; /* Fixed: Clean spacing track for multi-level stacked inputs */
+  } 
+  
+  .btn-file-loader { 
+    width: 100%; 
+  } 
+  
+  /* Mobile responsive overrides for log input box */
+  .log-name-text-box {
     width: 100%;
-    justify-content: space-between;
+    max-width: none;
   }
   
-  .robot-select-dropdown {
-    width: 100%;
-    max-width: 250px;
-  }
+  .robot-selector-group { 
+    width: 100%; 
+    justify-content: space-between; 
+  } 
+  
+  .robot-select-dropdown { 
+    width: 100%; 
+    max-width: 250px; 
+  } 
 }

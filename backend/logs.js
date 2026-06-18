@@ -49,6 +49,7 @@ async function removeUserLog(user) {
  * @param title: The name to give the code file.
  */
 async function saveCode(user, title, code) {
+    let result = true;
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
     try {
         const file_path = path.join(log_path, user, title);
@@ -57,8 +58,9 @@ async function saveCode(user, title, code) {
     }
     catch (err) {
         console.error(`Code could not be saved for user: ${user} with title: ${title} -> Error: ${err.message}`);
-        return;
+        result = false;
     }
+    return result;
 }
 
 /**

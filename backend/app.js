@@ -15,7 +15,7 @@ const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
-const {createUserLog, removeUserLog} = require('./logs.js'); // create and remove code log directories for users
+const {createUserLog, removeUserLog, saveCode} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -281,6 +281,22 @@ app.delete('/api/users/:username', (req, res) => {
 
   console.log(`ADMIN ACTION: Deleted student account: "${userToDelete}"`);
   return res.json({ message: `Account "${userToDelete}" has been removed.` });
+});
+
+// ====================================================
+// Code Logging Routes
+// ====================================================
+
+app.post('/api/log', (req, res) => {
+  const userName = req.body.user;
+  const logName = req.body.log;
+  const code = req.body.code;
+  console.log(`Backend received data for log request for user: ${userName} and log: ${logName}`);
+  const result = saveCode(userName, logName, code);
+  if (result === false) {
+    return res.status(400).json({message: 'Could not log student code'});
+  }
+  return res.status(201).json({message: 'Successfully logged student code'});
 });
 
 

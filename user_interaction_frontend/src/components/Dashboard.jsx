@@ -8,6 +8,31 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [inputText, setInputText] = useState('');
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
   const [statusMessage, setStatusMessage] = useState('Ready');
+  const [logName, setLogName] = useState('');
+
+  // Handles the logging of the student code
+  const handleLog = async () => {
+    try {
+      if (inputText.trim === '') {
+        inputText = 'Unnamed Code';
+      }
+      const response = await fetch('/api/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user: currentUser, log: logName, code: inputText}),
+      });
+
+      if (response.ok) {
+      } else {
+        alert('Failed to Log Code');
+        throw new Error(`Server returned status code ${response.status}`);
+      }
+    } catch (err) {
+      console.error(`Could not save log for user: ${currentUser} -> Error: ${err}`);
+    }
+  }
 
   // Handles API transmission and safely opens status window on success
   const handleSubmit = async (e) => {
@@ -27,6 +52,8 @@ export default function Dashboard({ onLogout, currentUser }) {
       }
       const data = await response.json();
       setStatusMessage(data.message);
+
+      handleLog();
       
       // Fixed: Only opens the window after a successful database save
       window.open('status', '_blank');
@@ -40,16 +67,12 @@ export default function Dashboard({ onLogout, currentUser }) {
   const handleTabPress = (tabEvent) => {
     if (tabEvent.key === 'Tab') {
       tabEvent.preventDefault();
-      
       const textarea = tabEvent.target;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      
-      const indent = '    '; 
-      
+      const indent = '    ';
       const newText = inputText.substring(0, start) + indent + inputText.substring(end);
       setInputText(newText);
-      
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + indent.length;
       }, 0);
@@ -72,8 +95,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       await writable.close();
       console.log(`Code file saved for user: ${currentUser}`);
       alert('File Saved');
-    }
-    catch (err) {
+    } catch (err) {
       if (err.name !== 'AbortError') {
         console.error(`Could not save file for user: ${currentUser} -> Error: ${err.message}`);
         alert('Failed to Save File');
@@ -83,7 +105,6 @@ export default function Dashboard({ onLogout, currentUser }) {
 
   return (
     <div className="dashboard-container">
-      
       {/* LEFT SIDE COLUMN */}
       <div className="dashboard-sidebar">
         <div className="sidebar-top-group">
@@ -110,7 +131,6 @@ export default function Dashboard({ onLogout, currentUser }) {
       <form onSubmit={handleSubmit} className="dashboard-main-form">
         <div className="controls-row-wrapper">
           <div className="file-loader-group">
-            
             {/* Import Button */}
             <label htmlFor="code-file-upload" className="btn-file-loader">
               <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -121,7 +141,6 @@ export default function Dashboard({ onLogout, currentUser }) {
               </svg>
               <span>Import Code</span>
             </label>
-
             <input
               id="code-file-upload"
               type="file"
@@ -130,7 +149,6 @@ export default function Dashboard({ onLogout, currentUser }) {
               onChange={(changeEvent) => {
                 const file = changeEvent.target.files[0];
                 if (!file) return;
-
                 const reader = new FileReader();
                 reader.onload = (readEvent) => {
                   setInputText(readEvent.target.result);
@@ -138,7 +156,7 @@ export default function Dashboard({ onLogout, currentUser }) {
                 reader.readAsText(file);
               }}
             />
-            
+
             {/* Export Button */}
             <button type="button" onClick={handleExport} className="btn-file-loader btn-file-exporter">
               <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -149,8 +167,18 @@ export default function Dashboard({ onLogout, currentUser }) {
               </svg>
               <span>Export Code</span>
             </button>
+
+            {/* FIXED PLACEMENT: Input is nested safely within the flex group */}
+            <input 
+              type='text' 
+              value={logName} 
+              onChange={(event) => setLogName(event.target.value)} 
+              placeholder="Enter Code Title..." 
+              className="log-name-text-box" 
+            />
           </div>
-          
+
+          {/* Robot selection */}
           <div className="robot-selector-group">
             <label className="robot-selector-label">Target Robot:</label>
             <select value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)} className="robot-select-dropdown">
@@ -160,12 +188,12 @@ export default function Dashboard({ onLogout, currentUser }) {
             </select>
           </div>
         </div>
-        
+
         <textarea
-          value={inputText} 
-          onChange={(e) => setInputText(e.target.value)} 
-          onKeyDown={handleTabPress} 
-          placeholder="Enter code here..." 
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={handleTabPress}
+          placeholder="Enter code here..."
           className="code-editor-textarea"
         />
 
@@ -177,7 +205,6 @@ export default function Dashboard({ onLogout, currentUser }) {
             <strong>Status:</strong> &nbsp; {statusMessage}
           </div>
         </div>
-
       </form>
     </div>
   );

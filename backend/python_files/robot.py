@@ -1,6 +1,7 @@
-import socket, os, queue, threading, time
+import socket, os, queue, threading, time, logging
+from contextlib import AbstractContextManager
 
-class Robot:
+class Robot(AbstractContextManager):
 	def __init__(self):
 		"""
 		Create a new Robot object and connect to the robot.
@@ -8,7 +9,6 @@ class Robot:
 
 		self.robot_ip = os.environ.get("ROBOT_HOST")
 		self.port = 10001
-
 		# create task queues
 		self._is_traveling = False
 		self.block_queue = queue.Queue()
@@ -20,8 +20,6 @@ class Robot:
 		self.sock.connect((self.robot_ip, self.port))
 		self.running_program = True
 
-		print("ROBOT: Start threading")
-
 		# start threading
 		self.listener_thread = threading.Thread(target=self.listener, daemon=True)
 		self.listener_thread.start()
@@ -30,15 +28,12 @@ class Robot:
 		self.non_block_thread = threading.Thread(target=self.queue_executor, daemon=False)
 		self.non_block_thread.start()
 
-		print("ROBOT: CONTINUE threading")
-
 	def listener(self):
 		"""
 		Handle communication sent back from the robot (listener)
 		and blocking commands.
 		"""
 		buffer = ""
-		print("ROBOT: listener loop start")
 		while self.running_program:
 			try:	# same bit as listener.py
 				data = self.sock.recv(1024).decode("utf-8")
@@ -70,6 +65,7 @@ class Robot:
 			except Exception as e:
 				print(f"\n Error - robot disconnect.")
 				break
+		print("bob")
 
 	def send_command(self, command, cmd_type):
 		"""
@@ -113,7 +109,7 @@ class Robot:
 		while self.running_program:
 			try:
 				# get command and wait for previous to finish
-				command = self.non_block_queue.get(timeout=1.0)
+				command = self.non_block_queue.get(timeout=0.5)
 				while self._is_traveling and self.running_program:
 					time.sleep(0.1)
 
@@ -138,9 +134,16 @@ class Robot:
 				continue
 
 	def is_traveling(self):
+		"""
+		Returns whether the robot is travelling.
+		"""
 		return self._is_traveling or not self.non_block_queue.empty()
 
 	def get_destination(self):
+		"""
+		Return the current destination of the robot, or "N/A"
+		if there is None.
+		"""
 		return self.destination
 
 	def get_pos(self):
@@ -181,6 +184,11 @@ class Robot:
 		command = f"MOVE:{steps}\n"
 		self.send_command(command, "NB")
 
+	def move_admin(self, steps):
+		"""
+		"""
+		command = f"MOVE_ADMIN:{steps}\n"
+		self.send_command(command, "NB")
 	def rotate(self, degrees):
 		"""
 		ADJUST: Rotate for {degrees} seconds.
@@ -188,9 +196,19 @@ class Robot:
 		command = f"ROTATE:{degrees}\n"
 		self.send_command(command, "NB")
 
-	def close(self):
+	def __exit__(self, exc_type, exc_value, traceback):
 		"""
-		Close the program running and the socket.
+		Wait for the non-blocking commands to execute,
+		then end the program and close the socket.
 		"""
+		while self.is_traveling():
+			time.sleep(0.1)
+
 		self.running_program = False
+		time.sleep(0.2)
+		try:
+			self.sock.shutdown(socket.SHUT_RDWR)
+		except Exception:
+			print("ROBOT: could not shut down socket.")
 		self.sock.close()
+		return
