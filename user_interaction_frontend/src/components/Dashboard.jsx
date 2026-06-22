@@ -6,6 +6,10 @@ export default function Dashboard({ onLogout, currentUser }) {
   document.title = "RoboFleet Dashboard";
 
   const [inputText, setInputText] = useState('');
+  const [logText, setLogText] = useState('');
+  const [displayMode, setDisplayMode] = useState('code'); // for switching between code and log mode
+
+
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
   const [statusMessage, setStatusMessage] = useState('Ready');
   const [logName, setLogName] = useState('');
@@ -182,106 +186,30 @@ export default function Dashboard({ onLogout, currentUser }) {
     return;
   };
 
-  return (
-<div className="dashboard-container">
-    {/* LEFT SIDE COLUMN */}
+return (
+  <div className="dashboard-container">
+    {/* LEFT SIDE COLUMN (SIDEBAR) */}
     <div className="dashboard-sidebar">
-        
-        {/* This group holds everything at the top together */}
-        <div className="sidebar-top-group"> 
-            <div>
-                <h2 className="dashboard-account-title">RoboFleet Account:</h2>
-                <p className="dashboard-username">{currentUser}</p>
+      {/* Centered Account Info Header Block */}
+      <div className="dashboard-account-header-block">
+        <h2 className="dashboard-account-title">RoboFleet Account:</h2>
+        <p className="dashboard-username">{currentUser}</p>
+      </div>
+
+      {/* INNER SPLIT ROW: Side-by-side layout columns */}
+      <div className="sidebar-split-layout-row">
+        {/* SUBCOLUMN A (LEFT SIDE): Shortened Instructions & Dropdown */}
+        <div className="sidebar-left-subcolumn">
+          <div className="instructions-section">
+            <h3 className="instructions-title">Instructions:</h3>
+            <div className="instructions-box shortened-box">
+              <p>1. Select a target robot dropdown menu.</p>
+              <p>2. Load or write code in the editor workspace.</p>
+              <p>3. Click "Deploy" to transmit your commands.</p>
             </div>
-
-            <div className="instructions-section">
-                <h3 className="instructions-title">Instructions:</h3>
-                <div className="instructions-box">
-                    <p>1. Select a target robot from the dropdown menu.</p>
-                    <p>2. Write or import your code into the workspace.</p>
-                    <p>3. Make sure you are importing Robot in your code.</p>
-                    <p>4. Click "Deploy" to send commands to the selected robot!</p>
-                </div>
-            </div>
-
-            {/* Scrollable Log Button Section */}
-            <div className="scroll-panel-section">
-                <h3 className="scroll-panel-title">Logs:</h3>
-                <div className="scroll-button-container">
-
-                  {userLogs.map( (fileName, index) => (
-                  <button
-                  key={index}
-                  onClick={ () => handleLogButton(fileName) }
-                  className={'log-entry-btn'}
-                  >
-                    {fileName}
-                  </button>
-                  ))}
-
-                </div>
-            </div>
-        </div> {/* Closes .sidebar-top-group */}
-
-        {/* This sits completely outside the top group, pinning it to the bottom */}
-        <button onClick={onLogout} className="btn-logout"> 
-            Logout 
-        </button>
-    </div> {/* Closes .dashboard-sidebar */}
-
-      {/* RIGHT SIDE MAIN COLUMN */}
-      <form onSubmit={handleSubmit} className="dashboard-main-form">
-        <div className="controls-row-wrapper">
-          <div className="file-loader-group">
-            {/* Import Button */}
-            <label htmlFor="code-file-upload" className="btn-file-loader">
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <polyline points="9 15 12 18 15 15" />
-              </svg>
-              <span>Import Code</span>
-            </label>
-            <input
-              id="code-file-upload"
-              type="file"
-              accept=".txt,.py,.css"
-              style={{ display: 'none' }}
-              onChange={(changeEvent) => {
-                const file = changeEvent.target.files[0];
-                if (!file) return;
-                setLogName(file.name);
-                const reader = new FileReader();
-                reader.onload = (readEvent) => {
-                  setInputText(readEvent.target.result);
-                };
-                reader.readAsText(file);
-              }}
-            />
-
-            {/* Export Button */}
-            <button type="button" onClick={handleExport} className="btn-file-loader btn-file-exporter">
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="12" x2="12" y2="18" />
-                <polyline points="9 15 12 12 15 15" />
-              </svg>
-              <span>Export Code</span>
-            </button>
-
-            {/* FIXED PLACEMENT: Input is nested safely within the flex group */}
-            <input 
-              type='text' 
-              value={logName} 
-              onChange={(event) => setLogName(event.target.value)} 
-              placeholder="Enter Code Title..." 
-              className="log-name-text-box" 
-            />
           </div>
 
-          {/* Robot selection */}
+          {/* Robot Selection Dropdown - Positioned directly under instructions */}
           <div className="robot-selector-group">
             <label className="robot-selector-label">Target Robot:</label>
             <select value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)} className="robot-select-dropdown">
@@ -292,23 +220,101 @@ export default function Dashboard({ onLogout, currentUser }) {
           </div>
         </div>
 
-        <textarea
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={handleTabPress}
-          placeholder="Enter code here..."
-          className="code-editor-textarea"
-        />
+        {/* SUBCOLUMN B (RIGHT SIDE): Elevated Logs Box & Future Button Slot */}
+        <div className="sidebar-right-subcolumn">
+          {/* Logs section floats up to the top level */}
+          <div className="scroll-panel-section elevated-log-track">
+            <h3 className="scroll-panel-title">Logs:</h3>
+            <div className="scroll-button-container restricted-height-scroll">
+              {userLogs.map((fileName, index) => (
+                <button key={index} onClick={() => handleLogButton(fileName)} className="log-item-btn">
+                  {fileName}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <div className="action-row">
-          <button type="submit" className="btn-deploy">
-            Deploy
-          </button>
-          <div className="status-display">
-            <strong>Status:</strong> &nbsp; {statusMessage}
+          {/* Code and Log buttons */}
+          <div className="switch-buttons">
+            <button type="button" className="btn-sidebar-action btn-blue-code">
+              Code
+            </button>
+            <button type="button" className="btn-sidebar-action btn-green-log">
+              Log
+            </button>
           </div>
         </div>
-      </form>
-    </div>
-  );
+      </div> {/* Closes .sidebar-split-layout-row */}
+
+      {/* Logout button spanning beneath both layout lanes */}
+      <button onClick={onLogout} className="btn-logout">
+        Logout
+      </button>
+    </div> {/* Closes .dashboard-sidebar */}
+
+    {/* RIGHT SIDE MAIN COLUMN */}
+    <form onSubmit={handleSubmit} className="dashboard-main-form">
+      <div className="controls-row-wrapper">
+        <div className="file-loader-group">
+          {/* Import Button */}
+          <label htmlFor="code-file-upload" className="btn-file-loader">
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <polyline points="9 15 12 18 15 15" />
+            </svg>
+            <span>Import Code</span>
+          </label>
+          <input 
+            id="code-file-upload" 
+            type="file" 
+            accept=".txt,.py,.css" 
+            style={{ display: 'none' }} 
+            onChange={(changeEvent) => {
+              // FIXED: Added back '[0]' here to target the specific file object instance
+              const file = changeEvent.target.files[0]; 
+              if (!file) return;
+              
+              setLogName(file.name);
+              const reader = new FileReader();
+              reader.onload = (readEvent) => {
+                setInputText(readEvent.target.result);
+              };
+              reader.readAsText(file);
+            }} 
+          />
+
+          {/* Export Button */}
+          <button type="button" onClick={handleExport} className="btn-file-loader btn-file-exporter">
+            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="12" x2="12" y2="18" />
+              <polyline points="9 15 12 12 15 15" />
+            </svg>
+            <span>Export Code</span>
+          </button>
+
+          {/* Code Title Input Field */}
+          <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} placeholder="Enter Code Title..." className="log-name-text-box" />
+        </div>
+      </div>
+
+      {/* Code Textarea Main Canvas Frame */}
+      <textarea value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleTabPress} placeholder="Enter code here..." className="code-editor-textarea" />
+
+      {/* Bottom Control Bar Row */}
+      <div className="action-row">
+        <button type="submit" className="btn-deploy">
+          Deploy
+        </button>
+        <div className="status-display">
+          <strong>Status:</strong> &nbsp; {statusMessage}
+        </div>
+      </div>
+    </form>
+  </div>
+);
+
 }

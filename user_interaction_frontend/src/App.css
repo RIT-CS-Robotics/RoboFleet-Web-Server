@@ -46,3 +46,17 @@ button {
 button:active {
   transform: scale(0.98); 
 }
+
+/* ==========================================================================
+   FULL SCREEN EXPANSION RESET
+   ========================================================================== */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  background-color: var(--bg-primary);
+  overflow: hidden; /* Prevents double scrolling wheels across the interface */
+}

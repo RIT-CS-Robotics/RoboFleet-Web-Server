@@ -1,34 +1,58 @@
 /* src/components/Dashboard.css */
-.dashboard-container {
-  height: 100vh;
-  padding: 30px; /* Increased padding slightly for an expanded, airy feel */
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: 40px; /* Widened the gap between left and right columns */
-  box-sizing: border-box; /* Fixed: Prevents screen borders from creating scrollbars */
+
+/* ==========================================================================
+   GLOBAL CANVAS LAYOUT RESET - Unlocks entire widescreen real estate
+   ========================================================================== */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  overflow: hidden; /* Stops layout double-scrolling bars */
 }
 
+* {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   MASTER PANEL BOX SETUP
+   ========================================================================== */
+.dashboard-container {
+  height: 100vh;
+  width: 100%;
+  padding: 30px;
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   LEFT SIDEBAR PANEL - 2-Column Split System Configuration
+   ========================================================================== */
 .dashboard-sidebar {
-  width: 22%; /* CHANGED: Converted from fixed 320px to a fluid percentage so it expands on wider screens */
-  min-width: 280px; /* FIXED: Prevents the sidebar from getting too squished on mid-sized displays */
-  height: calc(100vh - 60px); /* Adjusted layout math to match new container padding */
+  width: 580px; /* Allocates horizontal lane space for side-by-side tracking boxes */
+  height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* REMOVED: Deleted the rigid vertical border line that trapped your content */
-  box-sizing: border-box; /* Fixed: Prevents padding from breaking layout math */
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
-.sidebar-top-group {
-  display: flex;
-  flex-direction: column;
-  gap: 50px; /* Tightly stacks instructions directly under user name */
-  flex-grow: 1; /* Fixed: Lets the group expand to preserve bottom space for logout button */
+/* Centered Header Text Group */
+.dashboard-account-header-block {
+  text-align: center;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .dashboard-account-title {
   margin-top: 0;
+  margin-bottom: 4px;
   color: var(--text-main);
   font-size: 30px;
   line-height: 1.2;
@@ -36,33 +60,67 @@
 
 .dashboard-username {
   font-size: 26px;
-  color: var(--text-muted); /* Using Global Variable */
-  margin-top: 0px; /* Removed gap to pull it up closer to title */
+  color: var(--text-muted);
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
-/* Layout wrappers for the instructions area */
+/* Sidebar Columns Grid Row */
+.sidebar-split-layout-row {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  /* FIXED: Forced both columns to stop stretching. They are now locked to a clean, shorter height! */
+  height: 650px !important; 
+  flex-grow: 0 !important; 
+  margin-bottom: auto; /* Pushes the remaining blank space down towards the logout button */
+}
+
+/* --------------------------------------------------------------------------
+   FIXED MATCHING VERTICAL COLUMNS - Aligns Left and Right Boxes Perfectly
+   -------------------------------------------------------------------------- */
+.sidebar-left-subcolumn,
+.sidebar-right-subcolumn {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  height: 100%; /* Forces both side structures to lock to the 380px grid boundary */
+}
+
+.sidebar-left-subcolumn {
+  gap: 15px; 
+}
+
+.sidebar-right-subcolumn {
+  gap: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   SUBCOLUMN A (LEFT SIDE): Balanced Instructions & Lower Dropdown
+   -------------------------------------------------------------------------- */
 .instructions-section {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: -40px; /* Fixed: Centers the box neatly inside the sidebar track */
-  margin-bottom: 0px; /* Fixed: Centers the box neatly inside the sidebar track */
+  height: calc(100% - 75px); 
 }
 
 .instructions-title {
   color: var(--text-main);
-  font-size: 22px; /* Set slightly smaller than username for hierarchy */
+  font-size: 22px;
   margin: 0;
 }
 
-.instructions-box {
-  background-color: var(--bg-secondary); /* Dark Onyx block color */
+/* Frame layout for the instructions box */
+.instructions-box.shortened-box {
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px;
   color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 20px;
+  line-height: 1.5;
+  font-size: 18px; 
+  height: 100%;
 }
 
 .instructions-box p {
@@ -70,57 +128,145 @@
 }
 
 .instructions-box p:last-child {
-  margin-bottom: 0; /* Prevents extra hanging whitespace at the bottom */
+  margin-bottom: 0;
 }
 
+/* Target Robot Dropdown Section Styles */
+.robot-selector-group {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: row; 
+  align-items: center; 
+  gap: 10px;
+  height: 60px; 
+  flex-shrink: 0; 
+}
+
+.robot-selector-label {
+  font-weight: bold;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.robot-select-dropdown {
+  padding: 8px;
+  font-size: 20px;
+  border-radius: var(--radius);
+  flex-grow: 1; 
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  outline: none;
+}
+
+.robot-select-dropdown:focus {
+  border-color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   SUBCOLUMN B (RIGHT SIDE): Shorter Logs Box & Future Button Slot
+   -------------------------------------------------------------------------- */
+.scroll-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Elevated Log Track layout boundaries configuration */
+.scroll-panel-section.elevated-log-track {
+  height: calc(100% - 110px); 
+}
+
+.scroll-panel-title {
+  color: var(--text-main);
+  font-size: 22px;
+  margin: 0;
+}
+
+/* Shorter, custom webkit log container scroll screen window */
+.scroll-button-container.restricted-height-scroll {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  height: 100%; 
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-item-btn {
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.log-item-btn:hover {
+  background-color: var(--border);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Logout Action Button Element */
 .btn-logout {
-  padding: 12px; /* Increased padding to match large text size */
+  padding: 12px;
   font-size: 20px;
   cursor: pointer;
-  background: var(--danger); /* Using Global Variable */
+  background: var(--danger);
   color: white;
   border: none;
   border-radius: var(--radius);
   width: 100%;
   font-weight: bold;
+  margin-top: auto; /* Keeps it strictly stuck to the very bottom window edge */
 }
 
 .btn-logout:hover {
   background: var(--danger-hover);
 }
 
+/* ==========================================================================
+   RIGHT WORKSPACE MAIN WORK AREA
+   ========================================================================== */
 .dashboard-main-form {
-  flex: 1; /* Automatically expands to seamlessly consume all remaining widescreen real estate */
+  flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 
-/* Horizontal bar container lining up file buttons and robot selections */
 .controls-row-wrapper {
   display: flex;
   flex-direction: row;
-  align-items: center; /* Aligns items perfectly across their horizontal midpoints */
-  justify-content: space-between; /* Fixed: Pushes buttons/input left, and dropdown right cleanly */
-  gap: 20px; /* Fixed: Swapped 150px gap to a clean 20px so input shares row space */
-  margin-bottom: 15px; /* Spacing block directly above the textarea window */
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
-/* Horizontal bar lining up import and export buttons together side-by-side */
 .file-loader-group {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px; /* Clean horizontal gap between your buttons */
-  flex-grow: 1; /* Fixed: Lets the group stretch across the available row real estate */
+  gap: 12px;
+  flex-grow: 1;
 }
 
-/* The dark navy file loader visual button layout styles */
 .btn-file-loader {
-  display: inline-flex; /* NEW: Forces icon image and text baseline to sit next to each other */
-  align-items: center; /* NEW: Centers vector and label word to the exact vertical middle */
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  gap: 12px; /* NEW: Adds 12px horizontal padding room between drawing and text */
+  gap: 12px;
   padding: 8px 20px;
   font-size: 20px;
   font-weight: bold;
@@ -139,80 +285,46 @@
   border-color: var(--accent);
 }
 
-/* NEW: Layout boundaries formatting for the inline SVG vector icon */
 .btn-icon {
-  width: 24px; /* Crisp proportions to pair smoothly with 20px text size */
+  width: 24px;
   height: 24px;
   color: var(--text-muted);
   transition: color 0.2s ease;
 }
 
-/* NEW: Prompts the document drawing lines to glow cyan during active mouseovers */
 .btn-file-loader:hover .btn-icon {
   color: var(--accent);
 }
 
-/* 🔮 Cyber-themed text input box to match your text area and buttons */
 .log-name-text-box {
   padding: 8px 15px;
-  font-family: var(--font-mono); /* Uses terminal coding font style */
-  font-size: 20px; /* Matches button tracking sizes */
+  font-family: var(--font-mono);
+  font-size: 20px;
   font-weight: bold;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background-color: var(--bg-secondary);
   color: var(--text-main);
-  caret-color: var(--accent); /* Glowing text cursor point */
+  caret-color: var(--accent);
   outline: none;
   min-width: 180px;
-  flex-grow: 1; /* Lets input stretch fluidly across layouts */
-  height: 43px; /* Custom vertical pixel lock to buttons */
+  flex-grow: 1;
+  height: 43px;
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* 🔮 Custom Cyberpunk focus pulse glow when clicked */
 .log-name-text-box:focus {
   border-color: var(--accent);
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
 }
 
-/* Fades the inner placeholder text cleanly into the dark obsidian environment */
 .log-name-text-box::placeholder {
   color: var(--text-muted);
   opacity: 0.6;
 }
 
-/* Reconfigured to display side-by-side with loader components inside wrapper */
-.robot-selector-group {
-  margin-bottom: 0; /* Cleared out old margin style */
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-.robot-selector-label {
-  margin-right: 10px;
-  font-weight: bold;
-  font-size: 20px;
-  white-space: nowrap; /* Keeps label cleanly tracked on a single line space */
-}
-
-.robot-select-dropdown {
-  padding: 8px;
-  font-size: 20px;
-  border-radius: var(--radius);
-  width: 250px;
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  outline: none;
-}
-
-.robot-select-dropdown:focus {
-  border-color: var(--accent);
-}
-
+/* Code Editor Textarea Canvas Grid Frame */
 .code-editor-textarea {
   padding: 12px;
   width: 100%;
@@ -233,7 +345,6 @@
   overflow-x: auto;
 }
 
-/* Subtly glows the code box outline when the user clicks inside */
 .code-editor-textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
@@ -252,8 +363,8 @@
   font-weight: bold;
   border-radius: var(--radius);
   border: none;
-  background: var(--accent); /* Using Global Variable */
-  color: #030712; /* Dark text on bright button for readability */
+  background: var(--accent);
+  color: #030712;
 }
 
 .btn-deploy:hover {
@@ -264,138 +375,81 @@
   flex: 1;
   font-size: 20px;
   padding: 10px 15px;
-  background: var(--success-bg); /* Using Global Variable */
+  background: var(--success-bg);
   border-radius: var(--radius);
-  color: #34d399; /* Bright Green Status Text for high visibility */
+  color: #34d399;
   display: flex;
   align-items: center;
   border: 1px solid #064e3b;
 }
 
-@media (max-width: 1024px) {
-  .dashboard-container {
-    flex-direction: column;
-    height: auto;
-    gap: 20px;
-  }
-  
-  .dashboard-sidebar {
-    width: 100%;
-    height: auto; /* Fixed: Overrides full-screen height constraint for flat devices */
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding-right: 0;
-    padding-bottom: 20px;
-  }
-  
-  .sidebar-top-group {
-    gap: 20px;
-  }
-  
-  .instructions-section {
-    margin-top: 0;
-    margin-bottom: 20px;
-  }
-  
-  .controls-row-wrapper {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px; /* Fixed: Aligned mobile spacing variables */
-  }
-  
-  /* Stacks buttons vertically on tablet/mobile screens */
-  .file-loader-group {
-    flex-direction: column;
-    width: 100%;
-    gap: 15px; /* Fixed: Clean spacing track for multi-level stacked inputs */
-  }
-  
-  .btn-file-loader {
-    width: 100%;
-  }
-  
-  /* Mobile responsive overrides for log input box */
-  .log-name-text-box {
-    width: 100%;
-    max-width: none;
-  }
-  
-  .robot-selector-group {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .robot-select-dropdown {
-    width: 100%;
-    max-width: 250px;
-  }
-}
-
-
-/* Outer log section spacing wrapper */
-.scroll-panel-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: -35px; /* Adjust this to space it under instructions */
-}
-
-.scroll-panel-title {
-  color: var(--text-main);
-  font-size: 22px;
-  margin: 0;
-}
-
-/* The container that generates the scroll wheel */
-.scroll-button-container {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  
-  /* Layout constraints for scrolling */
-  height: 275px;        /* Limits box height so it doesn't push down the logout button */
-  overflow-y: auto;         /* Automatically adds a vertical scrollbar when buttons overflow */
-  
-  /* Button stacking layout */
-  display: flex;
-  flex-direction: column;
-  gap: 8px;                 /* Space between each button */
-}
-
-/* Styling for individual buttons inside the scroll panel */
-.log-entry-btn {
-  padding: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  text-align: left;         /* Left aligns text inside the list */
-  width: 100%;
-  box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.log-entry-btn:hover {
-  background-color: var(--border);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* scrollbar */
+/* ==========================================================================
+   SCROLLBAR DECORATIONS OVERLAYS
+   ========================================================================== */
 .scroll-button-container::-webkit-scrollbar {
   width: 6px;
 }
+
 .scroll-button-container::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scroll-button-container::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 10px;
 }
+
 .scroll-button-container::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
+}
+
+/* ==========================================================================
+   NEW CUSTOM SWITCH BUTTONS
+   ========================================================================== */
+
+/* Spacing and layout rule for your new button wrapper block */
+.switch-buttons {
+  width: 100%;
+  height: auto; 
+  display: flex;
+  flex-direction: column; /* Stacks Code on top of Log */
+  gap: 10px; /* Clean gap room dividing both buttons */
+  box-sizing: border-box;
+  flex-shrink: 0; /* Prevents the buttons from squishing */
+}
+
+/* Base structural properties shared by both buttons */
+.btn-sidebar-action {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  color: #030712; /* Dark typography baseline for high-visibility contrast */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-sidebar-action:active {
+  transform: scale(0.98); /* Tactile physical press response */
+}
+
+/* Blue Code Button Styles */
+.btn-blue-code {
+  background-color: var(--accent); /* Pulls your main glowing cyan variable */
+}
+
+.btn-blue-code:hover {
+  background-color: var(--accent-hover);
+}
+
+/* Green Log Button Styles */
+.btn-green-log {
+  background-color: #34d399; /* Bright emerald green matching your status bar */
+}
+
+.btn-green-log:hover {
+  background-color: #059669; /* Rich dark jade green tone on hover */
+  color: white; /* Flips text color for crisp reading contrast */
 }
