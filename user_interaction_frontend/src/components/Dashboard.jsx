@@ -13,15 +13,23 @@ export default function Dashboard({ onLogout, currentUser }) {
   // Handles the logging of the student code
   const handleLog = async () => {
     try {
-      if (inputText.trim === '') {
-        inputText = 'Unnamed Code';
+      let logTitle = logName;
+      if (logTitle.trim() === '') {
+        logTitle = 'Unnamed Code';
       }
+      const logInfo = new Date();
+      const year = logInfo.getFullYear();
+      const month = logInfo.getMonth() + 1; // js Date object returns month as 0-11 so you must add 1 to get the correct month
+      const day = logInfo.getDate();
+      logTitle = `${logTitle}: ${month}-${day}-${year}`;
+      //logTitle = logTitle.replace(/['"]/g, ''); // Removes all ' and " characters safely
+
       const response = await fetch('/api/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user: currentUser, log: logName, code: inputText}),
+        body: JSON.stringify({ user: currentUser, log: logTitle, code: inputText}),
       });
 
       if (response.ok) {
@@ -29,6 +37,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         alert('Failed to Log Code');
         throw new Error(`Server returned status code ${response.status}`);
       }
+
     } catch (err) {
       console.error(`Could not save log for user: ${currentUser} -> Error: ${err}`);
     }
@@ -82,8 +91,12 @@ export default function Dashboard({ onLogout, currentUser }) {
   // Modern Export system with standard automatic fallback for Safari/Firefox
   async function handleExport() {
     try {
+      let fileName = logName;
+      if (fileName.trim() === '') {
+        fileName = 'Unnamed Code.py';
+      }
       const fileHandler = await window.showSaveFilePicker({
-        suggestedName: 'RoboFleet-code.py',
+        suggestedName: fileName,
         types: [{
           description: 'Code Files',
           accept: {'text/x-python': ['.py'], 'text/x-java-source': ['.java']}
@@ -149,6 +162,7 @@ export default function Dashboard({ onLogout, currentUser }) {
               onChange={(changeEvent) => {
                 const file = changeEvent.target.files[0];
                 if (!file) return;
+                setLogName(file.name);
                 const reader = new FileReader();
                 reader.onload = (readEvent) => {
                   setInputText(readEvent.target.result);
