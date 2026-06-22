@@ -79,7 +79,7 @@ async function loadCode(user, title) {
     }
     catch (err) {
         console.error(`Code could not be loaded for user: ${user} with title: ${title} -> Error: ${err.message}`);
-        code = null;
+        code = "ERROR";
     }
     return code;
 }

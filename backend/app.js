@@ -15,7 +15,7 @@ const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
-const {createUserLog, removeUserLog, saveCode} = require('./logs.js'); // create and remove code log directories for users
+const {createUserLog, removeUserLog, saveCode, getLogs, loadCode} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -125,6 +125,7 @@ function initializeRobotConnection(robotId, ipAddress) {
     // ----------------------------------------------------
     // TOPIC INITIALIZATION
     // ----------------------------------------------------
+
 
     const posTopic = new ROSLIB.Topic({
       ros: rosInstance,
@@ -297,6 +298,20 @@ app.post('/api/log', (req, res) => {
     return res.status(400).json({message: 'Could not log student code'});
   }
   return res.status(201).json({message: 'Successfully logged student code'});
+});
+
+app.get('/api/log/:userName/:fileName', async (req,res) => {
+  const user = req.params.userName;
+  const title = req.params.fileName;
+  const code = await loadCode(user, title);
+  res.json({ userCode: code });
+});
+
+app.get('/api/log/:userName', async (req, res) => {
+const user = req.params.userName;
+console.log(`Backend received data for log filename request for user: ${user}`);
+const logs = await getLogs(user);
+res.json({userLogs: logs});
 });
 
 

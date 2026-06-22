@@ -1,0 +1,13 @@
+----- hello.py ------
+
+print('hello world')
+
+----- executed on robot 3 at 13:00 ------
+
+success/fail messages from listener
+
+stdout
+'hello world'
+
+stderr (code crashed)
+

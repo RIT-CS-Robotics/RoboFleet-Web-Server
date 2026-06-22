@@ -1,5 +1,5 @@
 // src/components/Dashboard.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Dashboard.css';
 
 export default function Dashboard({ onLogout, currentUser }) {
@@ -9,6 +9,36 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
   const [statusMessage, setStatusMessage] = useState('Ready');
   const [logName, setLogName] = useState('');
+  const [userLogs, setUserLogs] = useState([]);
+
+
+  // loads the current logs
+  async function loadLogs() {
+    try {
+      const response = await fetch(`/api/log/${currentUser}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      const logs = data.userLogs;
+
+      setUserLogs(logs);
+    }
+    catch(err) {
+      alert('Error fetching user logs');
+      setUserLogs([]);
+    }
+  }
+
+  // Loads the new set of logs when a new user logs in
+  useEffect(() => {
+    if (currentUser) {
+        loadLogs();
+    }
+  }, [currentUser]); 
 
   // Handles the logging of the student code
   const handleLog = async () => {
@@ -19,10 +49,12 @@ export default function Dashboard({ onLogout, currentUser }) {
       }
       const logInfo = new Date();
       const year = logInfo.getFullYear();
-      const month = logInfo.getMonth() + 1; // js Date object returns month as 0-11 so you must add 1 to get the correct month
-      const day = logInfo.getDate();
-      logTitle = `${logTitle}: ${month}-${day}-${year}`;
-      //logTitle = logTitle.replace(/['"]/g, ''); // Removes all ' and " characters safely
+      const month = String(logInfo.getMonth() + 1).padStart(2, '0'); // js Date object returns month as 0-11 so you must add 1 to get the correct month
+      const day = String(logInfo.getDate()).padStart(2, '0');
+      const hours = String(logInfo.getHours()).padStart(2, '0');
+      const minutes = String(logInfo.getMinutes()).padStart(2, '0');
+      const seconds = String(logInfo.getSeconds()).padStart(2, '0');
+      logTitle = `${logTitle}_${month}-${day}-${year}_${hours}h.${minutes}m.${seconds}s`;
 
       const response = await fetch('/api/log', {
         method: 'POST',
@@ -33,7 +65,9 @@ export default function Dashboard({ onLogout, currentUser }) {
       });
 
       if (response.ok) {
-      } else {
+        console.log(`Log handled successfully for user: ${currentUser}`);
+      } 
+      else {
         alert('Failed to Log Code');
         throw new Error(`Server returned status code ${response.status}`);
       }
@@ -41,6 +75,8 @@ export default function Dashboard({ onLogout, currentUser }) {
     } catch (err) {
       console.error(`Could not save log for user: ${currentUser} -> Error: ${err}`);
     }
+
+    loadLogs();
   }
 
   // Handles API transmission and safely opens status window on success
@@ -110,35 +146,88 @@ export default function Dashboard({ onLogout, currentUser }) {
       alert('File Saved');
     } catch (err) {
       if (err.name !== 'AbortError') {
-        console.error(`Could not save file for user: ${currentUser} -> Error: ${err.message}`);
+        console.error(`Could not save file for user: ${currentUser} -> Error: ${err}`);
         alert('Failed to Save File');
       }
     }
   }
 
+  const handleLogButton = async (fileName) => {
+    const check = confirm(`Are you sure you want to pull the selected code log?`);
+    if (check) {
+      try {
+        const response = await fetch(`/api/log/${currentUser}/${fileName}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+        const code = data.userCode;
+        const fileSplit = fileName.split('_');
+        const title = fileSplit[0];
+
+        
+        setInputText(code);
+        setLogName(title);
+
+        console.log(`Loaded code log for user: ${currentUser}`);
+      }
+      catch(err) {
+        alert(`Error pulling code log: ${err}`);
+        console.error(`Could not load code log for user: ${currentUser} -> Error: ${err}`);
+      }
+    }
+    return;
+  };
+
   return (
-    <div className="dashboard-container">
-      {/* LEFT SIDE COLUMN */}
-      <div className="dashboard-sidebar">
-        <div className="sidebar-top-group">
-          <div>
-            <h2 className="dashboard-account-title">RoboFleet Account:</h2>
-            <p className="dashboard-username">{currentUser}</p>
-          </div>
-          <div className="instructions-section">
-            <h3 className="instructions-title">Instructions:</h3>
-            <div className="instructions-box">
-              <p>1. Select a target robot from the dropdown menu.</p>
-              <p>2. Write or import your code into the workspace.</p>
-              <p>3. Make sure you are importing Robot in your code.</p>
-              <p>4. Click "Deploy" to send commands to the selected robot!</p>
+<div className="dashboard-container">
+    {/* LEFT SIDE COLUMN */}
+    <div className="dashboard-sidebar">
+        
+        {/* This group holds everything at the top together */}
+        <div className="sidebar-top-group"> 
+            <div>
+                <h2 className="dashboard-account-title">RoboFleet Account:</h2>
+                <p className="dashboard-username">{currentUser}</p>
             </div>
-          </div>
-        </div>
-        <button onClick={onLogout} className="btn-logout">
-          Logout
+
+            <div className="instructions-section">
+                <h3 className="instructions-title">Instructions:</h3>
+                <div className="instructions-box">
+                    <p>1. Select a target robot from the dropdown menu.</p>
+                    <p>2. Write or import your code into the workspace.</p>
+                    <p>3. Make sure you are importing Robot in your code.</p>
+                    <p>4. Click "Deploy" to send commands to the selected robot!</p>
+                </div>
+            </div>
+
+            {/* Scrollable Log Button Section */}
+            <div className="scroll-panel-section">
+                <h3 className="scroll-panel-title">Logs:</h3>
+                <div className="scroll-button-container">
+
+                  {userLogs.map( (fileName, index) => (
+                  <button
+                  key={index}
+                  onClick={ () => handleLogButton(fileName) }
+                  className={'log-entry-btn'}
+                  >
+                    {fileName}
+                  </button>
+                  ))}
+
+                </div>
+            </div>
+        </div> {/* Closes .sidebar-top-group */}
+
+        {/* This sits completely outside the top group, pinning it to the bottom */}
+        <button onClick={onLogout} className="btn-logout"> 
+            Logout 
         </button>
-      </div>
+    </div> {/* Closes .dashboard-sidebar */}
 
       {/* RIGHT SIDE MAIN COLUMN */}
       <form onSubmit={handleSubmit} className="dashboard-main-form">
