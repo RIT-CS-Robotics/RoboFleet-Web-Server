@@ -464,3 +464,52 @@ html, body, #root {
   background-color: #059669; /* Rich dark jade green tone on hover */
   color: white; /* Flips text color for crisp reading contrast */
 }
+
+/* ==========================================================================
+   LOG REMOVE OVERLAY BUTTON SYSTEM
+   ========================================================================== */
+
+/* 1. Relative anchor container wraps each list item row */
+.log-item-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* 2. Push text to the left so it never runs underneath the overlayed X */
+.log-item-btn {
+  padding-right: 45px !important; /* Forces whitespace padding on the right edge */
+}
+
+/* 3. Absolute layer formatting locks the button precisely inside the right boundary */
+.log-remove-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%); /* Keeps button vertically centered */
+  z-index: 10; /* Guarantees the button layer hovers cleanly above the base button */
+  
+  /* UPDATED: Flexbox aligns the SVG path perfectly centered inside the clickable area */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  padding: 6px; /* Adjusted padding to create a balanced circle around the icon */
+  border-radius: var(--radius);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+/* NEW: Controls the strict visual scaling size of the SVG graphic path */
+.trash-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Hover feedback states for the delete target */
+.log-remove-btn:hover {
+  color: var(--danger); /* Automatically flips the SVG path lines to your theme's red */
+  background-color: rgba(239, 68, 68, 0.1); /* Subtle glowing red footprint */
+}

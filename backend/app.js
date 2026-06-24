@@ -15,7 +15,7 @@ const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
-const {createUserLog, removeUserLog, saveCode, getLogs, loadCode} = require('./logs.js'); // create and remove code log directories for users
+const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -288,6 +288,7 @@ app.delete('/api/users/:username', (req, res) => {
 // Code Logging Routes
 // ====================================================
 
+// logs code
 app.post('/api/log', (req, res) => {
   const userName = req.body.user;
   const logName = req.body.log;
@@ -299,7 +300,7 @@ app.post('/api/log', (req, res) => {
   }
   return res.status(201).json({message: 'Successfully logged student code'});
 });
-
+ // gets the text from the specified log file for code and log versions
 app.get('/api/log/:userName/:fileName', async (req,res) => {
   const user = req.params.userName;
   const title = req.params.fileName;
@@ -308,11 +309,25 @@ app.get('/api/log/:userName/:fileName', async (req,res) => {
   res.json({ userLog: log, userCode: code });
 });
 
+// gets all logs
 app.get('/api/log/:userName', async (req, res) => {
 const user = req.params.userName;
 console.log(`Backend received data for log filename request for user: ${user}`);
 const logs = await getLogs(user);
 res.json({userLogs: logs});
+});
+
+// removes specified log file
+app.delete('/api/log/:userName/:logTitle', async (req, res) => {
+  const user = path.basename(req.params.userName);
+  const title = path.basename(req.params.logTitle);
+  const success = removeCode(user, title);
+  if (success) {
+    return res.status(200).json({message: 'Successfully removed student log'});
+  }
+  else {
+    return res.status(500).json({message: 'Failed to remove student log'});
+  }
 });
 
 

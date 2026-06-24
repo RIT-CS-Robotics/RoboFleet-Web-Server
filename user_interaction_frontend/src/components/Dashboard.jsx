@@ -189,11 +189,46 @@ export default function Dashboard({ onLogout, currentUser }) {
         console.log(`Loaded code log for user: ${currentUser}`);
       }
       catch(err) {
-        alert(`Error pulling code log: ${err}`);
+        alert(`Error: error pulling code log: ${err}`);
         console.error(`Could not load code log for user: ${currentUser} -> Error: ${err}`);
       }
     }
     return;
+  };
+
+  const handleLogRemove = async (e, fileName) => {
+    // Blocks the click from bubbling up to the log-item-btn underneath
+    e.stopPropagation();
+
+    const check = confirm(`Are you sure you want to delete this code log?`);
+    if (check) {
+      try {
+        const response = await fetch(`/api/log/${currentUser}/${fileName}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          await loadLogs();
+          console.log(`Log successfully removed for User: ${currentUser}`);
+        }
+        else {
+          throw new Error(`Error with removing log`);
+        }
+
+      }
+      catch (err) {
+        alert(`Error: could not remove log!`);
+        console.error(`Could not remove log for user: ${currentUser} -> Error: ${err}`);
+      }
+    }
+    return
+  };
+
+  const handleLogClear = async () => {
+
   };
 
   function handleLogSwitch(logSwitch) {
@@ -240,14 +275,42 @@ return (
           {/* Logs section floats up to the top level */}
           <div className="scroll-panel-section elevated-log-track">
             <h3 className="scroll-panel-title">Logs:</h3>
-            <div className="scroll-button-container restricted-height-scroll">
-              {userLogs.map((fileName, index) => (
-                <button key={index} onClick={() => handleLogButton(fileName)} className="log-item-btn">
-                  {fileName}
-                </button>
-              ))}
-            </div>
-          </div>
+<div className="scroll-button-container restricted-height-scroll">
+  {userLogs.map((fileName, index) => (
+    <div key={index} className="log-item-wrapper">
+      <button 
+        onClick={() => handleLogButton(fileName)} 
+        className="log-item-btn"
+      >
+        {fileName}
+      </button>
+      
+      {/* Updated Button containing the SVG Trash Can Icon */}
+      <button 
+        onClick={(e) => handleLogRemove(e, fileName)} 
+        className="log-remove-btn"
+        title="Delete log"
+      >
+        <svg 
+          className="trash-icon" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </button>
+    </div>
+  ))}
+</div>
+</div> {/* Kept your closing wrapper tag intact */}
+
 
           {/* Code and Log buttons */}
           <div className="switch-buttons">

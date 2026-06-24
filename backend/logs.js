@@ -116,19 +116,29 @@ async function loadCode(user, title, is_log) {
  * @param title: The name of the code file.
  */
 async function removeCode(user, title) {
+    let success = true;
     try {
         const code_path = path.join(dir_path, user, 'code', title);
         const log_path = path.join(dir_path, user, 'log', (title + '.log') );
-        await Promise.all([
+        const [code_res, log_res] = await Promise.allSettled([
             fs.unlink(code_path),
             fs.unlink(log_path)
         ]);
+
+        if (code_res.status === 'rejected' && code_res.reason.code !== 'ENOENT') {
+            throw new Error('log failed to delete');
+        }
+        if (log_res.status === 'rejected' && log_res.reason.code !== 'ENOENT') {
+            throw new Error('log failed to delete');
+        }
+
         console.log(`Log deleted for user: ${user} with title: ${title}`);
     }
     catch (err) {
+        success = false;
         console.error(`Log could not be deleted for user: ${user} with title: ${title} -> Error: ${err.message}`);
-        return;
     }
+    return success;
 }
 
 /**
