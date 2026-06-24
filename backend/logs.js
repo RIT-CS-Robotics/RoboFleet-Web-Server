@@ -64,9 +64,13 @@ async function saveCode(user, title, code) {
     try {
         const code_path = path.join(dir_path, user, 'code', title);
         const log_path = path.join(dir_path, user, 'log', (title + '.log') );
+        
+        const seperator = '--------------------';
+        const header = `Log: ${title}\nUser: ${user}\n${seperator}\nCode Ran:\n${seperator}\n ${code}\n${seperator}\nLog:\n${seperator}\n`;
+
         await Promise.all([
             fs.writeFile(code_path, code, 'utf-8'),
-            fs.writeFile(log_path, code, 'utf-8')
+            fs.writeFile(log_path, header, 'utf-8')
         ]);
         console.log(`Code saved for user: ${user} with title: ${title}`);
     }

@@ -39,19 +39,10 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
-  // Loads the new set of logs when a new user logs in
-  useEffect(() => {
-    if (currentUser) {
-        loadLogs();
-    }
-  }, [currentUser]); 
-
-  // Handles the logging of the student code
-  const handleLog = async () => {
-    try {
-      let logTitle = logName;
-      if (logTitle.trim() === '') {
-        logTitle = 'Unnamed Code';
+  async function constructTitle() {
+    let title = logName;
+          if (title.trim() === '') {
+        title = 'Unnamed Code';
       }
       const logInfo = new Date();
       const year = logInfo.getFullYear();
@@ -60,7 +51,21 @@ export default function Dashboard({ onLogout, currentUser }) {
       const hours = String(logInfo.getHours()).padStart(2, '0');
       const minutes = String(logInfo.getMinutes()).padStart(2, '0');
       const seconds = String(logInfo.getSeconds()).padStart(2, '0');
-      logTitle = `${logTitle}_${month}-${day}-${year}_${hours}h.${minutes}m.${seconds}s`;
+      title = `${title}_${month}-${day}-${year}_${hours}h.${minutes}m.${seconds}s`;
+      return title;
+  }
+
+  // Loads the new set of logs when a new user logs in
+  useEffect(() => {
+    if (currentUser) {
+        loadLogs();
+    }
+  }, [currentUser]); 
+
+  // Handles the logging of the student code
+  const handleLog = async (title) => {
+    try {
+      const logTitle = title;
 
       const response = await fetch('/api/log', {
         method: 'POST',
@@ -90,12 +95,13 @@ export default function Dashboard({ onLogout, currentUser }) {
     e.preventDefault();
     setStatusMessage(`Sending to ${selectedRobot}...`);
     try {
+      const title = await constructTitle();
       const response = await fetch('/api/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: codeText, robotId: selectedRobot }),
+        body: JSON.stringify({ text: codeText, codeTitle: title, user: currentUser, robotId: selectedRobot }),
       });
 
       if (!response.ok) {
@@ -104,7 +110,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       const data = await response.json();
       setStatusMessage(data.message);
 
-      handleLog();
+      handleLog(title);
       
       // Fixed: Only opens the window after a successful database save
       window.open('status', '_blank');

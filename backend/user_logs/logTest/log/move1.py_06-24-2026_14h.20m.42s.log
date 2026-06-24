@@ -1,0 +1,19 @@
+Log: move1.py_06-24-2026_14h.20m.42s
+User: logTest
+--------------------
+Code Ran:
+
+ from robot import Robot
+
+with Robot() as r:
+    r.move(1)
+--------------------
+Log:
+--------------------
+ROBOT: QUEUED COMMAND:  MOVE:1
+
+Sending command to Nav2:  MOVE:1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS

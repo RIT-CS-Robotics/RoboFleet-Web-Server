@@ -25,15 +25,18 @@ const logs = {
     keep: true // saves in the backend
 }
 
+const dir_path = path.join(__dirname, 'user_logs');
+
 /**
  * Uses the written to robot code file to run the students code on the specified robot.
  * 
  * @param code: The students code
  * @param robotId: The robot to run the code on
  */
-function robotRun(code, robotId, host) {
+async function robotRun(code, title, user, robotId, host) {
     let script_path;
     let code_file;
+    const output_path = path.join(dir_path, user, 'log', (title + '.log') );
 
     if (host === null) {
         console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
@@ -50,6 +53,8 @@ function robotRun(code, robotId, host) {
         console.error(`Could not write student code to script -> Error: ${err}`);
         return;
     }
+
+    const logStream = fs.createWriteStream(output_path, { flags: 'a', encoding: 'utf-8' });
     
     const pythonScript = spawn('python3', ['-u', script_path], {
         env: {
@@ -59,10 +64,12 @@ function robotRun(code, robotId, host) {
     });
 
     pythonScript.stdout.on('data', (data) => {
+        logStream.write(data.toString());
         console.log(`Robot standard output with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
     pythonScript.stderr.on('data', (data) => {
+        logStream.write(data.toString());
         console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
@@ -74,12 +81,14 @@ function robotRun(code, robotId, host) {
     pythonScript.on('error', (err) => {
         console.error(`Error while running python script with path: ${script_path} on robot ID: ${robotId}`)
         console.error(`Python error: ${err}`)
+        logStream.end();
         cleanupFile(code_file, script_path);
         code_file = null;
     });
     pythonScript.on('close', () => {
         console.log(`Python script closed with robot ID: ${robotId}`);
         console.log(`Disconnecting robot with ID: ${robotId}`);
+        logStream.end();
         cleanupFile(code_file, script_path);
         code_file = null;
     });
