@@ -6,9 +6,10 @@
  * Functionality: The functionality behind the user code logging system for the RoboFleet backend server.
  */
 const fs = require('node:fs/promises'); // Version: node@24.16.0
+const { promiseHooks } = require('node:v8');
 const path = require('path'); // Version: node@24.16.0
 
-const log_path = path.join(__dirname, 'user_logs');
+const dir_path = path.join(__dirname, 'user_logs');
 
 /**
  * Creates a new code log directory for a given user.
@@ -17,8 +18,17 @@ const log_path = path.join(__dirname, 'user_logs');
  */
 async function createUserLog(user) {
     try {
-        const user_path = path.join(log_path, user);
+        const user_path = path.join(dir_path, user);
+        const code_path = path.join(user_path, 'code');
+        const log_path = path.join(user_path, 'log');
+
         await fs.mkdir(user_path, { recursive: true }); // recursive used here to prevent crashes if the folder exists
+
+        await Promise.all([
+            fs.mkdir(code_path, { recursive: true }),
+            fs.mkdir(log_path, { recursive: true })
+        ]);
+
         console.log(`Code log directory created for user: ${user}`);
     }
     catch (err) {
@@ -33,7 +43,7 @@ async function createUserLog(user) {
  */
 async function removeUserLog(user) {
     try {
-        const user_path = path.join(log_path, user);
+        const user_path = path.join(dir_path, user);
         await fs.rm(user_path, { recursive: true, force: true }); // recursive removes all files inside and force doesn't error on minor issues
         console.log(`Code log directory removed for user: ${user}`);
     }
@@ -52,8 +62,12 @@ async function saveCode(user, title, code) {
     let result = true;
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
     try {
-        const file_path = path.join(log_path, user, title);
-        await fs.writeFile(file_path, code, 'utf-8');
+        const code_path = path.join(dir_path, user, 'code', title);
+        const log_path = path.join(dir_path, user, 'log', (title + '.log') );
+        await Promise.all([
+            fs.writeFile(code_path, code, 'utf-8'),
+            fs.writeFile(log_path, code, 'utf-8')
+        ]);
         console.log(`Code saved for user: ${user} with title: ${title}`);
     }
     catch (err) {
@@ -68,20 +82,27 @@ async function saveCode(user, title, code) {
  * 
  * @param user: The user to load the code for from their log directory.
  * @param title: The name of the code file.
+ * @returns file_content: The contents of the file (code or log text)
  */
-async function loadCode(user, title) {
+async function loadCode(user, title, is_log) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
-    let code;
+    let file_content;
+    let file_path;
     try {
-        const file_path = path.join(log_path, user, title);
-        code = await fs.readFile(file_path, 'utf-8');
-        console.log(`Code loaded for user: ${user} with title: ${title}`);
+        if (is_log) {
+            file_path = path.join(dir_path, user, 'log', (title + '.log') );
+        }
+        else {
+            file_path = path.join(dir_path, user, 'code', title);
+        }
+        file_content = await fs.readFile(file_path, 'utf-8');
+        console.log(`Log loaded for user: ${user} with title: ${title}`);
     }
     catch (err) {
-        console.error(`Code could not be loaded for user: ${user} with title: ${title} -> Error: ${err.message}`);
-        code = "ERROR";
+        console.error(`Log could not be loaded for user: ${user} with title: ${title} -> Error: ${err.message}`);
+        file_content = "ERROR";
     }
-    return code;
+    return file_content;
 }
 
 /**
@@ -92,12 +113,16 @@ async function loadCode(user, title) {
  */
 async function removeCode(user, title) {
     try {
-        const file_path = path.join(log_path, user, title);
-        await fs.unlink(file_path);
-        console.log(`Code deleted for user: ${user} with title: ${title}`);
+        const code_path = path.join(dir_path, user, 'code', title);
+        const log_path = path.join(dir_path, user, 'log', (title + '.log') );
+        await Promise.all([
+            fs.unlink(code_path),
+            fs.unlink(log_path)
+        ]);
+        console.log(`Log deleted for user: ${user} with title: ${title}`);
     }
     catch (err) {
-        console.error(`Code could not be deleted for user: ${user} with title: ${title} -> Error: ${err.message}`);
+        console.error(`Log could not be deleted for user: ${user} with title: ${title} -> Error: ${err.message}`);
         return;
     }
 }
@@ -111,7 +136,7 @@ async function getLogs(user) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
     let logs;
     try {
-        const user_path = path.join(log_path, user);
+        const user_path = path.join(dir_path, user, 'code');
         logs = await fs.readdir(user_path);
         console.log(`Successfully retrieved logs for user: ${user}`);
     }

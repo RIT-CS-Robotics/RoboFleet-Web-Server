@@ -345,6 +345,17 @@ html, body, #root {
   overflow-x: auto;
 }
 
+/* This will be active when logMode is false (Defaults to your Onyx secondary block background) */
+.editor-mode-blue {
+  background-color: var(--bg-secondary);
+}
+
+/* This will trigger when logMode is true (Pulls your Deep Emerald Status Log token) */
+.editor-mode-green {
+  background-color: var(--success-bg);
+  border-color: #064e3b; /* Matches your status-display border layout */
+}
+
 .code-editor-textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);

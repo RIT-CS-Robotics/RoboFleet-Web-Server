@@ -303,8 +303,9 @@ app.post('/api/log', (req, res) => {
 app.get('/api/log/:userName/:fileName', async (req,res) => {
   const user = req.params.userName;
   const title = req.params.fileName;
-  const code = await loadCode(user, title);
-  res.json({ userCode: code });
+  const log = await loadCode(user, title, true);
+  const code = await loadCode(user, title, false);
+  res.json({ userLog: log, userCode: code });
 });
 
 app.get('/api/log/:userName', async (req, res) => {

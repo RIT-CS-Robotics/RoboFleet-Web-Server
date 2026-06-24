@@ -5,9 +5,11 @@ import './Dashboard.css';
 export default function Dashboard({ onLogout, currentUser }) {
   document.title = "RoboFleet Dashboard";
 
-  const [inputText, setInputText] = useState('');
-  const [logText, setLogText] = useState('');
-  const [displayMode, setDisplayMode] = useState('code'); // for switching between code and log mode
+  const [codeText, setCodeText] = useState(''); // current code that is being worked on
+  const [logText, setLogText] = useState(''); // .log file for pulled log
+
+  const [loggedCode, setLoggedCode] = useState(''); // code file for pulled log
+  const [logMode, setLogMode] = useState(false); // for switching between code and log mode
 
 
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
@@ -65,7 +67,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ user: currentUser, log: logTitle, code: inputText}),
+        body: JSON.stringify({ user: currentUser, log: logTitle, code: codeText}),
       });
 
       if (response.ok) {
@@ -93,7 +95,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: inputText, robotId: selectedRobot }),
+        body: JSON.stringify({ text: codeText, robotId: selectedRobot }),
       });
 
       if (!response.ok) {
@@ -114,14 +116,14 @@ export default function Dashboard({ onLogout, currentUser }) {
 
   // Makes Tab key press inside the textarea do an indent
   const handleTabPress = (tabEvent) => {
-    if (tabEvent.key === 'Tab') {
+    if ( (tabEvent.key === 'Tab') && (!logMode) ) {
       tabEvent.preventDefault();
       const textarea = tabEvent.target;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const indent = '    ';
-      const newText = inputText.substring(0, start) + indent + inputText.substring(end);
-      setInputText(newText);
+      const newText = codeText.substring(0, start) + indent + codeText.substring(end);
+      setCodeText(newText);
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + indent.length;
       }, 0);
@@ -144,7 +146,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       });
 
       const writable = await fileHandler.createWritable();
-      await writable.write(inputText);
+      await writable.write(codeText);
       await writable.close();
       console.log(`Code file saved for user: ${currentUser}`);
       alert('File Saved');
@@ -157,7 +159,7 @@ export default function Dashboard({ onLogout, currentUser }) {
   }
 
   const handleLogButton = async (fileName) => {
-    const check = confirm(`Are you sure you want to pull the selected code log?`);
+    const check = confirm(`Are you sure you want to select this code log?`);
     if (check) {
       try {
         const response = await fetch(`/api/log/${currentUser}/${fileName}`, {
@@ -168,13 +170,15 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
 
         const data = await response.json();
+        const log = data.userLog;
         const code = data.userCode;
         const fileSplit = fileName.split('_');
         const title = fileSplit[0];
 
         
-        setInputText(code);
-        setLogName(title);
+        setLogText(log);
+        setLoggedCode(code);
+        handleLogSwitch(true);
 
         console.log(`Loaded code log for user: ${currentUser}`);
       }
@@ -185,6 +189,11 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
     return;
   };
+
+  function handleLogSwitch(logSwitch) {
+    setLogMode(logSwitch);
+  };
+
 
 return (
   <div className="dashboard-container">
@@ -236,10 +245,10 @@ return (
 
           {/* Code and Log buttons */}
           <div className="switch-buttons">
-            <button type="button" className="btn-sidebar-action btn-blue-code">
+            <button type="button" onClick={ () => handleLogSwitch(false)} className="btn-sidebar-action btn-blue-code">
               Code
             </button>
-            <button type="button" className="btn-sidebar-action btn-green-log">
+            <button type="button" onClick={ () => handleLogSwitch(true)} className="btn-sidebar-action btn-green-log">
               Log
             </button>
           </div>
@@ -273,15 +282,15 @@ return (
             style={{ display: 'none' }} 
             onChange={(changeEvent) => {
               // FIXED: Added back '[0]' here to target the specific file object instance
-              const file = changeEvent.target.files[0]; 
-              if (!file) return;
+              const selectedFile = changeEvent.target.files[0]; 
+              if (!selectedFile) return;
               
-              setLogName(file.name);
+              setLogName(selectedFile.name);
               const reader = new FileReader();
               reader.onload = (readEvent) => {
-                setInputText(readEvent.target.result);
+                setCodeText(readEvent.target.result);
               };
-              reader.readAsText(file);
+              reader.readAsText(selectedFile);
             }} 
           />
 
@@ -302,7 +311,7 @@ return (
       </div>
 
       {/* Code Textarea Main Canvas Frame */}
-      <textarea value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleTabPress} placeholder="Enter code here..." className="code-editor-textarea" />
+      <textarea value={logMode ? logText : codeText}  onChange={(e) => setCodeText(e.target.value)} onKeyDown={handleTabPress} placeholder="Enter code here..." className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} readOnly={logMode} />
 
       {/* Bottom Control Bar Row */}
       <div className="action-row">
