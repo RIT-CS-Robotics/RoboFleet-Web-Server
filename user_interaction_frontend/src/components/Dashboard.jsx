@@ -10,6 +10,7 @@ export default function Dashboard({ onLogout, currentUser }) {
 
   const [loggedCode, setLoggedCode] = useState(''); // code file for pulled log
   const [logMode, setLogMode] = useState(false); // for switching between code and log mode
+  const [currentLog, setCurrentLog] = useState(null); // current log
 
 
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
@@ -185,6 +186,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         setLogText(log);
         setLoggedCode(code);
         handleLogSwitch(true);
+        setCurrentLog(fileName);
 
         console.log(`Loaded code log for user: ${currentUser}`);
       }
@@ -216,6 +218,11 @@ export default function Dashboard({ onLogout, currentUser }) {
         }
         else {
           throw new Error(`Error with removing log`);
+        }
+
+        if (currentLog === fileName) {
+          setCurrentLog(null);
+          setLogText('');
         }
 
       }
@@ -275,103 +282,90 @@ return (
           {/* Logs section floats up to the top level */}
           <div className="scroll-panel-section elevated-log-track">
             <h3 className="scroll-panel-title">Logs:</h3>
-<div className="scroll-button-container restricted-height-scroll">
-  {userLogs.map((fileName, index) => (
-    <div key={index} className="log-item-wrapper">
-      <button 
-        onClick={() => handleLogButton(fileName)} 
-        className="log-item-btn"
-      >
-        {fileName}
-      </button>
-      
-      {/* Updated Button containing the SVG Trash Can Icon */}
-      <button 
-        onClick={(e) => handleLogRemove(e, fileName)} 
-        className="log-remove-btn"
-        title="Delete log"
-      >
-        <svg 
-          className="trash-icon" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        >
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          <line x1="10" y1="11" x2="10" y2="17"></line>
-          <line x1="14" y1="11" x2="14" y2="17"></line>
-        </svg>
-      </button>
-    </div>
-  ))}
-</div>
-</div> {/* Kept your closing wrapper tag intact */}
-
-
-          {/* Code and Log buttons */}
-          <div className="switch-buttons">
-            <button type="button" onClick={ () => handleLogSwitch(false)} className="btn-sidebar-action btn-blue-code">
-              Code
-            </button>
-            <button type="button" onClick={ () => handleLogSwitch(true)} className="btn-sidebar-action btn-green-log">
-              Log
-            </button>
+            <div className="scroll-button-container restricted-height-scroll">
+              {userLogs.map((fileName, index) => (
+                <div key={index} className="log-item-wrapper">
+                  <button onClick={() => handleLogButton(fileName)} className="log-item-btn">
+                    {fileName}
+                  </button>
+                  {/* Updated Button containing the SVG Trash Can Icon */}
+                  <button onClick={(e) => handleLogRemove(e, fileName)} className="log-remove-btn" title="Delete log">
+                    <svg className="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </div> {/* Closes .sidebar-split-layout-row */}
 
-      {/* Logout button spanning beneath both layout lanes */}
-      <button onClick={onLogout} className="btn-logout">
-        Logout
-      </button>
-    </div> {/* Closes .dashboard-sidebar */}
-
-    {/* RIGHT SIDE MAIN COLUMN */}
-    <form onSubmit={handleSubmit} className="dashboard-main-form">
-      <div className="controls-row-wrapper">
-        <div className="file-loader-group">
-          {/* Import Button */}
-          <label htmlFor="code-file-upload" className="btn-file-loader">
-            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="12" y1="18" x2="12" y2="12" />
-              <polyline points="9 15 12 18 15 15" />
-            </svg>
-            <span>Import Code</span>
-          </label>
-          <input 
-            id="code-file-upload" 
-            type="file" 
-            accept=".txt,.py,.css" 
-            style={{ display: 'none' }} 
-            onChange={(changeEvent) => {
-              // FIXED: Added back '[0]' here to target the specific file object instance
-              const selectedFile = changeEvent.target.files[0]; 
+          {/* PLACEMENT SWAP: Import and Export buttons are now in the sidebar */}
+          <div className="switch-buttons">
+            {/* Import Button */}
+            <label htmlFor="code-file-upload" className="btn-file-loader" style={{ width: '100%' }}>
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <polyline points="9 15 12 18 15 15" />
+              </svg>
+              <span>Import Code</span>
+            </label>
+            <input id="code-file-upload" type="file" accept=".txt,.py,.css" style={{ display: 'none' }} onChange={(changeEvent) => {
+              const selectedFile = changeEvent.target.files[0];
               if (!selectedFile) return;
-              
               setLogName(selectedFile.name);
               const reader = new FileReader();
               reader.onload = (readEvent) => {
                 setCodeText(readEvent.target.result);
               };
               reader.readAsText(selectedFile);
-            }} 
-          />
-
-          {/* Export Button */}
-          <button type="button" onClick={handleExport} className="btn-file-loader btn-file-exporter">
-            <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="12" y1="12" x2="12" y2="18" />
-              <polyline points="9 15 12 12 15 15" />
-            </svg>
+              handleLogSwitch(false);
+            }} />
+            
+            {/* Export Button */}
+            <button 
+              type="button" 
+              onClick={handleExport} 
+              className="btn-file-loader" /* CHANGED: Swapped to match the Import button styling */
+              style={{ 
+                width: '100%', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '12px' 
+              }}
+              >
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+               <line x1="12" y1="12" x2="12" y2="18" />
+                <polyline points="9 15 12 12 15 15" />
+              </svg>
             <span>Export Code</span>
+          </button>
+
+          </div>
+        </div>
+      </div> {/* Closes .sidebar-split-layout-row */}
+
+      {/* Logout button spanning beneath both layout lanes */}
+      <button onClick={onLogout} className="btn-logout"> Logout </button>
+    </div> {/* Closes .dashboard-sidebar */}
+
+    {/* RIGHT SIDE MAIN COLUMN */}
+    <form onSubmit={handleSubmit} className="dashboard-main-form">
+      <div className="controls-row-wrapper">
+        <div className="file-loader-group">
+          {/* PLACEMENT SWAP: Code and Log workspace toggle switch buttons */}
+          <button type="button" onClick={() => handleLogSwitch(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: logMode ? 'var(--bg-secondary)' : 'var(--accent)', color: logMode ? 'var(--text-main)' : '#030712' }}>
+            Code
+          </button>
+          <button type="button" onClick={() => handleLogSwitch(true)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: logMode ? '#34d399' : 'var(--bg-secondary)', color: logMode ? '#030712' : 'var(--text-main)' }}>
+            Log
           </button>
 
           {/* Code Title Input Field */}
@@ -380,13 +374,11 @@ return (
       </div>
 
       {/* Code Textarea Main Canvas Frame */}
-      <textarea value={logMode ? logText : codeText}  onChange={(e) => setCodeText(e.target.value)} onKeyDown={handleTabPress} placeholder="Enter code here..." className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} readOnly={logMode} />
+      <textarea value={logMode ? logText : codeText} onChange={(e) => setCodeText(e.target.value)} onKeyDown={handleTabPress} placeholder={`${logMode ? 'Empty Log...' : 'Enter Code Here...'}`} className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} readOnly={logMode} />
 
       {/* Bottom Control Bar Row */}
       <div className="action-row">
-        <button type="submit" className="btn-deploy">
-          Deploy
-        </button>
+        <button type="submit" className="btn-deploy"> Deploy </button>
         <div className="status-display">
           <strong>Status:</strong> &nbsp; {statusMessage}
         </div>
@@ -394,5 +386,6 @@ return (
     </form>
   </div>
 );
+
 
 }
