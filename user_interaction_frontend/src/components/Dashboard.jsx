@@ -11,6 +11,7 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [loggedCode, setLoggedCode] = useState(''); // code file for pulled log
   const [logMode, setLogMode] = useState(false); // for switching between code and log mode
   const [currentLog, setCurrentLog] = useState(null); // current log
+  const [loggedCodeTitle, setLoggedCodeTitle] = useState('');
 
 
   const [selectedRobot, setSelectedRobot] = useState('robot 1');
@@ -35,7 +36,6 @@ export default function Dashboard({ onLogout, currentUser }) {
       setUserLogs(logs);
     }
     catch(err) {
-      alert('Error fetching user logs');
       setUserLogs([]);
     }
   }
@@ -185,6 +185,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         
         setLogText(log);
         setLoggedCode(code);
+        setLoggedCodeTitle(title);
         handleLogSwitch(true);
         setCurrentLog(fileName);
 
@@ -241,6 +242,21 @@ export default function Dashboard({ onLogout, currentUser }) {
   function handleLogSwitch(logSwitch) {
     setLogMode(logSwitch);
   };
+
+  function handlePull() {
+    const check = confirm(`WARNING: Pulling code will make you lose the current code in the code editor. Are you sure you want to continue?`);
+    if (check) {
+      const cleanCode = loggedCode.trim();
+      if (cleanCode === '') {
+        alert(`Error: No code to pull from current log`);
+        return;
+      }
+      setCodeText(loggedCode);
+      setLogName(loggedCodeTitle);
+      setLogMode(false);
+      console.log(`Code successfully pulled for User: ${currentUser}`);
+    }
+  }
 
 
 return (
@@ -374,7 +390,20 @@ return (
       </div>
 
       {/* Code Textarea Main Canvas Frame */}
-      <textarea value={logMode ? logText : codeText} onChange={(e) => setCodeText(e.target.value)} onKeyDown={handleTabPress} placeholder={`${logMode ? 'Empty Log...' : 'Enter Code Here...'}`} className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} readOnly={logMode} />
+      <div class='code-box-container'>
+        <textarea value={logMode ? logText : codeText} 
+        onChange={(e) => setCodeText(e.target.value)} 
+        onKeyDown={handleTabPress} 
+        placeholder={`${logMode ? 'Empty Log...' : 'Enter Code Here...'}`} 
+        className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} 
+        readOnly={logMode} />
+
+          {logMode && (
+        <button type="button" onClick={() => handlePull()} className="btn-code-pull" > 
+          Pull Code
+        </button>
+        )}
+      </div>
 
       {/* Bottom Control Bar Row */}
       <div className="action-row">
