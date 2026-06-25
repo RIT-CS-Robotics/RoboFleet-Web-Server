@@ -5,6 +5,7 @@
  * 
  * Functionality: The functionality behind the user code logging system for the RoboFleet backend server.
  */
+const { promises } = require('node:dns');
 const fs = require('node:fs/promises'); // Version: node@24.16.0
 const { promiseHooks } = require('node:v8');
 const path = require('path'); // Version: node@24.16.0
@@ -110,10 +111,11 @@ async function loadCode(user, title, is_log) {
 }
 
 /**
- * Removes the users code from their log directory.
+ * Removes the users specific code and log from their log directory.
  * 
  * @param user: The user to remove the code for in their log directory.
  * @param title: The name of the code file.
+ * @return: Was the deletion successfull?
  */
 async function removeCode(user, title) {
     let success = true;
@@ -129,7 +131,7 @@ async function removeCode(user, title) {
             throw new Error('log failed to delete');
         }
         if (log_res.status === 'rejected' && log_res.reason.code !== 'ENOENT') {
-            throw new Error('log failed to delete');
+            throw new Error('Log failed to delete');
         }
 
         console.log(`Log deleted for user: ${user} with title: ${title}`);
@@ -137,6 +139,46 @@ async function removeCode(user, title) {
     catch (err) {
         success = false;
         console.error(`Log could not be deleted for user: ${user} with title: ${title} -> Error: ${err.message}`);
+    }
+    return success;
+}
+
+/**
+ * Removes all the users code and logs from their log directory.
+ * 
+ * @param user: The user to remove the code for in their log directory.
+ * @return: Was the clearing successfull?
+ */
+async function removeAllCode(user) {
+    let success = true;
+    try {
+        const code_path = path.join(dir_path, user, 'code');
+        const log_path = path.join(dir_path, user, 'log');
+
+        const code_files = await fs.readdir(code_path).catch(() => []);
+        const log_files = await fs.readdir(log_path).catch(() => []);
+
+        const promises_arr = [];
+        for (const file of code_files) {
+            promises_arr.push(fs.unlink(path.join(code_path, file)));
+        }
+
+        for (const file of log_files) {
+            promises_arr.push(fs.unlink(path.join(log_path, file)));
+        }
+
+        const results = await Promise.allSettled(promises_arr);
+        for (const result of results) {
+            if (result.status === 'rejected' && result.reason.code !== 'ENOENT') {
+                throw new Error(`Failed to clear logs`);
+            }
+        }
+
+        console.log(`Logs successfully cleared for User: ${user}`);
+    }
+    catch (err) {
+        success = false;
+        console.error(`Logs could not be deleted for user: ${user} -> Error: ${err.message}`);
     }
     return success;
 }
@@ -167,5 +209,6 @@ module.exports = {
     saveCode,
     loadCode,
     removeCode,
-    getLogs
+    getLogs,
+    removeAllCode
 };

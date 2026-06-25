@@ -487,12 +487,9 @@ html, body, #root {
   top: 50%;
   transform: translateY(-50%); /* Keeps button vertically centered */
   z-index: 10; /* Guarantees the button layer hovers cleanly above the base button */
-  
-  /* UPDATED: Flexbox aligns the SVG path perfectly centered inside the clickable area */
   display: flex;
   align-items: center;
   justify-content: center;
-  
   background: transparent;
   color: var(--text-muted);
   border: none;
@@ -502,7 +499,7 @@ html, body, #root {
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-/* NEW: Controls the strict visual scaling size of the SVG graphic path */
+/* Controls the strict visual scaling size of the SVG graphic path */
 .trash-icon {
   width: 18px;
   height: 18px;
@@ -512,6 +509,24 @@ html, body, #root {
 .log-remove-btn:hover {
   color: var(--danger); /* Automatically flips the SVG path lines to your theme's red */
   background-color: rgba(239, 68, 68, 0.1); /* Subtle glowing red footprint */
+}
+
+/* ==========================================================================
+   ACTIVE LOG HIGHLIGHT SYSTEM (DYNAMICS & OVERRIDES)
+   ========================================================================== */
+
+/* Active highlighted item rule styling */
+.log-item-btn.active-log-highlight {
+  background-color: var(--border) !important; /* Subtle backdrop tracking shift */
+  border-color: var(--accent) !important; /* Highlights with your glowing cyan */
+  color: var(--accent) !important; /* Forces text to glow match */
+  font-weight: bold;
+  box-shadow: inset 4px 0 0 var(--accent); /* Adds a sharp color indicator block on the left edge */
+}
+
+/* Keeps the target delete icon visible and active inside a highlighted row */
+.active-log-highlight ~ .log-remove-btn {
+  color: var(--text-main);
 }
 
 /* ==========================================
@@ -550,4 +565,44 @@ html, body, #root {
 .btn-code-pull:hover {
   background-color: var(--border);
   border-color: var(--accent);
+}
+
+/* ==========================================================================
+   CLEAN TEXT-ONLY CLEAR LOGS BUTTON SYSTEM
+   ========================================================================== */
+
+.log-clear-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Matches sizing patterns of .btn-sidebar-action & .btn-file-loader */
+  padding: 12px; 
+  font-size: 18px; 
+  font-weight: bold;
+  
+  /* Structural design tokens from your dashboard layout */
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--bg-secondary);
+  
+  /* High-visibility clean warning red text color */
+  color: var(--danger, #ef4444); 
+  cursor: pointer;
+  box-sizing: border-box;
+  
+  /* Smooth interaction transition animations */
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Hover state: switches background to match your workspace interactions */
+.log-clear-btn:hover {
+  background-color: var(--border);
+  border-color: var(--danger, #ef4444);
+}
+
+/* Active click physical feedback animation */
+.log-clear-btn:active {
+  transform: scale(0.98);
 }

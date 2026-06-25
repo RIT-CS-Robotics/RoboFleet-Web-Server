@@ -122,16 +122,25 @@ export default function Dashboard({ onLogout, currentUser }) {
   };
 
   // Makes Tab key press inside the textarea do an indent
-  const handleTabPress = (tabEvent) => {
-    if ( (tabEvent.key === 'Tab') && (!logMode) ) {
-      tabEvent.preventDefault();
-      const textarea = tabEvent.target;
+  const handleTabPress = (event) => {
+    if ( (event.key === 'Tab') && (!logMode) ) {
+      event.preventDefault();
+      const textarea = event.target;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const indent = '    ';
       const newText = codeText.substring(0, start) + indent + codeText.substring(end);
       setCodeText(newText);
       setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + indent.length;
+      }, 0);
+    }
+  };
+
+  const handleUnderscorePress = (event) => {
+    if ( (event.key === '_') || (event.key === '/') ) {
+      event.preventDefault();
+        setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + indent.length;
       }, 0);
     }
@@ -224,19 +233,54 @@ export default function Dashboard({ onLogout, currentUser }) {
         if (currentLog === fileName) {
           setCurrentLog(null);
           setLogText('');
+          setLoggedCode('');
+          setLoggedCodeTitle('');
         }
 
       }
       catch (err) {
-        alert(`Error: could not remove log!`);
+        alert(`ERROR: could not remove log!`);
         console.error(`Could not remove log for user: ${currentUser} -> Error: ${err}`);
       }
     }
     return
   };
 
-  const handleLogClear = async () => {
+  const handleLogClear = async (event) => {
+    if (event) {
+      event.preventDefault();
+    }
 
+    const check = confirm(`WARNING: You are about to delete all code logs. Are you sure you want to continue?`);
+    if (check) {
+      try {
+          const response = await fetch(`/api/log/${currentUser}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          await loadLogs();
+          console.log(`Logs successfully cleared for User: ${currentUser}`);
+        }
+        else {
+          throw new Error(`Error with clearing logs`);
+        }
+
+        setCurrentLog(null);
+        setLogText('');
+        setLoggedCode('');
+        setLoggedCodeTitle('');
+
+      }
+      catch (err) {
+        alert(`ERROR: Failed to clear logs`);
+        console.error(`Could not clear logs for user: ${currentUser} -> Error: ${err}`);
+        return;
+      }
+    }
   };
 
   function handleLogSwitch(logSwitch) {
@@ -248,7 +292,7 @@ export default function Dashboard({ onLogout, currentUser }) {
     if (check) {
       const cleanCode = loggedCode.trim();
       if (cleanCode === '') {
-        alert(`Error: No code to pull from current log`);
+        alert(`ERROR: No code to pull from current log`);
         return;
       }
       setCodeText(loggedCode);
@@ -301,7 +345,8 @@ return (
             <div className="scroll-button-container restricted-height-scroll">
               {userLogs.map((fileName, index) => (
                 <div key={index} className="log-item-wrapper">
-                  <button onClick={() => handleLogButton(fileName)} className="log-item-btn">
+                  <button onClick={() => handleLogButton(fileName)}
+                  className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`}>
                     {fileName}
                   </button>
                   {/* Updated Button containing the SVG Trash Can Icon */}
@@ -320,6 +365,12 @@ return (
 
           {/* PLACEMENT SWAP: Import and Export buttons are now in the sidebar */}
           <div className="switch-buttons">
+
+            {/* Clear Log Button */}
+            <button onClick={(event) => handleLogClear(event)} className="log-clear-btn" title="Clear log">
+              Clear Logs
+            </button>
+
             {/* Import Button */}
             <label htmlFor="code-file-upload" className="btn-file-loader" style={{ width: '100%' }}>
               <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -385,7 +436,7 @@ return (
           </button>
 
           {/* Code Title Input Field */}
-          <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} placeholder="Enter Code Title..." className="log-name-text-box" />
+          <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} onKeyDown={handleUnderscorePress} placeholder="Enter Code Title..." className="log-name-text-box" />
         </div>
       </div>
 
@@ -394,7 +445,7 @@ return (
         <textarea value={logMode ? logText : codeText} 
         onChange={(e) => setCodeText(e.target.value)} 
         onKeyDown={handleTabPress} 
-        placeholder={`${logMode ? 'Empty Log...' : 'Enter Code Here...'}`} 
+        placeholder={`${logMode ? '' : 'Enter Code Here...'}`} 
         className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} 
         readOnly={logMode} />
 

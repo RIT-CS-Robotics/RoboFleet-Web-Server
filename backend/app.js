@@ -15,7 +15,7 @@ const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
-const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode} = require('./logs.js'); // create and remove code log directories for users
+const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -321,7 +321,19 @@ res.json({userLogs: logs});
 app.delete('/api/log/:userName/:logTitle', async (req, res) => {
   const user = path.basename(req.params.userName);
   const title = path.basename(req.params.logTitle);
-  const success = removeCode(user, title);
+  const success = await removeCode(user, title);
+  if (success) {
+    return res.status(200).json({message: 'Successfully removed student log'});
+  }
+  else {
+    return res.status(500).json({message: 'Failed to remove student log'});
+  }
+});
+
+// removes all log files for user
+app.delete('/api/log/:userName', async (req, res) => {
+  const user = path.basename(req.params.userName);
+  const success = await removeAllCode(user);
   if (success) {
     return res.status(200).json({message: 'Successfully removed student log'});
   }
