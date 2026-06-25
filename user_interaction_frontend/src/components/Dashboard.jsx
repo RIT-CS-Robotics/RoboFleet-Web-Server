@@ -11,7 +11,7 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [loggedCode, setLoggedCode] = useState(''); // code file for pulled log
   const [logMode, setLogMode] = useState(false); // for switching between code and log mode
   const [currentLog, setCurrentLog] = useState(null); // current log
-  const [loggedCodeTitle, setLoggedCodeTitle] = useState('');
+  const [loggedCodeTitle, setLoggedCodeTitle] = useState(''); // title of the current log
 
 
   const [selectedRobot, setSelectedRobot] = useState('robot 1');

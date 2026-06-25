@@ -128,12 +128,6 @@ export default function App() {
                 </span> 
               </div> 
             ))} 
-
-            {/* Broadcast Box */} 
-            <div className="broadcast-box"> 
-              <strong>Last Broadcast Command Sent:</strong> 
-              <span className="broadcast-text">"{latestText}"</span> 
-            </div> 
           </div> 
         </div> 
 

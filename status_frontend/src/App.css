@@ -92,24 +92,6 @@ button:active {
   min-width: 350px;
 }
 
-/* Terminal log layout for broadcast alert banners */
-.broadcast-box {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-top: 24px;
-  font-size: 20px;
-  color: var(--text-main);
-}
-
-.broadcast-text {
-  margin-left: 10px;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-weight: bold;
-}
-
 .inventory-list {
   display: flex;
   flex-direction: column;
