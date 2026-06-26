@@ -13,12 +13,13 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [logMode, setLogMode] = useState(false); // for switching between code and log mode
   const [currentLog, setCurrentLog] = useState(null); // current log
   const [loggedCodeTitle, setLoggedCodeTitle] = useState(''); // title of the current log
+  const [splitScreenMode, setSplitScreenMode] = useState(false); // is the code/log view in split screen mode?
 
 
-  const [selectedRobot, setSelectedRobot] = useState('robot 1');
-  const [statusMessage, setStatusMessage] = useState('Ready');
-  const [logName, setLogName] = useState('');
-  const [userLogs, setUserLogs] = useState([]);
+  const [selectedRobot, setSelectedRobot] = useState('robot 1'); // the selected robot
+  const [statusMessage, setStatusMessage] = useState('Ready'); // the status message
+  const [logName, setLogName] = useState(''); // The name of the current code to be logged
+  const [userLogs, setUserLogs] = useState([]); // All of the users logs
 
 
   async function constructTitle() {
@@ -285,6 +286,15 @@ export default function Dashboard({ onLogout, currentUser }) {
     return info;
   };
 
+  function handleSplitScreen() {
+    if (splitScreenMode) {
+      setSplitScreenMode(false);
+    }
+    else {
+      setSplitScreenMode(true);
+    }
+  }
+
 
 return (
   <div className="dashboard-container">
@@ -426,8 +436,13 @@ return (
           <button type="button" onClick={() => handleLogSwitch(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: logMode ? 'var(--bg-secondary)' : 'var(--accent)', color: logMode ? 'var(--text-main)' : '#030712' }}>
             Code
           </button>
+
           <button type="button" onClick={() => handleLogSwitch(true)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: logMode ? '#34d399' : 'var(--bg-secondary)', color: logMode ? '#030712' : 'var(--text-main)' }}>
             Log
+          </button>
+
+          <button type="button" onClick={() => handleSplitScreen()} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: 'var(--bg-secondary)', color: splitScreenMode ? 'var(--accent)' : 'var(--text-main)' }}>
+            Split Screen
           </button>
 
           {/* Code Title Input Field */}
