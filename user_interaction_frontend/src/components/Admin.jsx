@@ -1,7 +1,7 @@
 // src/components/Admin.jsx
 import { useState, useEffect } from 'react';
 import './Admin.css'; // Imported stylesheet here
-import { loadLogs, handleLogButton } from '../Utilities';
+import { loadLogs } from '../Utilities';
 
 export default function Admin({ onLogout }) {
   document.title = "RoboFleet Admin";
@@ -72,6 +72,28 @@ export default function Admin({ onLogout }) {
     }
   };
 
+  const handlePermButton = async (currentUser, fileName) => {
+    let perm = '';
+    try {
+      const response = await fetch(`/api/perm/${currentUser}/${fileName}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      perm = data.permLog;
+
+      console.log(`Loaded code perm for user: ${currentUser}`);
+    }
+    catch(err) {
+      alert(`Error: Could not load code log`);
+      console.error(`Could not load code perm for user: ${currentUser} -> Error: ${err}`);
+    }
+    return perm;
+  };
+
   return (
     <div className="admin-screen-layout">
       {/* 1. LEFT COLUMN: Your clean original admin container box */}
@@ -106,8 +128,8 @@ export default function Admin({ onLogout }) {
                 <span className="student-name">👤 {student}</span>
                 <button 
                   onClick={async () => {
-                    const logs = await loadLogs(student);
-                    setUserLogs(logs);
+                    const perms = await loadLogs(student, true);
+                    setUserLogs(perms);
                     setCurrentStudent(student);
                   }} 
                   className="btn-view-logs"
@@ -131,8 +153,8 @@ export default function Admin({ onLogout }) {
                 onClick={async () => {
                   const check = confirm(`Are you sure you want to select this code log?`);
                   if (check) {
-                    const [log, code, title] = await handleLogButton(currentStudent, fileName);
-                    setLogText(log);
+                    const perm = await handlePermButton(currentStudent, fileName);
+                    setLogText(perm);
                     setCurrentLog(fileName);
                   }
                 }} 

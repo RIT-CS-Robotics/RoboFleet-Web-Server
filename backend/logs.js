@@ -22,12 +22,14 @@ async function createUserLog(user) {
         const user_path = path.join(dir_path, user);
         const code_path = path.join(user_path, 'code');
         const log_path = path.join(user_path, 'log');
+        const perm_path = path.join(user_path, 'perm');
 
         await fs.mkdir(user_path, { recursive: true }); // recursive used here to prevent crashes if the folder exists
 
         await Promise.all([
             fs.mkdir(code_path, { recursive: true }),
-            fs.mkdir(log_path, { recursive: true })
+            fs.mkdir(log_path, { recursive: true }),
+            fs.mkdir(perm_path, { recursive: true })
         ]);
 
         console.log(`Code log directory created for user: ${user}`);
@@ -65,13 +67,15 @@ async function saveCode(user, title, code) {
     try {
         const code_path = path.join(dir_path, user, 'code', title);
         const log_path = path.join(dir_path, user, 'log', (title + '.log') );
+        const perm_path = path.join(dir_path, user, 'perm', (title + '.perm') );
         
         const seperator = '--------------------';
         const header = `Log: ${title}\nUser: ${user}\n${seperator}\nCode Ran:\n${seperator}\n ${code}\n${seperator}\nLog:\n${seperator}\n`;
 
         await Promise.all([
             fs.writeFile(code_path, code, 'utf-8'),
-            fs.writeFile(log_path, header, 'utf-8')
+            fs.writeFile(log_path, header, 'utf-8'),
+            fs.writeFile(perm_path, header, 'utf-8')
         ]);
         console.log(`Code saved for user: ${user} with title: ${title}`);
     }
@@ -203,6 +207,37 @@ async function getLogs(user) {
     return logs;
 }
 
+async function getPerms(user) {
+        await createUserLog(user); // safe guard if the user log doesn't already exist somehow
+    let perms;
+    try {
+        const user_path = path.join(dir_path, user, 'perm');
+        perms = await fs.readdir(user_path);
+        console.log(`Successfully retrieved perms for user: ${user}`);
+    }
+    catch (err) {
+        console.error(`Could not get perms for user: ${user} -> Error: ${err.message}`);
+        perms = [];
+    }
+    return perms;
+}
+
+async function loadPerm(user, title) {
+    await createUserLog(user); // safe guard if the user log doesn't already exist somehow
+    let file_content;
+    let file_path;
+    try {
+        file_path = path.join(dir_path, user, 'perm', title);
+        file_content = await fs.readFile(file_path, 'utf-8');
+        console.log(`Log loaded for user: ${user} with title: ${title}`);
+    }
+    catch (err) {
+        console.error(`Log could not be loaded for user: ${user} with title: ${title} -> Error: ${err.message}`);
+        file_content = "ERROR";
+    }
+    return file_content;
+}
+
 module.exports = {
     createUserLog,
     removeUserLog,
@@ -210,5 +245,7 @@ module.exports = {
     loadCode,
     removeCode,
     getLogs,
-    removeAllCode
+    removeAllCode,
+    getPerms,
+    loadPerm
 };

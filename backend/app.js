@@ -15,7 +15,7 @@ const path = require('path'); // Version: node@24.16.0
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
-const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode} = require('./logs.js'); // create and remove code log directories for users
+const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode, getPerms, loadPerm} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -300,6 +300,7 @@ app.post('/api/log', (req, res) => {
   }
   return res.status(201).json({message: 'Successfully logged student code'});
 });
+
  // gets the text from the specified log file for code and log versions
 app.get('/api/log/:userName/:fileName', async (req,res) => {
   const user = req.params.userName;
@@ -309,12 +310,28 @@ app.get('/api/log/:userName/:fileName', async (req,res) => {
   res.json({ userLog: log, userCode: code });
 });
 
+ // gets the text from the specified log file for code and log versions
+app.get('/api/perm/:userName/:fileName', async (req,res) => {
+  const user = req.params.userName;
+  const title = req.params.fileName;
+  const perm = await loadPerm(user, title);
+  res.json({ permLog: perm });
+});
+
 // gets all logs
 app.get('/api/log/:userName', async (req, res) => {
 const user = req.params.userName;
 console.log(`Backend received data for log filename request for user: ${user}`);
 const logs = await getLogs(user);
 res.json({userLogs: logs});
+});
+
+// gets all logs
+app.get('/api/perm/:userName', async (req, res) => {
+const user = req.params.userName;
+console.log(`Backend received data for perm filename request for user: ${user}`);
+const perms = await getPerms(user);
+res.json({userPerms: perms});
 });
 
 // removes specified log file

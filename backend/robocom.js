@@ -36,7 +36,8 @@ const dir_path = path.join(__dirname, 'user_logs');
 async function robotRun(code, title, user, robotId, host) {
     let script_path;
     let code_file;
-    const output_path = path.join(dir_path, user, 'log', (title + '.log') );
+    const output_path_log = path.join(dir_path, user, 'log', (title + '.log') );
+    const output_path_perm = path.join(dir_path, user, 'perm', (title + '.perm') );
 
     if (host === null) {
         console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
@@ -54,7 +55,11 @@ async function robotRun(code, title, user, robotId, host) {
         return;
     }
 
-    const logStream = fs.createWriteStream(output_path, { flags: 'a', encoding: 'utf-8' });
+    const logStream = fs.createWriteStream(output_path_log, { flags: 'a', encoding: 'utf-8' });
+    const permStream = fs.createWriteStream(output_path_perm, { flags: 'a', encoding: 'utf-8' });
+
+    logStream.on('error', (err) => console.error(`System logStream write error: ${err}`));
+    permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
     
     const pythonScript = spawn('python3', ['-u', script_path], {
         env: {
@@ -65,11 +70,13 @@ async function robotRun(code, title, user, robotId, host) {
 
     pythonScript.stdout.on('data', (data) => {
         logStream.write(data.toString());
+        permStream.write(data.toString());
         console.log(`Robot standard output with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
     pythonScript.stderr.on('data', (data) => {
         logStream.write(data.toString());
+        permStream.write(data.toString());
         console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
@@ -82,6 +89,7 @@ async function robotRun(code, title, user, robotId, host) {
         console.error(`Error while running python script with path: ${script_path} on robot ID: ${robotId}`)
         console.error(`Python error: ${err}`)
         logStream.end();
+        permStream.end();
         cleanupFile(code_file, script_path);
         code_file = null;
     });
@@ -89,6 +97,7 @@ async function robotRun(code, title, user, robotId, host) {
         console.log(`Python script closed with robot ID: ${robotId}`);
         console.log(`Disconnecting robot with ID: ${robotId}`);
         logStream.end();
+        permStream.end();
         cleanupFile(code_file, script_path);
         code_file = null;
     });

@@ -1,7 +1,7 @@
 // src/components/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import './Dashboard.css';
-import {loadLogs, handleLogButton} from '../Utilities';
+import {loadLogs} from '../Utilities';
 
 export default function Dashboard({ onLogout, currentUser }) {
   document.title = "RoboFleet Dashboard";
@@ -41,7 +41,7 @@ export default function Dashboard({ onLogout, currentUser }) {
   useEffect(() => {
     async function initLogs() {
       if (currentUser) {
-        const logs = await loadLogs(currentUser);
+        const logs = await loadLogs(currentUser, false);
         setUserLogs(logs);
       }
     }
@@ -73,7 +73,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       console.error(`Could not save log for user: ${currentUser} -> Error: ${err}`);
     }
 
-      const logs = await loadLogs(currentUser);
+      const logs = await loadLogs(currentUser, false);
       setUserLogs(logs);
   }
 
@@ -175,7 +175,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
 
         if (response.ok) {
-          const logs = await loadLogs(currentUser);
+          const logs = await loadLogs(currentUser, false);
           setUserLogs(logs);
           console.log(`Log successfully removed for User: ${currentUser}`);
         }
@@ -215,7 +215,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
         
         if (response.ok) {
-          const logs = await loadLogs(currentUser);
+          const logs = await loadLogs(currentUser, false);
           setUserLogs(logs);
           console.log(`Logs successfully cleared for User: ${currentUser}`);
         }
@@ -255,6 +255,35 @@ export default function Dashboard({ onLogout, currentUser }) {
       console.log(`Code successfully pulled for User: ${currentUser}`);
     }
   }
+
+  const handleLogButton = async (fileName) => {
+    const info = ['', '', ''];
+    try {
+      const response = await fetch(`/api/log/${currentUser}/${fileName}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      const log = data.userLog;
+      const code = data.userCode;
+      const fileSplit = fileName.split('_');
+      const title = fileSplit[0];
+
+      info[0] = log;
+      info[1] = code;
+      info[2] = title;
+
+      console.log(`Loaded code log for user: ${currentUser}`);
+    }
+    catch(err) {
+      alert(`Error: Could not load code log`);
+      console.error(`Could not load code log for user: ${currentUser} -> Error: ${err}`);
+    }
+    return info;
+  };
 
 
 return (
@@ -302,7 +331,7 @@ return (
                   <button onClick={async () => {
                     const check = confirm(`Are you sure you want to select this code log?`);
                     if (check) {
-                      const [log, code, title] = await handleLogButton(currentUser, fileName);
+                      const [log, code, title] = await handleLogButton(fileName);
                       setLogText(log);
                       setLoggedCode(code);
                       setLoggedCodeTitle(title);
