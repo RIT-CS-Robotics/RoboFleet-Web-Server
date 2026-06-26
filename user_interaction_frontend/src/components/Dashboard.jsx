@@ -289,11 +289,49 @@ export default function Dashboard({ onLogout, currentUser }) {
   function handleSplitScreen() {
     if (splitScreenMode) {
       setSplitScreenMode(false);
+      setLogMode(false);
     }
     else {
       setSplitScreenMode(true);
     }
   }
+
+    // NEW MOUSE DRAG CALCULATOR FUNCTION
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    
+    // Scopes tracking nodes precisely within the parent textbox wrapper
+    const container = e.target.parentElement;
+    const codePanel = container.querySelector('.code-panel');
+    const logPanel = container.querySelector('.log-panel');
+    const containerWidth = container.clientWidth;
+
+    const handleMouseMove = (moveEvent) => {
+      const containerRect = container.getBoundingClientRect();
+      let newWidthX = moveEvent.clientX - containerRect.left;
+      
+      // Keeps the text panels from being crushed below 150px
+      if (newWidthX < 150) newWidthX = 150;
+      if (newWidthX > containerWidth - 150) newWidthX = containerWidth - 150;
+      
+      const percentage = (newWidthX / containerWidth) * 100;
+      
+      // Updates the flex basis widths dynamically without shifting external layout grids
+      codePanel.style.flex = `1 1 ${percentage}%`;
+      codePanel.style.width = `${percentage}%`;
+      
+      logPanel.style.flex = `1 1 ${100 - percentage}%`;
+      logPanel.style.width = `${100 - percentage}%`;
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
 
 return (
@@ -428,52 +466,97 @@ return (
       <button onClick={onLogout} className="btn-logout"> Logout </button>
     </div> {/* Closes .dashboard-sidebar */}
 
-    {/* RIGHT SIDE MAIN COLUMN */}
-    <form onSubmit={handleSubmit} className="dashboard-main-form">
-      <div className="controls-row-wrapper">
-        <div className="file-loader-group">
-          {/* PLACEMENT SWAP: Code and Log workspace toggle switch buttons */}
-          <button type="button" onClick={() => handleLogSwitch(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: logMode ? 'var(--bg-secondary)' : 'var(--accent)', color: logMode ? 'var(--text-main)' : '#030712' }}>
-            Code
-          </button>
-
-          <button type="button" onClick={() => handleLogSwitch(true)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: logMode ? '#34d399' : 'var(--bg-secondary)', color: logMode ? '#030712' : 'var(--text-main)' }}>
-            Log
-          </button>
-
-          <button type="button" onClick={() => handleSplitScreen()} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: 'var(--bg-secondary)', color: splitScreenMode ? 'var(--accent)' : 'var(--text-main)' }}>
-            Split Screen
-          </button>
-
-          {/* Code Title Input Field */}
-          <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} onKeyDown={handleUnderscorePress} placeholder="Enter Code Title..." className="log-name-text-box" />
-        </div>
-      </div>
-
-      {/* Code Textarea Main Canvas Frame */}
-      <div className='code-box-container'>
-        <textarea value={logMode ? logText : codeText} 
+{/* RIGHT SIDE MAIN COLUMN */} 
+<form onSubmit={handleSubmit} className="dashboard-main-form"> 
+  <div className="controls-row-wrapper"> 
+    <div className="file-loader-group"> 
+      {/* PLACEMENT SWAP: Code and Log workspace toggle switch buttons */} 
+      <button 
+        type="button" 
+        onClick={() => handleLogSwitch(false)} 
+        className="btn-file-loader" 
+        style={{ minWidth: '120px', backgroundColor: (logMode || splitScreenMode) ? 'var(--bg-secondary)' : 'var(--accent)', color: (logMode || splitScreenMode) ? 'var(--text-main)' : '#030712' }}
+      > 
+        Code 
+      </button> 
+      <button 
+        type="button" 
+        onClick={() => handleLogSwitch(true)} 
+        className="btn-file-loader" 
+        style={{ minWidth: '120px', backgroundColor: (logMode && !splitScreenMode) ? '#34d399' : 'var(--bg-secondary)', color: (logMode && !splitScreenMode) ? '#030712' : 'var(--text-main)' }}
+      > 
+        Log 
+      </button> 
+      
+      {/* Split Screen Button: Clean highlight styling applied directly in the style tag */}
+      <button 
+  type="button" 
+  onClick={() => handleSplitScreen()} 
+  className="btn-file-loader" 
+  style={{ 
+    minWidth: '120px', 
+    backgroundColor: 'var(--bg-secondary)', 
+    color: splitScreenMode ? 'var(--accent)' : 'var(--text-main)',
+    border: splitScreenMode ? '1px solid #38bdf8' : '1px solid #374151' /* Hardcoded color fallback stops the page blowout! */
+  }}
+> 
+  Split Screen 
+</button>
+      
+      {/* Code Title Input Field */} 
+      <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} onKeyDown={handleUnderscorePress} placeholder="Enter Code Title..." className="log-name-text-box" /> 
+    </div> 
+  </div> 
+  
+  {/* Code Textarea Main Canvas Frame - Adds conditional layout split-active class */} 
+  <div className={`code-box-container ${splitScreenMode ? 'split-active' : ''}`}> 
+    
+    {/* PANEL A: Code Workspace wrapper */}
+    <div className="editor-workspace-panel code-panel">
+      <textarea 
+        value={splitScreenMode ? codeText : (logMode ? logText : codeText)} 
         onChange={(e) => setCodeText(e.target.value)} 
         onKeyDown={handleTabPress} 
-        placeholder={`${logMode ? '' : 'Enter Code Here...'}`} 
-        className={`code-editor-textarea ${logMode ? 'editor-mode-green' : 'editor-mode-blue'}`} 
-        readOnly={logMode} />
+        placeholder={logMode && !splitScreenMode ? '' : 'Enter Code Here...'} 
+        className={`code-editor-textarea ${(!splitScreenMode && logMode) ? 'editor-mode-green' : 'editor-mode-blue'}`} 
+        readOnly={!splitScreenMode && logMode} 
+      /> 
+    </div>
 
-          {logMode && (
-        <button type="button" onClick={() => handlePull()} className="btn-code-pull" > 
-          Pull Code
-        </button>
-        )}
-      </div>
+    {/* RESIZER DRAG BAR: Active only during Split Screen Mode */}
+    {splitScreenMode && (
+      <div className="workspace-resizer-bar" onMouseDown={handleMouseDown} />
+    )}
 
-      {/* Bottom Control Bar Row */}
-      <div className="action-row">
-        <button type="submit" className="btn-deploy"> Deploy </button>
-        <div className="status-display">
-          <strong>Status:</strong> &nbsp; {statusMessage}
-        </div>
+    {/* PANEL B: Log Workspace wrapper - Active only during Split Screen Mode */}
+    {splitScreenMode && (
+      <div className="editor-workspace-panel log-panel">
+        <textarea 
+          value={logText} 
+          placeholder="" 
+          className="code-editor-textarea editor-mode-green" 
+          readOnly 
+        /> 
       </div>
-    </form>
+    )}
+
+    {/* Pull Code Button - Visible only in static single-view log mode */}
+    {logMode && !splitScreenMode && ( 
+      <button type="button" onClick={() => handlePull()} className="btn-code-pull" > 
+        Pull Code 
+      </button> 
+    )} 
+  </div> 
+  
+  {/* Bottom Control Bar Row */} 
+  <div className="action-row"> 
+    <button type="submit" className="btn-deploy"> Deploy </button> 
+    <div className="status-display"> 
+      <strong>Status:</strong> &nbsp; {statusMessage} 
+    </div> 
+  </div> 
+</form>
+
   </div>
 );
 

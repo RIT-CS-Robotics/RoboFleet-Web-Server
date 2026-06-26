@@ -1,610 +1,558 @@
-/* src/components/Dashboard.css */
+/* src/components/Dashboard.css */ 
 
-/* ==========================================================================
-   GLOBAL CANVAS LAYOUT RESET - Unlocks entire widescreen real estate
-   ========================================================================== */
-html, body, #root {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  min-height: 0 !important;
-  overflow: hidden; /* Stops layout double-scrolling bars */
-}
+/* ========================================================================== GLOBAL CANVAS LAYOUT RESET - Unlocks entire widescreen real estate ========================================================================== */ 
+html, body, #root { 
+  margin: 0 !important; 
+  padding: 0 !important; 
+  width: 100vw !important; 
+  height: 100vh !important; 
+  max-width: none !important; 
+  min-height: 0 !important; 
+  overflow: hidden; /* Stops layout double-scrolling bars */ 
+} 
+* { 
+  box-sizing: border-box; 
+} 
 
-* {
-  box-sizing: border-box;
-}
+/* ========================================================================== MASTER PANEL BOX SETUP ========================================================================== */ 
+.dashboard-container { 
+  height: 100vh; 
+  width: 100%; 
+  padding: 30px; 
+  display: flex; 
+  flex-direction: row; 
+  gap: 40px; 
+  box-sizing: border-box; 
+} 
 
-/* ==========================================================================
-   MASTER PANEL BOX SETUP
-   ========================================================================== */
-.dashboard-container {
-  height: 100vh;
-  width: 100%;
-  padding: 30px;
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
-  box-sizing: border-box;
-}
+/* ========================================================================== LEFT SIDEBAR PANEL - 2-Column Split System Configuration ========================================================================== */ 
+.dashboard-sidebar { 
+  width: 580px; /* Allocates horizontal lane space for side-by-side tracking boxes */ 
+  height: calc(100vh - 60px); 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  box-sizing: border-box; 
+  flex-shrink: 0; 
+} 
 
-/* ==========================================================================
-   LEFT SIDEBAR PANEL - 2-Column Split System Configuration
-   ========================================================================== */
-.dashboard-sidebar {
-  width: 580px; /* Allocates horizontal lane space for side-by-side tracking boxes */
-  height: calc(100vh - 60px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
+/* Centered Header Text Group */ 
+.dashboard-account-header-block { 
+  text-align: center; 
+  width: 100%; 
+  margin-bottom: 20px; 
+} 
+.dashboard-account-title { 
+  margin-top: 0; 
+  margin-bottom: 4px; 
+  color: var(--text-main); 
+  font-size: 30px; 
+  line-height: 1.2; 
+} 
+.dashboard-username { 
+  font-size: 26px; 
+  color: var(--text-muted); 
+  margin-top: 0px; 
+  margin-bottom: 0px; 
+} 
 
-/* Centered Header Text Group */
-.dashboard-account-header-block {
-  text-align: center;
-  width: 100%;
-  margin-bottom: 20px;
-}
-
-.dashboard-account-title {
-  margin-top: 0;
-  margin-bottom: 4px;
-  color: var(--text-main);
-  font-size: 30px;
-  line-height: 1.2;
-}
-
-.dashboard-username {
-  font-size: 26px;
-  color: var(--text-muted);
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-
-/* Sidebar Columns Grid Row */
-.sidebar-split-layout-row {
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  /* FIXED: Forced both columns to stop stretching. They are now locked to a clean, shorter height! */
+/* Sidebar Columns Grid Row */ 
+.sidebar-split-layout-row { 
+  display: flex; 
+  flex-direction: row; 
+  gap: 24px; 
+  /* FIXED: Forced both columns to stop stretching. They are now locked to a clean, shorter height! */ 
   height: 650px !important; 
   flex-grow: 0 !important; 
-  margin-bottom: auto; /* Pushes the remaining blank space down towards the logout button */
-}
+  margin-bottom: auto; /* Pushes the remaining blank space down towards the logout button */ 
+} 
 
-/* --------------------------------------------------------------------------
-   FIXED MATCHING VERTICAL COLUMNS - Aligns Left and Right Boxes Perfectly
-   -------------------------------------------------------------------------- */
-.sidebar-left-subcolumn,
-.sidebar-right-subcolumn {
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-  height: 100%; /* Forces both side structures to lock to the 380px grid boundary */
-}
-
-.sidebar-left-subcolumn {
+/* -------------------------------------------------------------------------- FIXED MATCHING VERTICAL COLUMNS - Aligns Left and Right Boxes Perfectly -------------------------------------------------------------------------- */ 
+.sidebar-left-subcolumn, .sidebar-right-subcolumn { 
+  display: flex; 
+  flex-direction: column; 
+  width: 50%; 
+  height: 100%; /* Forces both side structures to lock to the 380px grid boundary */ 
+} 
+.sidebar-left-subcolumn { 
   gap: 15px; 
-}
+} 
+.sidebar-right-subcolumn { 
+  gap: 15px; 
+} 
 
-.sidebar-right-subcolumn {
-  gap: 15px;
-}
-
-/* --------------------------------------------------------------------------
-   SUBCOLUMN A (LEFT SIDE): Balanced Instructions & Lower Dropdown
-   -------------------------------------------------------------------------- */
-.instructions-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* -------------------------------------------------------------------------- SUBCOLUMN A (LEFT SIDE): Balanced Instructions & Lower Dropdown -------------------------------------------------------------------------- */ 
+.instructions-section { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
   height: calc(100% - 75px); 
-}
-
-.instructions-title {
-  color: var(--text-main);
-  font-size: 22px;
-  margin: 0;
-}
-
-/* Frame layout for the instructions box */
-.instructions-box.shortened-box {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-  color: var(--text-muted);
-  line-height: 1.5;
+} 
+.instructions-title { 
+  color: var(--text-main); 
+  font-size: 22px; 
+  margin: 0; 
+} 
+/* Frame layout for the instructions box */ 
+.instructions-box.shortened-box { 
+  background-color: var(--bg-secondary); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 14px; 
+  color: var(--text-muted); 
+  line-height: 1.5; 
   font-size: 18px; 
-  height: 100%;
-}
+  height: 100%; 
+} 
+.instructions-box p { 
+  margin-bottom: 10px; 
+} 
+.instructions-box p:last-child { 
+  margin-bottom: 0; 
+} 
 
-.instructions-box p {
-  margin-bottom: 10px;
-}
-
-.instructions-box p:last-child {
-  margin-bottom: 0;
-}
-
-/* Target Robot Dropdown Section Styles */
-.robot-selector-group {
-  margin-bottom: 0;
-  display: flex;
+/* Target Robot Dropdown Section Styles */ 
+.robot-selector-group { 
+  margin-bottom: 0; 
+  display: flex; 
   flex-direction: row; 
   align-items: center; 
-  gap: 10px;
+  gap: 10px; 
   height: 60px; 
   flex-shrink: 0; 
-}
-
-.robot-selector-label {
-  font-weight: bold;
-  font-size: 20px;
-  white-space: nowrap;
-}
-
-.robot-select-dropdown {
-  padding: 8px;
-  font-size: 20px;
-  border-radius: var(--radius);
+} 
+.robot-selector-label { 
+  font-weight: bold; 
+  font-size: 20px; 
+  white-space: nowrap; 
+} 
+.robot-select-dropdown { 
+  padding: 8px; 
+  font-size: 20px; 
+  border-radius: var(--radius); 
   flex-grow: 1; 
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  outline: none;
-}
+  border: 1px solid var(--border); 
+  background-color: var(--bg-primary); 
+  color: var(--text-main); 
+  outline: none; 
+} 
+.robot-select-dropdown:focus { 
+  border-color: var(--accent); 
+} 
 
-.robot-select-dropdown:focus {
-  border-color: var(--accent);
-}
+.btn-logout { 
+  padding: 12px; 
+  font-size: 20px; 
+  cursor: pointer; 
+  background: var(--danger); 
+  color: white; 
+  border: none; 
+  border-radius: var(--radius); 
+  width: 100%; 
+  font-weight: bold; 
+  margin-top: auto; /* Keeps it strictly stuck to the very bottom window edge */ 
+} 
+.btn-logout:hover { 
+  background: var(--danger-hover); 
+} 
 
-.btn-logout {
-  padding: 12px;
-  font-size: 20px;
-  cursor: pointer;
-  background: var(--danger);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  width: 100%;
-  font-weight: bold;
-  margin-top: auto; /* Keeps it strictly stuck to the very bottom window edge */
-}
+/* ========================================================================== RIGHT WORKSPACE MAIN WORK AREA ========================================================================== */ 
+.dashboard-main-form { 
+  flex: 1; 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 0; 
+} 
+.controls-row-wrapper { 
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 20px; 
+  margin-bottom: 15px; 
+} 
+.file-loader-group { 
+  display: flex; 
+  flex-direction: row; 
+  align-items: center; 
+  gap: 12px; 
+  flex-grow: 1; 
+} 
+.btn-file-loader { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 12px; 
+  padding: 8px 20px; 
+  font-size: 20px; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  text-align: center; 
+  user-select: none; 
+  transition: background-color 0.2s ease, border-color 0.2s ease; 
+} 
+.btn-file-loader:hover { 
+  background-color: var(--border); 
+  border-color: var(--accent); 
+} 
+.btn-icon { 
+  width: 24px; 
+  height: 24px; 
+  color: var(--text-muted); 
+  transition: color 0.2s ease; 
+} 
+.btn-file-loader:hover .btn-icon { 
+  color: var(--accent); 
+} 
+.log-name-text-box { 
+  padding: 8px 15px; 
+  font-family: var(--font-mono); 
+  font-size: 20px; 
+  font-weight: bold; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  caret-color: var(--accent); 
+  outline: none; 
+  min-width: 180px; 
+  flex-grow: 1; 
+  height: 43px; 
+  box-sizing: border-box; 
+  transition: border-color 0.2s ease, box-shadow 0.2s ease; 
+} 
+.log-name-text-box:focus { 
+  border-color: var(--accent); 
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); 
+} 
+.log-name-text-box::placeholder { 
+  color: var(--text-muted); 
+  opacity: 0.6; 
+} 
 
-.btn-logout:hover {
-  background: var(--danger-hover);
-}
-
-/* ==========================================================================
-   RIGHT WORKSPACE MAIN WORK AREA
-   ========================================================================== */
-.dashboard-main-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.controls-row-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.file-loader-group {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  flex-grow: 1;
-}
-
-.btn-file-loader {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 8px 20px;
-  font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  color: var(--text-main);
-  text-align: center;
-  user-select: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.btn-file-loader:hover {
-  background-color: var(--border);
-  border-color: var(--accent);
-}
-
-.btn-icon {
-  width: 24px;
-  height: 24px;
-  color: var(--text-muted);
-  transition: color 0.2s ease;
-}
-
-.btn-file-loader:hover .btn-icon {
-  color: var(--accent);
-}
-
-.log-name-text-box {
-  padding: 8px 15px;
-  font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: bold;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  color: var(--text-main);
-  caret-color: var(--accent);
-  outline: none;
-  min-width: 180px;
-  flex-grow: 1;
-  height: 43px;
-  box-sizing: border-box;
+/* Code Editor Textarea Canvas Grid Frame */ 
+.code-editor-textarea { 
+  padding: 12px; 
+  width: 100%; 
+  height: 100%; /* CHANGED: Spans full height of its panel parent wrapper */ 
+  box-sizing: border-box; 
+  font-family: var(--font-mono); 
+  font-size: 20px; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  caret-color: var(--accent); 
+  outline: none; 
+  resize: none; 
+  overflow-y: auto; 
+  white-space: pre; 
+  overflow-x: auto; 
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+} 
+
+/* This will be active when logMode is false */ 
+.editor-mode-blue { 
+  background-color: var(--bg-secondary); 
+} 
+
+/* This will trigger when logMode is true */ 
+.editor-mode-green { 
+  background-color: var(--success-bg); 
+  border-color: #064e3b; 
+} 
+
+.code-editor-textarea:focus { 
+  border-color: var(--accent); 
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); 
+} 
+
+.action-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+} 
+.btn-deploy { 
+  padding: 12px 25px; 
+  font-size: 20px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  border-radius: var(--radius); 
+  border: none; 
+  background: var(--accent); 
+  color: #030712; 
+} 
+.btn-deploy:hover { 
+  background: var(--accent-hover); 
+} 
+.status-display { 
+  flex: 1; 
+  font-size: 20px; 
+  padding: 10px 15px; 
+  background: var(--success-bg); 
+  border-radius: var(--radius); 
+  color: #34d399; 
+  display: flex; 
+  align-items: center; 
+  border: 1px solid #064e3b; 
 }
 
-.log-name-text-box:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
-}
 
-.log-name-text-box::placeholder {
-  color: var(--text-muted);
-  opacity: 0.6;
-}
+/* ========================================================================== SCROLLBAR DECORATIONS OVERLAYS ========================================================================== */ 
+.scroll-button-container::-webkit-scrollbar { 
+  width: 6px; 
+} 
+.scroll-button-container::-webkit-scrollbar-track { 
+  background: transparent; 
+} 
+.scroll-button-container::-webkit-scrollbar-thumb { 
+  background: var(--border); 
+  border-radius: 10px; 
+} 
+.scroll-button-container::-webkit-scrollbar-thumb:hover { 
+  background: var(--accent); 
+} 
 
-/* Code Editor Textarea Canvas Grid Frame */
-.code-editor-textarea {
-  padding: 12px;
-  width: 100%;
-  flex: 1;
-  box-sizing: border-box;
-  font-family: var(--font-mono);
-  font-size: 20px;
-  margin-bottom: 15px; /* Keeps the spacing to your lower action row elements intact */
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  color: var(--text-main);
-  caret-color: var(--accent);
-  outline: none;
-  resize: none;
-  overflow-y: auto;
-  white-space: pre;
-  overflow-x: auto;
-}
-
-/* This will be active when logMode is false (Defaults to your Onyx secondary block background) */
-.editor-mode-blue {
-  background-color: var(--bg-secondary);
-}
-
-/* This will trigger when logMode is true (Pulls your Deep Emerald Status Log token) */
-.editor-mode-green {
-  background-color: var(--success-bg);
-  border-color: #064e3b; /* Matches your status-display border layout */
-}
-
-.code-editor-textarea:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
-}
-
-.action-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.btn-deploy {
-  padding: 12px 25px;
-  font-size: 20px;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: var(--radius);
-  border: none;
-  background: var(--accent);
-  color: #030712;
-}
-
-.btn-deploy:hover {
-  background: var(--accent-hover);
-}
-
-.status-display {
-  flex: 1;
-  font-size: 20px;
-  padding: 10px 15px;
-  background: var(--success-bg);
-  border-radius: var(--radius);
-  color: #34d399;
-  display: flex;
-  align-items: center;
-  border: 1px solid #064e3b;
-}
-
-/* ==========================================================================
-   SCROLLBAR DECORATIONS OVERLAYS
-   ========================================================================== */
-.scroll-button-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.scroll-button-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll-button-container::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 10px;
-}
-
-.scroll-button-container::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
-
-/* ==========================================================================
-   NEW CUSTOM SWITCH BUTTONS
-   ========================================================================== */
-
-/* Spacing and layout rule for your new button wrapper block */
-.switch-buttons {
-  width: 100%;
+/* ========================================================================== NEW CUSTOM SWITCH BUTTONS ========================================================================== */ 
+/* Spacing and layout rule for your new button wrapper block */ 
+.switch-buttons { 
+  width: 100%; 
   height: auto; 
-  display: flex;
-  flex-direction: column; /* Stacks Code on top of Log */
-  gap: 10px; /* Clean gap room dividing both buttons */
-  box-sizing: border-box;
-  flex-shrink: 0; /* Prevents the buttons from squishing */
-}
+  display: flex; 
+  flex-direction: column; /* Stacks Code on top of Log */ 
+  gap: 10px; /* Clean gap room dividing both buttons */ 
+  box-sizing: border-box; 
+  flex-shrink: 0; /* Prevents the buttons from squishing */ 
+} 
 
-/* Base structural properties shared by both buttons */
-.btn-sidebar-action {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  border: none;
-  border-radius: var(--radius);
-  color: #030712; /* Dark typography baseline for high-visibility contrast */
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
+/* Base structural properties shared by both buttons */ 
+.btn-sidebar-action { 
+  width: 100%; 
+  padding: 12px; 
+  font-size: 18px; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border: none; 
+  border-radius: var(--radius); 
+  color: #030712; /* Dark typography baseline for high-visibility contrast */ 
+  transition: background-color 0.2s ease, transform 0.1s ease; 
+} 
+.btn-sidebar-action:active { 
+  transform: scale(0.98); /* Tactile physical press response */ 
+} 
 
-.btn-sidebar-action:active {
-  transform: scale(0.98); /* Tactile physical press response */
-}
+/* Blue Code Button Styles */ 
+.btn-blue-code { 
+  background-color: var(--accent); /* Pulls your main glowing cyan variable */ 
+} 
+.btn-blue-code:hover { 
+  background-color: var(--accent-hover); 
+} 
 
-/* Blue Code Button Styles */
-.btn-blue-code {
-  background-color: var(--accent); /* Pulls your main glowing cyan variable */
-}
+/* Green Log Button Styles */ 
+.btn-green-log { 
+  background-color: #34d399; /* Bright emerald green matching your status bar */ 
+} 
+.btn-green-log:hover { 
+  background-color: #059669; /* Rich dark jade green tone on hover */ 
+  color: white; /* Flips text color for crisp reading contrast */ 
+} 
 
-.btn-blue-code:hover {
-  background-color: var(--accent-hover);
-}
+/* ========================================================================== LOG REMOVE OVERLAY BUTTON SYSTEM ========================================================================== */ 
+/* 1. Relative anchor container wraps each list item row */ 
+.log-item-wrapper { 
+  position: relative; 
+  width: 100%; 
+} 
+/* 2. Push text to the left so it never runs underneath the overlayed X */ 
+.log-item-btn { 
+  padding-right: 45px !important; /* Forces whitespace padding on the right edge */ 
+} 
+/* 3. Absolute layer formatting locks the button precisely inside the right boundary */ 
+.log-remove-btn { 
+  position: absolute; 
+  right: 12px; 
+  top: 50%; 
+  transform: translateY(-50%); /* Keeps button vertically centered */ 
+  z-index: 10; /* Guarantees the button layer hovers cleanly above the base button */ 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: transparent; 
+  color: var(--text-muted); 
+  border: none; 
+  cursor: pointer; 
+  padding: 6px; /* Adjusted padding to create a balanced circle around the icon */ 
+  border-radius: var(--radius); 
+  transition: color 0.2s ease, background-color 0.2s ease; 
+} 
+/* Controls the strict visual scaling size of the SVG graphic path */ 
+.trash-icon { 
+  width: 18px; 
+  height: 18px; 
+} 
+/* Hover feedback states for the delete target */ 
+.log-remove-btn:hover { 
+  color: var(--danger); /* Automatically flips the SVG path lines to your theme's red */ 
+  background-color: rgba(239, 68, 68, 0.1); /* Subtle glowing red footprint */ 
+} 
 
-/* Green Log Button Styles */
-.btn-green-log {
-  background-color: #34d399; /* Bright emerald green matching your status bar */
-}
-
-.btn-green-log:hover {
-  background-color: #059669; /* Rich dark jade green tone on hover */
-  color: white; /* Flips text color for crisp reading contrast */
-}
+/* ========================================================================== ACTIVE LOG HIGHLIGHT SYSTEM (DYNAMICS & OVERRIDES) ========================================================================== */ 
+/* Active highlighted item rule styling */ 
+.log-item-btn.active-log-highlight { 
+  background-color: var(--border) !important; /* Subtle backdrop tracking shift */ 
+  border-color: var(--accent) !important; /* Highlights with your glowing cyan */ 
+  color: var(--accent) !important; /* Forces text to glow match */ 
+  font-weight: bold; 
+  box-shadow: inset 4px 0 0 var(--accent); /* Adds a sharp color indicator block on the left edge */ 
+} 
+/* Keeps the target delete icon visible and active inside a highlighted row */ 
+.active-log-highlight ~ .log-remove-btn { 
+  color: var(--text-main); 
+} 
+.scroll-panel-section { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+} 
+/* Elevated Log Track layout boundaries configuration */ 
+.scroll-panel-section.elevated-log-track { 
+  height: calc(100% - 110px); 
+} 
+.scroll-panel-title { 
+  color: var(--text-main); 
+  font-size: 22px; 
+  margin: 0; 
+} 
+/* Shorter, custom webkit log container scroll screen window */ 
+.scroll-button-container.restricted-height-scroll { 
+  background-color: var(--bg-secondary); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 10px; 
+  height: 100%; 
+  overflow-y: auto; 
+  overflow-x: hidden; /* FIXED: Completely eliminates horizontal scrollbar tracking */ 
+  display: flex; 
+  flex-direction: column; 
+  gap: 8px; 
+} 
+.log-item-btn { 
+  padding: 10px; 
+  font-size: 18px; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-primary); 
+  color: var(--text-main); 
+  text-align: left; 
+  width: 100%; 
+  box-sizing: border-box; 
+  transition: background-color 0.2s, border-color 0.2s; /* FIXED TEXT WRAPPING: Forces text containment inside the width boundaries */ 
+  white-space: normal; 
+  word-break: break-word; 
+  overflow-wrap: break-word; 
+} 
+.log-item-btn:hover { 
+  background-color: var(--border); 
+  border-color: var(--accent); 
+  color: var(--accent); 
+} 
 
 /* ==========================================================================
-   LOG REMOVE OVERLAY BUTTON SYSTEM
+   CODE BOX OVERLAY LAYOUT (SINGLE & SPLIT-SCREEN REALMS)
    ========================================================================== */
+/* Changed container into a row split container layout frame */
+.code-box-container { 
+  position: relative; 
+  width: 100%; 
+  flex: 1; /* Inherits the flex growth from dashboard-main-form */ 
+  display: flex; 
+  flex-direction: row; 
+  min-height: 0; 
+} 
 
-/* 1. Relative anchor container wraps each list item row */
-.log-item-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-/* 2. Push text to the left so it never runs underneath the overlayed X */
-.log-item-btn {
-  padding-right: 45px !important; /* Forces whitespace padding on the right edge */
-}
-
-/* 3. Absolute layer formatting locks the button precisely inside the right boundary */
-.log-remove-btn {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%); /* Keeps button vertically centered */
-  z-index: 10; /* Guarantees the button layer hovers cleanly above the base button */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  color: var(--text-muted);
-  border: none;
-  cursor: pointer;
-  padding: 6px; /* Adjusted padding to create a balanced circle around the icon */
-  border-radius: var(--radius);
-  transition: color 0.2s ease, background-color 0.2s ease;
-}
-
-/* Controls the strict visual scaling size of the SVG graphic path */
-.trash-icon {
-  width: 18px;
-  height: 18px;
-}
-
-/* Hover feedback states for the delete target */
-.log-remove-btn:hover {
-  color: var(--danger); /* Automatically flips the SVG path lines to your theme's red */
-  background-color: rgba(239, 68, 68, 0.1); /* Subtle glowing red footprint */
-}
-
-/* ==========================================================================
-   ACTIVE LOG HIGHLIGHT SYSTEM (DYNAMICS & OVERRIDES)
-   ========================================================================== */
-
-/* Active highlighted item rule styling */
-.log-item-btn.active-log-highlight {
-  background-color: var(--border) !important; /* Subtle backdrop tracking shift */
-  border-color: var(--accent) !important; /* Highlights with your glowing cyan */
-  color: var(--accent) !important; /* Forces text to glow match */
-  font-weight: bold;
-  box-shadow: inset 4px 0 0 var(--accent); /* Adds a sharp color indicator block on the left edge */
-}
-
-/* Keeps the target delete icon visible and active inside a highlighted row */
-.active-log-highlight ~ .log-remove-btn {
-  color: var(--text-main);
-}
-
-.scroll-panel-section {
-  display: flex;
-  flex-direction: column;
+/* Clean horizontal gap rules toggled in split layout mode */
+.code-box-container.split-active {
   gap: 10px;
 }
 
-/* Elevated Log Track layout boundaries configuration */
-.scroll-panel-section.elevated-log-track {
-  height: calc(100% - 110px);
-}
-
-.scroll-panel-title {
-  color: var(--text-main);
-  font-size: 22px;
-  margin: 0;
-}
-
-/* Shorter, custom webkit log container scroll screen window */
-.scroll-button-container.restricted-height-scroll {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden; /* FIXED: Completely eliminates horizontal scrollbar tracking */
+/* Symmetrical workspace column container panel slots */
+.editor-workspace-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.log-item-btn {
-  padding: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  text-align: left;
-  width: 100%;
-  box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
-
-  /* FIXED TEXT WRAPPING: Forces text containment inside the width boundaries */
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-
-.log-item-btn:hover {
-  background-color: var(--border);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* ==========================================
-   CODE BOX OVERLAY LAYOUT
-   ========================================== */
-
-/* 1. Setup the wrapper container */
-.code-box-container {
-  position: relative;
-  width: 100%;
-  flex: 1;        /* Inherits the flex growth from dashboard-main-form */
-  display: flex;   /* Ensures internal alignment stays structured */
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* 2. Position the action button inside the bottom right corner */
-.btn-code-pull {
-  position: absolute;
-  top: 15px; /* Sits 30px up from the wrapper bottom */
-  right: 15px;  /* Sits 15px out from the right edge */
-  z-index: 10;  /* Places button safely on top of text area canvas */
+  height: 100%;
+  min-width: 0; /* Keeps text inside textareas from inflating the box width */
   
-  /* Match the styling tokens seen elsewhere in your workspace */
-  padding: 8px 20px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  color: var(--text-main);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  /* FIXED 50/50 LOCK: Forces both panels to share the code box evenly */
+  flex: 1 1 50%; 
+  width: 50%;
 }
 
-.btn-code-pull:hover {
-  background-color: var(--border);
-  border-color: var(--accent);
+/* Draggable mouse interaction resizer tracking bar splitter */
+.workspace-resizer-bar {
+  width: 12px;
+  cursor: col-resize;
+  background-color: transparent;
+  align-self: stretch;
+  z-index: 5;
+  margin: 0 -4px;
+  transition: background-color 0.2s ease;
 }
 
-/* ==========================================================================
-   CLEAN TEXT-ONLY CLEAR LOGS BUTTON SYSTEM
-   ========================================================================== */
+/* Active drag or hover visual status pop accent highlight indicator */
+.workspace-resizer-bar:hover,
+.workspace-resizer-bar:active {
+  background-color: var(--accent);
+}
 
-.log-clear-btn {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  
-  /* Matches sizing patterns of .btn-sidebar-action & .btn-file-loader */
+/* Position the code overlay pull action button cleanly in its quadrant */ 
+.btn-code-pull { 
+  position: absolute; 
+  top: 15px; 
+  right: 15px; 
+  z-index: 10; /* Places button safely on top of text area canvas */ 
+  padding: 8px 20px; 
+  font-size: 18px; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  transition: background-color 0.2s ease, border-color 0.2s ease; 
+} 
+.btn-code-pull:hover { 
+  background-color: var(--border); 
+  border-color: var(--accent); 
+} 
+
+/* ========================================================================== CLEAN TEXT-ONLY CLEAR LOGS BUTTON SYSTEM ========================================================================== */ 
+.log-clear-btn { 
+  width: 100%; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
   padding: 12px; 
   font-size: 18px; 
-  font-weight: bold;
-  
-  /* Structural design tokens from your dashboard layout */
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-secondary);
-  
-  /* High-visibility clean warning red text color */
+  font-weight: bold; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-secondary); 
   color: var(--danger, #ef4444); 
-  cursor: pointer;
-  box-sizing: border-box;
-  
-  /* Smooth interaction transition animations */
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
-
-/* Hover state: switches background to match your workspace interactions */
-.log-clear-btn:hover {
-  background-color: var(--border);
-  border-color: var(--danger, #ef4444);
-}
-
-/* Active click physical feedback animation */
-.log-clear-btn:active {
-  transform: scale(0.98);
+  cursor: pointer; 
+  box-sizing: border-box; 
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease; 
+} 
+.log-clear-btn:hover { 
+  background-color: var(--border); 
+  border-color: var(--danger, #ef4444); 
+} 
+.log-clear-btn:active { 
+  transform: scale(0.98); 
 }
