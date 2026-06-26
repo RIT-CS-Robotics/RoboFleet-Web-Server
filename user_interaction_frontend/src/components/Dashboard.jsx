@@ -1,6 +1,7 @@
 // src/components/Dashboard.jsx
 import { useEffect, useState } from 'react';
 import './Dashboard.css';
+import {loadLogs, handleLogButton} from '../Utilities';
 
 export default function Dashboard({ onLogout, currentUser }) {
   document.title = "RoboFleet Dashboard";
@@ -20,26 +21,6 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [userLogs, setUserLogs] = useState([]);
 
 
-  // loads the current logs
-  async function loadLogs() {
-    try {
-      const response = await fetch(`/api/log/${currentUser}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      const logs = data.userLogs;
-
-      setUserLogs(logs);
-    }
-    catch(err) {
-      setUserLogs([]);
-    }
-  }
-
   async function constructTitle() {
     let title = logName;
           if (title.trim() === '') {
@@ -58,9 +39,13 @@ export default function Dashboard({ onLogout, currentUser }) {
 
   // Loads the new set of logs when a new user logs in
   useEffect(() => {
-    if (currentUser) {
-        loadLogs();
+    async function initLogs() {
+      if (currentUser) {
+        const logs = await loadLogs(currentUser);
+        setUserLogs(logs);
+      }
     }
+    initLogs();
   }, [currentUser]); 
 
   // Handles the logging of the student code
@@ -88,7 +73,8 @@ export default function Dashboard({ onLogout, currentUser }) {
       console.error(`Could not save log for user: ${currentUser} -> Error: ${err}`);
     }
 
-    loadLogs();
+      const logs = await loadLogs(currentUser);
+      setUserLogs(logs);
   }
 
   // Handles API transmission and safely opens status window on success
@@ -174,40 +160,6 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
-  const handleLogButton = async (fileName) => {
-    const check = confirm(`Are you sure you want to select this code log?`);
-    if (check) {
-      try {
-        const response = await fetch(`/api/log/${currentUser}/${fileName}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data = await response.json();
-        const log = data.userLog;
-        const code = data.userCode;
-        const fileSplit = fileName.split('_');
-        const title = fileSplit[0];
-
-        
-        setLogText(log);
-        setLoggedCode(code);
-        setLoggedCodeTitle(title);
-        handleLogSwitch(true);
-        setCurrentLog(fileName);
-
-        console.log(`Loaded code log for user: ${currentUser}`);
-      }
-      catch(err) {
-        alert(`Error: error pulling code log: ${err}`);
-        console.error(`Could not load code log for user: ${currentUser} -> Error: ${err}`);
-      }
-    }
-    return;
-  };
-
   const handleLogRemove = async (e, fileName) => {
     // Blocks the click from bubbling up to the log-item-btn underneath
     e.stopPropagation();
@@ -223,7 +175,8 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
 
         if (response.ok) {
-          await loadLogs();
+          const logs = await loadLogs(currentUser);
+          setUserLogs(logs);
           console.log(`Log successfully removed for User: ${currentUser}`);
         }
         else {
@@ -262,7 +215,8 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
         
         if (response.ok) {
-          await loadLogs();
+          const logs = await loadLogs(currentUser);
+          setUserLogs(logs);
           console.log(`Logs successfully cleared for User: ${currentUser}`);
         }
         else {
@@ -345,8 +299,20 @@ return (
             <div className="scroll-button-container restricted-height-scroll">
               {userLogs.map((fileName, index) => (
                 <div key={index} className="log-item-wrapper">
-                  <button onClick={() => handleLogButton(fileName)}
-                  className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`}>
+                  <button onClick={async () => {
+                    const check = confirm(`Are you sure you want to select this code log?`);
+                    if (check) {
+                      const [log, code, title] = await handleLogButton(currentUser, fileName);
+                      setLogText(log);
+                      setLoggedCode(code);
+                      setLoggedCodeTitle(title);
+                      handleLogSwitch(true);
+                      setCurrentLog(fileName);
+                    }
+                  }}
+                  className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`}
+                  title={fileName}
+                  >
                     {fileName}
                   </button>
                   {/* Updated Button containing the SVG Trash Can Icon */}
@@ -441,7 +407,7 @@ return (
       </div>
 
       {/* Code Textarea Main Canvas Frame */}
-      <div class='code-box-container'>
+      <div className='code-box-container'>
         <textarea value={logMode ? logText : codeText} 
         onChange={(e) => setCodeText(e.target.value)} 
         onKeyDown={handleTabPress} 

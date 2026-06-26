@@ -163,61 +163,6 @@ html, body, #root {
   border-color: var(--accent);
 }
 
-/* --------------------------------------------------------------------------
-   SUBCOLUMN B (RIGHT SIDE): Shorter Logs Box & Future Button Slot
-   -------------------------------------------------------------------------- */
-.scroll-panel-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Elevated Log Track layout boundaries configuration */
-.scroll-panel-section.elevated-log-track {
-  height: calc(100% - 110px); 
-}
-
-.scroll-panel-title {
-  color: var(--text-main);
-  font-size: 22px;
-  margin: 0;
-}
-
-/* Shorter, custom webkit log container scroll screen window */
-.scroll-button-container.restricted-height-scroll {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px;
-  height: 100%; 
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.log-item-btn {
-  padding: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  text-align: left;
-  width: 100%;
-  box-sizing: border-box;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.log-item-btn:hover {
-  background-color: var(--border);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-/* Logout Action Button Element */
 .btn-logout {
   padding: 12px;
   font-size: 20px;
@@ -527,6 +472,63 @@ html, body, #root {
 /* Keeps the target delete icon visible and active inside a highlighted row */
 .active-log-highlight ~ .log-remove-btn {
   color: var(--text-main);
+}
+
+.scroll-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Elevated Log Track layout boundaries configuration */
+.scroll-panel-section.elevated-log-track {
+  height: calc(100% - 110px);
+}
+
+.scroll-panel-title {
+  color: var(--text-main);
+  font-size: 22px;
+  margin: 0;
+}
+
+/* Shorter, custom webkit log container scroll screen window */
+.scroll-button-container.restricted-height-scroll {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; /* FIXED: Completely eliminates horizontal scrollbar tracking */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log-item-btn {
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.2s, border-color 0.2s;
+
+  /* FIXED TEXT WRAPPING: Forces text containment inside the width boundaries */
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.log-item-btn:hover {
+  background-color: var(--border);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* ==========================================

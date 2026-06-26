@@ -1,159 +1,312 @@
-/* src/components/Admin.css */
+/* src/components/Admin.css */ 
 
-.admin-container {
-  padding: 40px;
-  font-family: var(--font-sans);
-  background-color: var(--bg-secondary); /* Dark Onyx block color */
-  max-width: 1200px; /* Expanded from 450px to fill large desktop displays */
-  width: 90%; /* Allows breathing room on standard screens */
-  margin: 40px auto;
+.admin-container { 
+  padding: 40px; 
+  font-family: var(--font-sans); 
+  background-color: var(--bg-secondary); /* Dark Onyx block color */ 
+  width: 560px; /* Made wider to give form fields and rosters more breathing room */
+  flex-shrink: 0; /* Prevents the container from scaling inward down below this point */
+  margin: 0 !important; /* OVERRIDDEN: Set to 0 to allow the parent flex layout to align it properly */ 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); /* Slightly scaled theme glow */ 
+} 
+
+.admin-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 30px; 
+  border-bottom: 1px solid var(--border); 
+  padding-bottom: 15px; 
+} 
+
+.admin-title { 
+  margin: 0; 
+  font-size: 32px; /* Increased header text scaling */ 
+  color: var(--text-main); 
+} 
+
+.btn-logout { 
+  padding: 10px 20px; /* Expanded target click area */ 
+  font-size: 16px; 
+  cursor: pointer; 
+  background: var(--danger); 
+  color: white; 
+  border: none; 
+  border-radius: var(--radius); 
+  font-weight: bold; 
+} 
+
+.btn-logout:hover { 
+  background: var(--danger-hover); 
+} 
+
+.section-title { 
+  margin-top: 0; 
+  margin-bottom: 15px; 
+  font-size: 22px; /* Clean structural headers matching your text scaling layout */ 
+  color: var(--text-muted); 
+} 
+
+.admin-form { 
+  margin-bottom: 40px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 15px; /* Adds consistent vertical tracking room */ 
+} 
+
+.form-group { 
+  margin-bottom: 0; /* Managed cleanly via flex layout gap values above */ 
+} 
+
+.form-input { 
+  padding: 14px; /* Increased padding inside input boxes */ 
+  width: 100%; /* Form elements expand to stretch across full workspace grid container space */ 
+  font-size: 18px; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-primary); 
+  color: var(--text-main); 
+  caret-color: var(--accent); 
+  outline: none; 
+  font-family: var(--font-mono); 
+} 
+
+.form-input:focus { 
+  border-color: var(--accent); 
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); 
+} 
+
+.btn-register { 
+  padding: 12px 24px; 
+  font-size: 18px; 
+  cursor: pointer; 
+  background: var(--accent); 
+  color: #030712; 
+  border: none; 
+  border-radius: var(--radius); 
+  width: 100%; /* Stretches horizontally to block level format widths */ 
+  font-weight: bold; 
+} 
+
+.btn-register:hover { 
+  background: var(--accent-hover); 
+} 
+
+.status-message { 
+  padding: 14px; 
+  background: var(--success-bg); 
+  border-radius: var(--radius); 
+  font-size: 16px; 
+  font-weight: bold; 
+  border-left: 4px solid var(--accent); 
+  color: #34d399; 
+} 
+
+.divider { 
+  border: 0; 
+  border-top: 1px solid var(--border); 
+  margin: 30px 0; 
+} 
+
+.empty-roster { 
+  color: var(--text-muted); 
+  font-style: italic; 
+  font-size: 18px; 
+} 
+
+.student-list { 
+  list-style-type: none; 
+  padding-left: 0; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  max-height: 300px; /* Limits the box height (adjust this number as you like) */ 
+  overflow-y: auto; /* Shows a vertical scrollbar only when items overflow */ 
+  padding-right: 5px; /* Prevents the scrollbar from overlapping your remove buttons */ 
+} 
+
+.student-item { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 12px 16px; /* Slightly tightened item row profile sizes */ 
+  background-color: var(--bg-primary); /* Places subtle card depth over the workspace block background */ 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  gap: 15px; /* Added: Ensures name and button cluster never collide */ 
+} 
+
+.student-name { 
+  font-weight: 500; 
+  color: var(--text-main); 
+  font-family: var(--font-mono); 
+  font-size: 16px; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; /* Gracefully shortens text if name is too long */ 
+  flex-grow: 1; 
+} 
+
+/* Horizontal button alignment cluster */ 
+.student-item-actions { 
+  display: flex; 
+  gap: 8px; /* Standard spacing gap between button layers */ 
+  align-items: center; 
+} 
+
+/* Custom View Logs Button Profile Styling */ 
+.btn-view-logs { 
+  padding: 8px 14px; 
+  cursor: pointer; 
+  background-color: var(--bg-secondary); 
+  color: var(--text-main); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  font-size: 14px; 
+  font-weight: bold; 
+  transition: border-color 0.2s ease, background-color 0.2s ease; 
+} 
+
+.btn-view-logs:hover { 
+  border-color: var(--accent); 
+  background-color: var(--bg-primary); 
+} 
+
+.btn-delete { 
+  padding: 8px 16px; 
+  cursor: pointer; 
+  background: transparent; 
+  color: var(--danger); 
+  border: 1px solid var(--danger); 
+  border-radius: var(--radius); 
+  font-size: 14px; 
+  font-weight: bold; 
+  transition: background-color 0.2s ease, color 0.2s ease; 
+} 
+
+.btn-delete:hover { 
+  background: var(--danger); 
+  color: white; 
+} 
+
+/* ========================================================================== 
+   UPDATED LEFT-PINNED LAYOUT CONFIGURATIONS (ISOLATED TO ADMIN ONLY)
+   ========================================================================== */ 
+
+/* Layout wrapper row to line up the dashboard box and terminal box side-by-side */ 
+.admin-screen-layout { 
+  display: flex; 
+  gap: 30px; /* Separation gap spacing channel */ 
+  align-items: flex-start; 
+  width: calc(100% - 80px); /* Gives margin protection room */ 
+  margin: 40px 0 40px 40px; /* Forces components to pin hard left */ 
+} 
+
+/* Base wrapper properties for the log container block on the right */ 
+.admin-elevated-log-track { 
+  width: 320px; /* Stabilizes sizing frames from crushing inward */ 
+  flex-shrink: 0; 
+  background-color: var(--bg-secondary); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 30px; /* Slightly reduced padding spacing footprint */ 
+  display: flex; 
+  flex-direction: column; 
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); 
+  /* 🛠️ FIXED: Forces container to stretch perfectly down to the dashboard's baseline */ 
+  align-self: stretch; 
+} 
+
+/* Log panel sub-header alignment */ 
+.admin-scroll-panel-title { 
+  margin: 0 0 20px 0; 
+  font-size: 24px; 
+  color: var(--text-main); 
+  border-bottom: 1px solid var(--border); 
+  padding-bottom: 15px; 
+} 
+
+/* Dark slate placeholder box representing the console interface container */ 
+.admin-restricted-height-scroll { 
+  flex-grow: 1; 
+  background-color: #030712; /* Match your main editor workspace layout canvas color */ 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 20px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 10px; 
+  overflow-y: auto; 
+  /* 🛠️ FIXED: Removed hard max-height to let internal elements track the flex box bounds */ 
+} 
+
+/* Styling for log buttons inside the terminal list area */ 
+.log-item-wrapper { 
+  width: 100%; 
+} 
+
+.log-item-btn { 
+  width: 100%; 
+  text-align: left; 
+  padding: 12px; 
+  background: var(--bg-primary); 
+  color: var(--text-main); 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  font-family: var(--font-mono); 
+  font-size: 13px; /* Slightly lowered text metrics for small boundaries spacing layout */ 
+  cursor: pointer; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; /* Cleanly adds '...' to truncating file names wider than skinny column */ 
+  transition: all 0.2s; 
+} 
+
+.log-item-btn:hover { 
+  border-color: var(--accent); 
+} 
+
+.active-log-highlight { 
+  background: #34d399 !important; /* Green matrix highlighting theme */ 
+  color: #030712 !important; 
+  font-weight: bold; 
+  border-color: #34d399 !important; 
+}
+
+/* ==========================================================================
+   NEW: CONSOLE AREA STYLES FOR THE FAR-RIGHT COLUMN 
+   ========================================================================== */
+
+/* Outer wrapper container box for the log canvas text block */
+.log-box-container {
+  flex-grow: 1;             /* Stretches the panel horizontally to fill remaining screen space */
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); /* Slightly scaled theme glow */
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 15px;
-}
-
-.admin-title {
-  margin: 0;
-  font-size: 32px; /* Increased header text scaling */
-  color: var(--text-main);
-}
-
-.btn-logout {
-  padding: 10px 20px; /* Expanded target click area */
-  font-size: 16px;
-  cursor: pointer;
-  background: var(--danger);
-  color: white;
-  border: none;
-  border-radius: var(--radius);
-  font-weight: bold;
-}
-
-.btn-logout:hover {
-  background: var(--danger-hover);
-}
-
-.section-title {
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 22px; /* Clean structural headers matching your text scaling layout */
-  color: var(--text-muted);
-}
-
-.admin-form {
-  margin-bottom: 40px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Adds consistent vertical tracking room */
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12);
+  align-self: stretch;      /* Extends vertically down matching the other columns */
 }
 
-.form-group {
-  margin-bottom: 0; /* Managed cleanly via flex layout gap values above */
-}
-
-.form-input {
-  padding: 14px; /* Increased padding inside input boxes */
-  width: 100%; /* Form elements expand to stretch across full workspace grid container space */
-  font-size: 18px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
-  color: var(--text-main);
-  caret-color: var(--accent);
-  outline: none;
-  font-family: var(--font-mono);
-}
-
-.form-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
-}
-
-.btn-register {
-  padding: 12px 24px;
-  font-size: 18px;
-  cursor: pointer;
-  background: var(--accent);
-  color: #030712;
-  border: none;
-  border-radius: var(--radius);
-  width: 100%; /* Stretches horizontally to block level format widths */
-  font-weight: bold;
-}
-
-.btn-register:hover {
-  background: var(--accent-hover);
-}
-
-.status-message {
-  padding: 14px;
-  background: var(--success-bg);
-  border-radius: var(--radius);
-  font-size: 16px;
-  font-weight: bold;
-  border-left: 4px solid var(--accent);
-  color: #34d399;
-}
-
-.divider {
-  border: 0;
-  border-top: 1px solid var(--border);
-  margin: 30px 0;
-}
-
-.empty-roster {
-  color: var(--text-muted);
-  font-style: italic;
-  font-size: 18px;
-}
-
-.student-list {
-  list-style-type: none;
-  padding-left: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.student-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 20px; /* Widened internal row paddings */
-  background-color: var(--bg-primary); /* Places subtle card depth over the workspace block background */
+/* Styled matrix terminal textarea component box */
+.log-textarea {
+  width: 100%;
+  flex-grow: 1;             /* Spans textarea vertically to fill up container height bounds */
+  min-height: 380px;
+  padding: 15px;
+  background-color: #030712; /* Dark slate background matching the editor setup */
+  color: #34d399;           /* Emerald matrix text coloration code rules */
   border: 1px solid var(--border);
   border-radius: var(--radius);
-}
-
-.student-name {
-  font-weight: 500;
-  color: var(--text-main);
   font-family: var(--font-mono);
-  font-size: 18px;
-}
-
-.btn-delete {
-  padding: 8px 16px;
-  cursor: pointer;
-  background: transparent;
-  color: var(--danger);
-  border: 1px solid var(--danger);
-  border-radius: var(--radius);
   font-size: 14px;
-  font-weight: bold;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.btn-delete:hover {
-  background: var(--danger);
-  color: white;
+  line-height: 1.6;
+  resize: none;             /* Prevents users from manually clicking and changing proportions */
+  outline: none;
+  white-space: pre;
+  overflow-x: auto; 
 }
