@@ -33,7 +33,7 @@ const dir_path = path.join(__dirname, 'user_logs');
  * @param code: The students code
  * @param robotId: The robot to run the code on
  */
-async function robotRun(code, title, user, robotId, host) {
+async function robotRun(code, title, user, robotId, host, callBack) {
     let script_path;
     let code_file;
     const output_path_log = path.join(dir_path, user, 'log', (title + '.log') );
@@ -45,7 +45,7 @@ async function robotRun(code, title, user, robotId, host) {
     }
 
     try {
-        code_file = tmp.fileSync(temps);
+         code_file = tmp.fileSync(temps);
         script_path = code_file.name;
         console.log(`temp code file created with path: ${script_path}`);
         writeCode(code, script_path, true);
@@ -61,6 +61,7 @@ async function robotRun(code, title, user, robotId, host) {
     logStream.on('error', (err) => console.error(`System logStream write error: ${err}`));
     permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
     
+    
     const pythonScript = spawn('python3', ['-u', script_path], {
         env: {
             ...process.env,
@@ -74,33 +75,35 @@ async function robotRun(code, title, user, robotId, host) {
         console.log(`Robot standard output with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
-    pythonScript.stderr.on('data', (data) => {
-        logStream.write(data.toString());
-        permStream.write(data.toString());
-        console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
+     pythonScript.stderr.on('data', (data) => {
+         logStream.write(data.toString());
+         permStream.write(data.toString());
+         console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
     pythonScript.on('spawn', () => {
-        console.log(`Python script spawned with robot ID: ${robotId}`);
-        console.log(`Running robot with ID: ${robotId}`);
+          console.log(`Python script spawned with robot ID: ${robotId}`);
+         console.log(`Running robot with ID: ${robotId}`);
     });
 
     pythonScript.on('error', (err) => {
-        console.error(`Error while running python script with path: ${script_path} on robot ID: ${robotId}`)
-        console.error(`Python error: ${err}`)
-        logStream.end();
-        permStream.end();
-        cleanupFile(code_file, script_path);
-        code_file = null;
+         console.error(`Error while running python script with path: ${script_path} on robot ID: ${robotId}`)
+         console.error(`Python error: ${err}`)
+         logStream.end();
+         permStream.end();
+         cleanupFile(code_file, script_path);
+           code_file = null;
+        callBack(false);
     });
     pythonScript.on('close', () => {
         console.log(`Python script closed with robot ID: ${robotId}`);
         console.log(`Disconnecting robot with ID: ${robotId}`);
-        logStream.end();
-        permStream.end();
-        cleanupFile(code_file, script_path);
-        code_file = null;
-    });
+         logStream.end();
+         permStream.end();
+         cleanupFile(code_file, script_path);
+         code_file = null;
+        callBack(false);
+     });
 }
 
 /**

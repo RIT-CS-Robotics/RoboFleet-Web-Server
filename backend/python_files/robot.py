@@ -118,6 +118,8 @@ class Robot(AbstractContextManager):
 		except Exception as e:
 			print("Error: thread timed out")
 
+
+
 	def get_legs(self):
 		"""
 		Return the number of "legs" seen.

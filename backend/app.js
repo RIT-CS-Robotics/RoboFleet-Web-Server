@@ -79,7 +79,8 @@ function initializeRobotConnection(robotId, ipAddress) {
       instance: null,
       position: {x: 0, y: 0},
       destination: {x: 0, y: 0,},
-      destination_name: 'N/A'
+      destinationName: 'N/A',
+      isActive: false
     };
   }
 
@@ -103,7 +104,7 @@ function initializeRobotConnection(robotId, ipAddress) {
       robotConnections[robotId].position = { x: 0, y: 0};
       robotConnections[robotId].instance = null;
       robotConnections[robotId].destination = {x: 0, y: 0,};
-      robotConnections[robotId].destination_name = 'N/A';
+      robotConnections[robotId].destinationName = 'N/A';
 
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);
@@ -182,7 +183,7 @@ function initializeRobotConnection(robotId, ipAddress) {
         robotConnections[robotId].destination = { x: Number(xDest.toFixed(3)), y: Number(yDest.toFixed(3)) };
         const destName = getDestination(xDest, yDest);
         if (destName !== undefined) {
-          robotConnections[robotId].destination_name = destName;
+          robotConnections[robotId].destinationName = destName;
         }
       }
     });
@@ -376,7 +377,8 @@ app.get('/api', (req, res) => {
       online: trackingData.isConnected,
       position: trackingData.position,
       destination: trackingData.destination,
-      destination_name: trackingData.destination_name
+      destination_name: trackingData.destination_name,
+      active: trackingData.isActive
     };
   }
   res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the frontend
@@ -388,7 +390,7 @@ app.get('/api', (req, res) => {
 app.get('/api/robots', (req, res) => {
   const robotIDs = []
   for (const id of Object.keys(robotConnections)) {
-    if (robotConnections[id].isConnected) {
+    if (robotConnections[id].isConnected && !robotConnections[id].isActive) {
       robotIDs.push(id);
     }
   }
@@ -408,11 +410,12 @@ app.post('/api/save', (req, res) => {
 
     // selects the correct robot
     const trackingData = robotConnections[robotId];
-    const hostName = trackingData.host;
 
     if (!trackingData) {
         return res.status(404).json({ message: `Robot ID "${robotId}" is not configured.` });
     }
+
+    const hostName = trackingData.host;
 
     // If the selected robot is online and connected to rosbridge then it creates a new topic /frontend_commands and publishes to it.
     // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
@@ -428,7 +431,12 @@ app.post('/api/save', (req, res) => {
         const msg = new ROSLIB.Message({ data: code }); // new message for the textTopic is created with the user inputed text from the frontend and is then published
         textTopic.publish(msg);
 
-        robotRun(code, title, user, robotId, hostName); // runs the robot
+        if (!trackingData.isActive) {
+          robotConnections[robotId].isActive = true;
+          robotRun(code, title, user, robotId, hostName, (active) => {
+            pythonCallback(active, robotId);
+          } ); // runs the robot
+        }
 
         console.log(`Forwarded "${code}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${code}"` });
@@ -436,6 +444,10 @@ app.post('/api/save', (req, res) => {
         return res.status(503).json({ message: `Message not saved, ${robotId} is offline.` });
     }
 });
+
+function pythonCallback(active, robotId) {
+  robotConnections[robotId].isActive = active;
+}
 
 // ----------------------------------------------------
 // ROBOFLEET REGISTRATION: add or edit robots here!

@@ -1,0 +1,51 @@
+Log: 1 forward and back twice_06-29-2026_17h.07m.43s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.move(1)
+    r.move_admin(-1)
+    r.move(1)
+    r.move_admin(-1)
+--------------------
+Log:
+--------------------
+ROBOT: QUEUED COMMAND:  MOVE:1
+
+1
+
+Sending command to Nav2:  MOVE:1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS
+ROBOT: QUEUED COMMAND:  MOVE_ADMIN:-1
+
+ROBOT: QUEUED COMMAND:  MOVE:1
+
+-1
+
+Sending command to Nav2:  MOVE_ADMIN:-1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS
+1
+
+Sending command to Nav2:  MOVE:1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS
+ROBOT: QUEUED COMMAND:  MOVE_ADMIN:-1
+
+-1
+
+Sending command to Nav2:  MOVE_ADMIN:-1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS
