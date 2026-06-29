@@ -16,10 +16,12 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [splitScreenMode, setSplitScreenMode] = useState(false); // is the code/log view in split screen mode?
 
 
-  const [selectedRobot, setSelectedRobot] = useState('robot 1'); // the selected robot
+  const [selectedRobot, setSelectedRobot] = useState('any'); // the selected robot
   const [statusMessage, setStatusMessage] = useState('Ready'); // the status message
   const [logName, setLogName] = useState(''); // The name of the current code to be logged
   const [userLogs, setUserLogs] = useState([]); // All of the users logs
+
+  const [robots, setRobots] = useState([]);
 
 
   async function constructTitle() {
@@ -38,6 +40,28 @@ export default function Dashboard({ onLogout, currentUser }) {
       return title;
   }
 
+    // Gets the list of robots
+  const initRobots = async function () {
+    if (currentUser) {
+      try {
+        const response = await fetch('api/robots', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+       });
+        const data = await response.json();
+        const robotIDs = data.robots;
+        setRobots(robotIDs);
+        console.log(`init robot dropdown success`);
+        return robotIDs;
+      }
+      catch (err) {
+        console.error(`init robot dropdown error -> ERR: ${err}`);
+      }
+    }
+  }
+
   // Loads the new set of logs when a new user logs in
   useEffect(() => {
     async function initLogs() {
@@ -46,7 +70,9 @@ export default function Dashboard({ onLogout, currentUser }) {
         setUserLogs(logs);
       }
     }
+
     initLogs();
+    initRobots();
   }, [currentUser]); 
 
   // Handles the logging of the student code
@@ -78,9 +104,24 @@ export default function Dashboard({ onLogout, currentUser }) {
       setUserLogs(logs);
   }
 
+  async function chooseAny() {
+    const loadedRobots = await initRobots();
+    let selection = 'default'
+    const robotCount = loadedRobots.length;
+    if (robotCount > 0) {
+      const ind = Math.floor(Math.random() * robotCount); // gets index from 0 to end of robots list
+      selection = loadedRobots[ind];
+    }
+    return selection;
+  }
+
   // Handles API transmission and safely opens status window on success
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let selection = selectedRobot
+    if (selection === 'any') {
+      selection = await chooseAny();
+    }
     setStatusMessage(`Sending to ${selectedRobot}...`);
     try {
       const title = await constructTitle();
@@ -89,7 +130,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: codeText, codeTitle: title, user: currentUser, robotId: selectedRobot }),
+        body: JSON.stringify({ text: codeText, codeTitle: title, user: currentUser, robotId: selection }),
       });
 
       if (!response.ok) {
@@ -102,6 +143,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       
       // Fixed: Only opens the window after a successful database save
       window.open('status', '_blank');
+
     } catch (error) {
       console.error("Transmission error:", error);
       setStatusMessage('Error connecting to robot');
@@ -334,231 +376,198 @@ export default function Dashboard({ onLogout, currentUser }) {
   };
 
 
-return (
-  <div className="dashboard-container">
-    {/* LEFT SIDE COLUMN (SIDEBAR) */}
-    <div className="dashboard-sidebar">
-      {/* Centered Account Info Header Block */}
-      <div className="dashboard-account-header-block">
-        <h2 className="dashboard-account-title">RoboFleet Account:</h2>
-        <p className="dashboard-username">{currentUser}</p>
-      </div>
+return ( 
+  <div className="dashboard-container"> 
+    {/* LEFT SIDE COLUMN (SIDEBAR) */} 
+    <div className="dashboard-sidebar"> 
+      {/* Centered Account Info Header Block */} 
+      <div className="dashboard-account-header-block"> 
+        <h2 className="dashboard-account-title">RoboFleet Account:</h2> 
+        <p className="dashboard-username">{currentUser}</p> 
+      </div> 
 
-      {/* INNER SPLIT ROW: Side-by-side layout columns */}
-      <div className="sidebar-split-layout-row">
-        {/* SUBCOLUMN A (LEFT SIDE): Shortened Instructions & Dropdown */}
-        <div className="sidebar-left-subcolumn">
-          <div className="instructions-section">
-            <h3 className="instructions-title">Instructions:</h3>
-            <div className="instructions-box shortened-box">
-              <p>1. Select a target robot dropdown menu.</p>
-              <p>2. Load or write code in the editor workspace.</p>
-              <p>3. Click "Deploy" to transmit your commands.</p>
-            </div>
-          </div>
+      {/* INNER SPLIT ROW: Side-by-side layout columns */} 
+      <div className="sidebar-split-layout-row"> 
+        {/* SUBCOLUMN A (LEFT SIDE): Shortened Instructions & Dropdown */} 
+        <div className="sidebar-left-subcolumn"> 
+          <div className="instructions-section"> 
+            <h3 className="instructions-title">Instructions:</h3> 
+            <div className="instructions-box shortened-box"> 
+              <p>1. Select a target robot dropdown menu.</p> 
+              <p>2. Load or write code in the editor workspace.</p> 
+              <p>3. Click "Deploy" to transmit your commands.</p> 
+            </div> 
+          </div> 
 
-          {/* Robot Selection Dropdown - Positioned directly under instructions */}
-          <div className="robot-selector-group">
-            <label className="robot-selector-label">Target Robot:</label>
-            <select value={selectedRobot} onChange={(e) => setSelectedRobot(e.target.value)} className="robot-select-dropdown">
-              <option value="robot 1">Robot 1</option>
-              <option value="robot 2">Robot 2</option>
-              <option value="robot 3">Robot 3</option>
-            </select>
-          </div>
-        </div>
+          {/* Robot Selection Dropdown - Positioned directly under instructions */} 
+          <div className="robot-selector-group"> 
+            <label className="robot-selector-label">Target Robot:</label> 
+            <select 
+            value={selectedRobot} 
+            onChange={(e) => setSelectedRobot(e.target.value)} 
+            onFocus={initRobots}
+            className="robot-select-dropdown"> 
+            <option value='any' >Any</option>
+              {robots.map((robot, index) => ( 
+                <option key={index} value={robot}> 
+                  {robot} 
+                </option> 
+              ))} 
+            </select> 
+          </div> 
+        </div> 
 
-        {/* SUBCOLUMN B (RIGHT SIDE): Elevated Logs Box & Future Button Slot */}
-        <div className="sidebar-right-subcolumn">
-          {/* Logs section floats up to the top level */}
-          <div className="scroll-panel-section elevated-log-track">
-            <h3 className="scroll-panel-title">Logs:</h3>
-            <div className="scroll-button-container restricted-height-scroll">
-              {userLogs.map((fileName, index) => (
-                <div key={index} className="log-item-wrapper">
-                  <button onClick={async () => {
-                    const check = confirm(`Are you sure you want to select this code log?`);
-                    if (check) {
-                      const [log, code, title] = await handleLogButton(fileName);
-                      setLogText(log);
-                      setLoggedCode(code);
-                      setLoggedCodeTitle(title);
-                      handleLogSwitch(true);
-                      setCurrentLog(fileName);
-                    }
-                  }}
-                  className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`}
-                  title={fileName}
-                  >
-                    {fileName}
-                  </button>
-                  {/* Updated Button containing the SVG Trash Can Icon */}
-                  <button onClick={(e) => handleLogRemove(e, fileName)} className="log-remove-btn" title="Delete log">
-                    <svg className="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      <line x1="10" y1="11" x2="10" y2="17"></line>
-                      <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* SUBCOLUMN B (RIGHT SIDE): Elevated Logs Box & Future Button Slot */} 
+        <div className="sidebar-right-subcolumn"> 
+          {/* Logs section floats up to the top level */} 
+          <div className="scroll-panel-section elevated-log-track"> 
+            <h3 className="scroll-panel-title">Logs:</h3> 
+            <div className="scroll-button-container restricted-height-scroll"> 
+              {userLogs.map((fileName, index) => ( 
+                <div key={index} className="log-item-wrapper"> 
+                  <button 
+                    type="button"
+                    onClick={async () => { 
+                      const check = confirm(`Are you sure you want to select this code log?`); 
+                      if (check) { 
+                        const [log, code, title] = await handleLogButton(fileName); 
+                        setLogText(log); 
+                        setLoggedCode(code); 
+                        setLoggedCodeTitle(title); 
+                        handleLogSwitch(true); 
+                        setCurrentLog(fileName); 
+                      } 
+                    }} 
+                    className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`} 
+                    title={fileName} 
+                  > 
+                    {fileName} 
+                  </button> 
+                  
+                  {/* Updated Button containing the SVG Trash Can Icon */} 
+                  <button type="button" onClick={(e) => handleLogRemove(e, fileName)} className="log-remove-btn" title="Delete log"> 
+                    <svg className="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> 
+                      <polyline points="3 6 5 6 21 6"></polyline> 
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path> 
+                      <line x1="10" y1="11" x2="10" y2="17"></line> 
+                      <line x1="14" y1="11" x2="14" y2="17"></line> 
+                    </svg> 
+                  </button> 
+                </div> 
+              ))} 
+            </div> 
+          </div> 
 
-          {/* PLACEMENT SWAP: Import and Export buttons are now in the sidebar */}
-          <div className="switch-buttons">
-
-            {/* Clear Log Button */}
-            <button onClick={(event) => handleLogClear(event)} className="log-clear-btn" title="Clear log">
-              Clear Logs
-            </button>
-
-            {/* Import Button */}
-            <label htmlFor="code-file-upload" className="btn-file-loader" style={{ width: '100%' }}>
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <polyline points="9 15 12 18 15 15" />
-              </svg>
-              <span>Import Code</span>
-            </label>
-            <input id="code-file-upload" type="file" accept=".txt,.py,.css" style={{ display: 'none' }} onChange={(changeEvent) => {
-              const selectedFile = changeEvent.target.files[0];
-              if (!selectedFile) return;
-              setLogName(selectedFile.name);
-              const reader = new FileReader();
-              reader.onload = (readEvent) => {
-                setCodeText(readEvent.target.result);
-              };
-              reader.readAsText(selectedFile);
-              handleLogSwitch(false);
-            }} />
+          {/* PLACEMENT SWAP: Import and Export buttons are now in the sidebar */} 
+          <div className="switch-buttons"> 
+            {/* Clear Log Button */} 
+            <button type="button" onClick={(event) => handleLogClear(event)} className="log-clear-btn" title="Clear log"> 
+              Clear Logs 
+            </button> 
             
-            {/* Export Button */}
-            <button 
-              type="button" 
-              onClick={handleExport} 
-              className="btn-file-loader" /* CHANGED: Swapped to match the Import button styling */
-              style={{ 
-                width: '100%', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '12px' 
-              }}
-              >
-              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-               <line x1="12" y1="12" x2="12" y2="18" />
-                <polyline points="9 15 12 12 15 15" />
-              </svg>
-            <span>Export Code</span>
-          </button>
+            {/* Import Button */} 
+            <label htmlFor="code-file-upload" className="btn-file-loader" style={{ width: '100%' }}> 
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"> 
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /> 
+                <polyline points="14 2 14 8 20 8" /> 
+                <line x1="12" y1="18" x2="12" y2="12" /> 
+                <polyline points="9 15 12 18 15 15" /> 
+              </svg> 
+              <span>Import Code</span> 
+            </label> 
+            <input id="code-file-upload" type="file" accept=".txt,.py,.css" style={{ display: 'none' }} onChange={(changeEvent) => { 
+              const selectedFile = changeEvent.target.files[0]; 
+              if (!selectedFile) return; 
+              setLogName(selectedFile.name); 
+              const reader = new FileReader(); 
+              reader.onload = (readEvent) => { 
+                setCodeText(readEvent.target.result); 
+              }; 
+              reader.readAsText(selectedFile); 
+              handleLogSwitch(false); 
+            }} /> 
 
-          </div>
-        </div>
-      </div> {/* Closes .sidebar-split-layout-row */}
+            {/* Export Button */} 
+            <button type="button" onClick={handleExport} className="btn-file-loader" style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }} > 
+              <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"> 
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /> 
+                <polyline points="14 2 14 8 20 8" /> 
+                <line x1="12" y1="12" x2="12" y2="18" /> 
+                <polyline points="9 15 12 12 15 15" /> 
+              </svg> 
+              <span>Export Code</span> 
+            </button> 
+          </div> 
+        </div> {/* Closes .sidebar-right-subcolumn */}
+      </div> {/* Closes .sidebar-split-layout-row */} 
 
-      {/* Logout button spanning beneath both layout lanes */}
-      <button onClick={onLogout} className="btn-logout"> Logout </button>
-    </div> {/* Closes .dashboard-sidebar */}
-
-{/* RIGHT SIDE MAIN COLUMN */} 
-<form onSubmit={handleSubmit} className="dashboard-main-form"> 
-  <div className="controls-row-wrapper"> 
-    <div className="file-loader-group"> 
-      {/* PLACEMENT SWAP: Code and Log workspace toggle switch buttons */} 
-      <button 
-        type="button" 
-        onClick={() => handleLogSwitch(false)} 
-        className="btn-file-loader" 
-        style={{ minWidth: '120px', backgroundColor: (logMode || splitScreenMode) ? 'var(--bg-secondary)' : 'var(--accent)', color: (logMode || splitScreenMode) ? 'var(--text-main)' : '#030712' }}
-      > 
-        Code 
+      {/* Logout button spanning beneath both layout lanes */} 
+      <button type="button" onClick={onLogout} className="btn-logout"> 
+        Logout 
       </button> 
-      <button 
-        type="button" 
-        onClick={() => handleLogSwitch(true)} 
-        className="btn-file-loader" 
-        style={{ minWidth: '120px', backgroundColor: (logMode && !splitScreenMode) ? '#34d399' : 'var(--bg-secondary)', color: (logMode && !splitScreenMode) ? '#030712' : 'var(--text-main)' }}
-      > 
-        Log 
-      </button> 
-      
-      {/* Split Screen Button: Clean highlight styling applied directly in the style tag */}
-      <button 
-  type="button" 
-  onClick={() => handleSplitScreen()} 
-  className="btn-file-loader" 
-  style={{ 
-    minWidth: '120px', 
-    backgroundColor: 'var(--bg-secondary)', 
-    color: splitScreenMode ? 'var(--accent)' : 'var(--text-main)',
-    border: splitScreenMode ? '1px solid #38bdf8' : '1px solid #374151' /* Hardcoded color fallback stops the page blowout! */
-  }}
-> 
-  Split Screen 
-</button>
-      
-      {/* Code Title Input Field */} 
-      <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} onKeyDown={handleUnderscorePress} placeholder="Enter Code Title..." className="log-name-text-box" /> 
-    </div> 
-  </div> 
-  
-  {/* Code Textarea Main Canvas Frame - Adds conditional layout split-active class */} 
-  <div className={`code-box-container ${splitScreenMode ? 'split-active' : ''}`}> 
-    
-    {/* PANEL A: Code Workspace wrapper */}
-    <div className="editor-workspace-panel code-panel">
-      <textarea 
-        value={splitScreenMode ? codeText : (logMode ? logText : codeText)} 
-        onChange={(e) => setCodeText(e.target.value)} 
-        onKeyDown={handleTabPress} 
-        placeholder={logMode && !splitScreenMode ? '' : 'Enter Code Here...'} 
-        className={`code-editor-textarea ${(!splitScreenMode && logMode) ? 'editor-mode-green' : 'editor-mode-blue'}`} 
-        readOnly={!splitScreenMode && logMode} 
-      /> 
-    </div>
+    </div> {/* Closes .dashboard-sidebar */} 
 
-    {/* RESIZER DRAG BAR: Active only during Split Screen Mode */}
-    {splitScreenMode && (
-      <div className="workspace-resizer-bar" onMouseDown={handleMouseDown} />
-    )}
+    {/* RIGHT SIDE MAIN COLUMN */} 
+    <form onSubmit={handleSubmit} className="dashboard-main-form"> 
+      <div className="controls-row-wrapper"> 
+        <div className="file-loader-group"> 
+          {/* PLACEMENT SWAP: Code and Log workspace toggle switch buttons */} 
+          <button type="button" onClick={() => handleLogSwitch(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode || splitScreenMode) ? 'var(--bg-secondary)' : 'var(--accent)', color: (logMode || splitScreenMode) ? 'var(--text-main)' : '#030712' }} > 
+            Code 
+          </button> 
+          <button type="button" onClick={() => handleLogSwitch(true)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode && !splitScreenMode) ? '#34d399' : 'var(--bg-secondary)', color: (logMode && !splitScreenMode) ? '#030712' : 'var(--text-main)' }} > 
+            Log 
+          </button> 
 
-    {/* PANEL B: Log Workspace wrapper - Active only during Split Screen Mode */}
-    {splitScreenMode && (
-      <div className="editor-workspace-panel log-panel">
-        <textarea 
-          value={logText} 
-          placeholder="" 
-          className="code-editor-textarea editor-mode-green" 
-          readOnly 
-        /> 
-      </div>
-    )}
+          {/* Split Screen Button */} 
+          <button type="button" onClick={() => handleSplitScreen()} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: 'var(--bg-secondary)', color: splitScreenMode ? 'var(--accent)' : 'var(--text-main)', border: splitScreenMode ? '1px solid #38bdf8' : '1px solid #374151' }} > 
+            Split Screen 
+          </button> 
 
-    {/* Pull Code Button - Visible only in static single-view log mode */}
-    {logMode && !splitScreenMode && ( 
-      <button type="button" onClick={() => handlePull()} className="btn-code-pull" > 
-        Pull Code 
-      </button> 
-    )} 
-  </div> 
-  
-  {/* Bottom Control Bar Row */} 
-  <div className="action-row"> 
-    <button type="submit" className="btn-deploy"> Deploy </button> 
-    <div className="status-display"> 
-      <strong>Status:</strong> &nbsp; {statusMessage} 
-    </div> 
-  </div> 
-</form>
+          {/* Code Title Input Field */} 
+          <input type="text" value={logName} onChange={(event) => setLogName(event.target.value)} onKeyDown={handleUnderscorePress} placeholder="Enter Code Title..." className="log-name-text-box" /> 
+        </div> 
+      </div> 
 
-  </div>
+      {/* Code Textarea Main Canvas Frame */} 
+      <div className={`code-box-container ${splitScreenMode ? 'split-active' : ''}`}> 
+        {/* PANEL A: Code Workspace wrapper */} 
+        <div className="editor-workspace-panel code-panel"> 
+          <textarea value={splitScreenMode ? codeText : (logMode ? logText : codeText)} onChange={(e) => setCodeText(e.target.value)} onKeyDown={handleTabPress} placeholder={logMode && !splitScreenMode ? '' : 'Enter Code Here...'} className={`code-editor-textarea ${(!splitScreenMode && logMode) ? 'editor-mode-green' : 'editor-mode-blue'}`} readOnly={!splitScreenMode && logMode} /> </div> 
+
+        {/* RESIZER DRAG BAR: Active only during Split Screen Mode */} 
+        {splitScreenMode && ( 
+          <div className="workspace-resizer-bar" onMouseDown={handleMouseDown} /> 
+        )} 
+
+        {/* PANEL B: Log Workspace wrapper */} 
+        {splitScreenMode && ( 
+          <div className="editor-workspace-panel log-panel"> 
+            <textarea value={logText} placeholder="" className="code-editor-textarea editor-mode-green" readOnly /> 
+          </div> 
+        )} 
+
+        {/* Pull Code Button - Visible only in static single-view log mode */} 
+        {logMode && !splitScreenMode && ( 
+          <button type="button" onClick={() => handlePull()} className="btn-code-pull" > 
+            Pull Code 
+          </button> 
+        )} 
+      </div> 
+
+      {/* Bottom Control Bar Row */} 
+      <div className="action-row"> 
+        <button type="submit" className="btn-deploy"> 
+          Deploy 
+        </button> 
+        <div className="status-display"> 
+          <strong>Status:</strong> &nbsp; {statusMessage} 
+        </div> 
+      </div> 
+    </form> 
+  </div> /* Closes .dashboard-container */
 );
+
 
 
 }

@@ -1,4 +1,4 @@
-Log: move1.py_06-26-2026_16h.21m.27s
+Log: move 1 and back!_06-29-2026_13h.20m.23s
 User: ars4041
 --------------------
 Code Ran:
@@ -7,12 +7,24 @@ Code Ran:
 
 with Robot() as r:
     r.move(1)
+    r.move_admin(-1)
 --------------------
 Log:
 --------------------
 ROBOT: QUEUED COMMAND:  MOVE:1
 
+1
+
 Sending command to Nav2:  MOVE:1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS
+ROBOT: QUEUED COMMAND:  MOVE_ADMIN:-1
+
+-1
+
+Sending command to Nav2:  MOVE_ADMIN:-1
 
 ROBOT: Movement started
 

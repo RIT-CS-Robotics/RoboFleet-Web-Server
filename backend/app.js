@@ -383,6 +383,19 @@ app.get('/api', (req, res) => {
 });
 
 /**
+ * REST get command used to retrieve robot information and broadcast message information from the backend.
+ */
+app.get('/api/robots', (req, res) => {
+  const robotIDs = []
+  for (const id of Object.keys(robotConnections)) {
+    if (robotConnections[id].isConnected) {
+      robotIDs.push(id);
+    }
+  }
+  res.json({ robots: robotIDs });
+});
+
+/**
  * REST post command that saves the broadcast message in the backend and forwards it to the robot.
  */
 app.post('/api/save', (req, res) => {
@@ -427,9 +440,9 @@ app.post('/api/save', (req, res) => {
 // ----------------------------------------------------
 // ROBOFLEET REGISTRATION: add or edit robots here!
 // ----------------------------------------------------
-initializeRobotConnection('robot 1', process.env.ROBOT_1_ADDRESS); 
-initializeRobotConnection('robot 2', process.env.ROBOT_2_ADDRESS); 
-initializeRobotConnection('robot 3', process.env.ROBOT_3_ADDRESS); 
+initializeRobotConnection('Robot 1', process.env.ROBOT_1_ADDRESS); 
+initializeRobotConnection('Robot 2', process.env.ROBOT_2_ADDRESS); 
+initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS); 
 
 // Open the HTTP gateway bound securely to the local bridge
 app.listen(PORT, bridge, () => { 
