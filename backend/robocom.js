@@ -11,6 +11,7 @@ const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 const { spawn } = require('child_process');
 const tmp = require('tmp'); // Version: tmp@0.2.7
+const { resolve } = require('dns');
 
 tmp.setGracefulCleanup(); // cleanup on server exit
 
@@ -41,15 +42,6 @@ const dir_path = path.join(__dirname, 'user_logs');
  * @param robotId: The robot to run the code on
  */
 async function robotRun(code, title, user, robotId, host, callBack) {
-
-    const shouldRun = validate(code);
-    if (!shouldRun) {
-        console.error(`Code validation failed for User: ${user}`);
-        callBack(false);
-        return;
-    }
-    console.log(`Code validation passed for User: ${user}`);
-
     let script_path;
     let code_file;
     const output_path_log = path.join(dir_path, user, 'log', (title + '.log') );
@@ -72,6 +64,16 @@ async function robotRun(code, title, user, robotId, host, callBack) {
         callBack(false);
         return;
     }
+
+    const shouldRun = await validate(script_path);
+    if (!shouldRun) {
+        console.error(`Code validation failed for User: ${user}`);
+        cleanupFile(code_file, script_path);
+        code_file = null;
+        callBack(false);
+        return;
+    }
+    console.log(`Code validation passed for User: ${user}`);
 
     const logStream = fs.createWriteStream(output_path_log, { flags: 'a', encoding: 'utf-8' });
     const permStream = fs.createWriteStream(output_path_perm, { flags: 'a', encoding: 'utf-8' });
@@ -131,7 +133,28 @@ async function robotRun(code, title, user, robotId, host, callBack) {
  * @returns: true if code should run, false otherwise
  */
 function validate(code) {
-    return true;
+    return new Promise( (resolve) => {
+        const validatorPath = path.join(pythonDir, 'validator.py');
+        const validator = spawn('python3', ['-u', validatorPath, code]);
+
+        validator.on('error', (err) => {
+            console.error(`Error while running validator script -> ERR: ${err}`)
+            console.error(`Validator: DENIED`);
+            resolve(false);
+        });
+
+        validator.on('close', (exitStatus) => {
+            console.log(`Validator script closed`)
+            if (exitStatus === 0) {
+                console.log(`Validator: ACCEPTED`);
+                resolve(true);
+            }
+            else {
+                console.error(`Validator: DENIED`);
+                resolve(false);
+            }
+        });
+    });
 }
 
 /**

@@ -1,0 +1,51 @@
+Log: 1 and back 180_06-30-2026_13h.35m.28s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.move(1)
+    r.rotate(180)
+    r.move(1)
+    r.rotate(180)
+--------------------
+Log:
+--------------------
+ROBOT: QUEUED COMMAND:  MOVE:1
+
+1
+
+Sending command to Nav2:  MOVE:1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: FAIL
+ROBOT: QUEUED COMMAND:  ROTATE:180
+
+ROBOT: QUEUED COMMAND:  MOVE:1
+
+180
+
+Sending command to Nav2:  ROTATE:180
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: None
+1
+
+Sending command to Nav2:  MOVE:1
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: FAIL
+ROBOT: QUEUED COMMAND:  ROTATE:180
+
+180
+
+Sending command to Nav2:  ROTATE:180
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: None
