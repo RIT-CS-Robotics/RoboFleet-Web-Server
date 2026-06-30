@@ -58,6 +58,7 @@ async function robotRun(code, title, user, robotId, host, callBack) {
         script_path = code_file.name;
         console.log(`temp code file created with path: ${script_path}`);
         writeCode(code, script_path, true);
+        fs.chmodSync(script_path, 0o644); // Gives global read permission to the file
     }
     catch (err) {
         console.error(`Could not write student code to script -> Error: ${err}`);
@@ -82,12 +83,17 @@ async function robotRun(code, title, user, robotId, host, callBack) {
     permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
     
     
-    const pythonScript = spawn('python3', ['-u', script_path], {
-        env: {
-            ...process.env,
-            ROBOT_HOST: host
-        }
-    });
+    // Map the temporary python script safely inside the container's working directory (/app) as read-only (:ro)
+    const dockerArgs = [
+        'run', '--rm',
+        '--read-only',                        // Lock the file system completely
+        '--memory=256m', '--cpus=0.5',        // Prevent server crashes from infinite loops
+        '-e', `ROBOT_HOST=${host}`,          // Inject ONLY the robot host IP
+        '-v', `${script_path}:/app/user_code.py:ro`, // Mount user code as read-only
+        'my-robot-runner'   
+    ];
+
+    const pythonScript = spawn('docker', dockerArgs);
 
     pythonScript.stdout.on('data', (data) => {
         logStream.write(data.toString());

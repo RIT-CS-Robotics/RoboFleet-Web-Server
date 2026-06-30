@@ -1,0 +1,16 @@
+Log: rotate 180_06-30-2026_17h.10m.46s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.rotate(180)s
+--------------------
+Log:
+--------------------
+  File "/home/ars4041/RoboFleet_WebServer/backend/python_files/tmp-260272-PQcDCbjujAL8-.py", line 6
+    r.rotate(180)s
+                 ^
+SyntaxError: invalid syntax

@@ -1,0 +1,14 @@
+Log: Unnamed Code_06-30-2026_13h.58m.17s
+User: Zeke
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.move(1)
+--------------------
+Log:
+--------------------
+
+ROBOT: Movement finished with  status:  STATUS: SUCCESS

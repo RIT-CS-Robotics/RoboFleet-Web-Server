@@ -1,4 +1,4 @@
-Log: 1 and back 180_06-30-2026_11h.56m.10s
+Log: rotate 180_06-30-2026_17h.12m.51s
 User: ars4041
 --------------------
 Code Ran:
@@ -6,15 +6,12 @@ Code Ran:
  from robot import Robot
 
 with Robot() as r:
-    r.move(1)
-    r.rotate(180)
-    r.move(1)
     r.rotate(180)
 --------------------
 Log:
 --------------------
 Traceback (most recent call last):
-  File "/home/ars4041/RoboFleet_WebServer/backend/python_files/tmp-258754-xyNqty0faO1Q-.py", line 5, in <module>
+  File "/home/ars4041/RoboFleet_WebServer/backend/python_files/tmp-261255-83aNRJ37kS5S-.py", line 5, in <module>
     with Robot() as r:
   File "/home/ars4041/RoboFleet_WebServer/backend/python_files/robot.py", line 22, in __init__
     self.sock.connect((self.robot_ip, self.port))

@@ -1,0 +1,13 @@
+Log: rotate 180_06-30-2026_17h.57m.34s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.rotate(180)
+--------------------
+Log:
+--------------------
+permission denied while trying to connect to the docker API at unix:///var/run/docker.sock

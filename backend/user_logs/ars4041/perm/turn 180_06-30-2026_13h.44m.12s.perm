@@ -1,0 +1,21 @@
+Log: turn 180_06-30-2026_13h.44m.12s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.rotate(180)
+--------------------
+Log:
+--------------------
+ROBOT: QUEUED COMMAND:  ROTATE:180
+
+180
+
+Sending command to Nav2:  ROTATE:180
+
+ROBOT: Movement started
+
+ROBOT: Movement finished with  status:  STATUS: None

@@ -1,0 +1,12 @@
+Log: rotate 180_06-30-2026_17h.12m.10s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.rotate(180)
+--------------------
+Log:
+--------------------
