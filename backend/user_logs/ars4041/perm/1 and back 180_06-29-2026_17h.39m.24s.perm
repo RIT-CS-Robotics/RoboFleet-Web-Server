@@ -1,4 +1,4 @@
-Log: 1 forward and back twice_06-29-2026_17h.07m.43s
+Log: 1 and back 180_06-29-2026_17h.39m.24s
 User: ars4041
 --------------------
 Code Ran:
@@ -7,9 +7,9 @@ Code Ran:
 
 with Robot() as r:
     r.move(1)
-    r.move_admin(-1)
+    r.rotate(180)
     r.move(1)
-    r.move_admin(-1)
+    r.rotate(180)
 --------------------
 Log:
 --------------------
@@ -22,30 +22,31 @@ Sending command to Nav2:  MOVE:1
 ROBOT: Movement started
 
 ROBOT: Movement finished with  status:  STATUS: SUCCESS
-ROBOT: QUEUED COMMAND:  MOVE_ADMIN:-1
+ROBOT: QUEUED COMMAND:  ROTATE:180
 
 ROBOT: QUEUED COMMAND:  MOVE:1
 
--1
+180
 
-Sending command to Nav2:  MOVE_ADMIN:-1
+Sending command to Nav2:  ROTATE:180
 
 ROBOT: Movement started
 
-ROBOT: Movement finished with  status:  STATUS: SUCCESS
+ROBOT: Movement finished with  status:  STATUS: None
 1
 
 Sending command to Nav2:  MOVE:1
 
 ROBOT: Movement started
 
-ROBOT: Movement finished with  status:  STATUS: SUCCESS
-ROBOT: QUEUED COMMAND:  MOVE_ADMIN:-1
+ROBOT: Movement finished with  status:  STATUS: FAIL
+ROBOT: QUEUED COMMAND:  ROTATE:180
 
--1
+180
 
-Sending command to Nav2:  MOVE_ADMIN:-1
+Sending command to Nav2:  ROTATE:180
 
 ROBOT: Movement started
 
-ROBOT: Movement finished with  status:  STATUS: SUCCESS
+ROBOT: Movement finished with  status:  STATUS: None
+bob

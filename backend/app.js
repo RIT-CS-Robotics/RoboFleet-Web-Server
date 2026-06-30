@@ -105,6 +105,7 @@ function initializeRobotConnection(robotId, ipAddress) {
       robotConnections[robotId].instance = null;
       robotConnections[robotId].destination = {x: 0, y: 0,};
       robotConnections[robotId].destinationName = 'N/A';
+      robotConnections[robotId].isActive = false;
 
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);
@@ -415,28 +416,21 @@ app.post('/api/save', (req, res) => {
         return res.status(404).json({ message: `Robot ID "${robotId}" is not configured.` });
     }
 
+    if (trackingData.isActive) {
+        return res.status(409).json({ message: `Robot ID "${robotId}" is already active.` });
+    }
+
     const hostName = trackingData.host;
 
     // If the selected robot is online and connected to rosbridge then it creates a new topic /frontend_commands and publishes to it.
     // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
     if (trackingData.isConnected && trackingData.instance) {
         latestSavedText = code;
-        // Instantiate the topic directly on the current live instance
-        const textTopic = new ROSLIB.Topic({ // this is the new topic that is created
-            ros: trackingData.instance, // this is like the highway to the robot
-            name: '/frontend_commands',
-            messageType: 'std_msgs/String'
+
+        robotConnections[robotId].isActive = true;
+        robotRun(code, title, user, robotId, hostName, (active) => { // runs the robot
+          pythonCallback(active, robotId);
         });
-
-        const msg = new ROSLIB.Message({ data: code }); // new message for the textTopic is created with the user inputed text from the frontend and is then published
-        textTopic.publish(msg);
-
-        if (!trackingData.isActive) {
-          robotConnections[robotId].isActive = true;
-          robotRun(code, title, user, robotId, hostName, (active) => {
-            pythonCallback(active, robotId);
-          } ); // runs the robot
-        }
 
         console.log(`Forwarded "${code}" to ${robotId} on topic /frontend_commands`);
         return res.json({ message: `Saved and forwarded to ${robotId}: "${code}"` });

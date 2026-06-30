@@ -1,5 +1,0 @@
-from robot import Robot
-
-with Robot() as r:
-    r.nav_to("Office3509")
-    r.go_to(1228.04, 820.55)

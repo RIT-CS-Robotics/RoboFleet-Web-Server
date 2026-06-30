@@ -81,7 +81,7 @@ export default function App() {
           <h3>Robots ({Object.keys(fleetData || {}).length})</h3> 
           <div className="inventory-list"> 
             {Object.entries(fleetData || {}).map(([robotId, info]) => ( 
-              <div key={robotId} className={`robot-card ${info?.online ? 'online' : 'offline'}`} > 
+              <div key={robotId} className={`robot-card ${info?.online ? 'online' : 'offline'} ${info?.active ? 'active' : 'inactive'}`} > 
                 {/* Structural unified horizontal row containing the color dot and text profiles */} 
                 <div className="card-profile-group"> 
                   <div className="robot-id-dot" style={{ backgroundColor: getRobotColor(robotId) }} /> 
@@ -126,6 +126,11 @@ export default function App() {
                 <span className="status-badge"> 
                   {info?.online ? '● ONLINE' : '○ OFFLINE'} 
                 </span> 
+
+                 <span className="active-badge"> 
+                  {info?.active ? '● ACTIVE' : '○ INACTIVE'} 
+                </span> 
+
               </div> 
             ))} 
           </div> 

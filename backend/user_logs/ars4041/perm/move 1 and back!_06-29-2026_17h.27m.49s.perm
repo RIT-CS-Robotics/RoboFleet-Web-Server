@@ -1,4 +1,4 @@
-Log: move 1 and back!_06-29-2026_13h.17m.19s
+Log: move 1 and back!_06-29-2026_17h.27m.49s
 User: ars4041
 --------------------
 Code Ran:
@@ -11,11 +11,3 @@ with Robot() as r:
 --------------------
 Log:
 --------------------
-ROBOT: QUEUED COMMAND:  MOVE:1
-
-1
-
-Sending command to Nav2:  MOVE:1
-
-ROBOT: Movement started
-bob

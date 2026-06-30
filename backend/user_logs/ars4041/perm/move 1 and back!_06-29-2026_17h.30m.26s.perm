@@ -1,0 +1,13 @@
+Log: move 1 and back!_06-29-2026_17h.30m.26s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.move(1)
+    r.move_admin(-1)
+--------------------
+Log:
+--------------------

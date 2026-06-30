@@ -12,11 +12,18 @@ const path = require('path'); // Version: node@24.16.0
 const { spawn } = require('child_process');
 const tmp = require('tmp'); // Version: tmp@0.2.7
 
+tmp.setGracefulCleanup(); // cleanup on server exit
+
+const pythonDir = path.join(__dirname, 'python_files');
+if (!fs.existsSync(pythonDir)) {
+    fs.mkdirSync(pythonDir, { recursive: true});
+}
+
 // file options for temp files for running code
 const temps = {
     postfix: '.py',
     keep: false, // cleanup
-    tmpdir: path.join(__dirname, 'python_files')
+    tmpdir: pythonDir
 }
 
 // file options for student logs
@@ -34,6 +41,15 @@ const dir_path = path.join(__dirname, 'user_logs');
  * @param robotId: The robot to run the code on
  */
 async function robotRun(code, title, user, robotId, host, callBack) {
+
+    const shouldRun = validate(code);
+    if (!shouldRun) {
+        console.error(`Code validation failed for User: ${user}`);
+        callBack(false);
+        return;
+    }
+    console.log(`Code validation passed for User: ${user}`);
+
     let script_path;
     let code_file;
     const output_path_log = path.join(dir_path, user, 'log', (title + '.log') );
@@ -41,17 +57,19 @@ async function robotRun(code, title, user, robotId, host, callBack) {
 
     if (host === null) {
         console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
+        callBack(false);
         return;
     }
 
     try {
-         code_file = tmp.fileSync(temps);
+        code_file = tmp.fileSync(temps);
         script_path = code_file.name;
         console.log(`temp code file created with path: ${script_path}`);
         writeCode(code, script_path, true);
     }
     catch (err) {
         console.error(`Could not write student code to script -> Error: ${err}`);
+        callBack(false);
         return;
     }
 
@@ -107,6 +125,16 @@ async function robotRun(code, title, user, robotId, host, callBack) {
 }
 
 /**
+ * Checks the users code for syntax errors and illigal calls to validate if it should run and connect to the robot.
+ * 
+ * @param code: The students code
+ * @returns: true if code should run, false otherwise
+ */
+function validate(code) {
+    return true;
+}
+
+/**
  * Writes the students code to the specific robot code file.
  * 
  * @param code: The students code
@@ -139,38 +167,6 @@ function cleanupFile(file_obj, path) {
             console.error(`unlinkSync() error: ${err}`);
         }
     }
-}
-
-/**
- * Logs the students code to them for late use.
- * 
- * @param code: The code to log
- * @param student: The student to log the code to
- * @param key: The key to use when logging the code
- */
-function logSave(code, student, key) {
-// later implementation
-}
-
-/**
- * Pulls from the students code logs to return to old code.
- * 
- * @param robotId: The robot that the code is being saved to
- * @param student: The student that the code is logged to
- * @param key: The key to fetch the logged code
- */
-function logLoad(robotId, student, key) {
-// later implementation
-}
-
-/**
- * Checks code for problems or illigal commands.
- * 
- * @param code: The code to validate
- * @returns: True if the code is safe to run, False otherwise.
- */
-function validateCode(code) {
-
 }
 
 // Use as an import in app.js
