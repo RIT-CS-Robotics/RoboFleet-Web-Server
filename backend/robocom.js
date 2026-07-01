@@ -143,8 +143,17 @@ function validate(code) {
         const validatorPath = path.join(pythonDir, 'validator.py');
         const validator = spawn('python3', ['-u', validatorPath, code]);
 
+        // Fix 1: Capture standard text outputs from the python script
+        validator.stdout.on('data', (data) => {
+            console.log(`Validator Output: ${data.toString().trim()}`);
+        });
+
+        // Fix 2: Capture syntax errors or trackbacks from the python script
+        validator.stderr.on('data', (data) => {
+            console.error(`Validator Error Stream: ${data.toString().trim()}`);
+        });
+
         validator.on('error', (err) => {
-            console.error(`Error while running validator script -> ERR: ${err}`)
             console.error(`Validator: DENIED`);
             resolve(false);
         });
