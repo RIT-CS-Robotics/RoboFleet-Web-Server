@@ -1,0 +1,12 @@
+Log: Unnamed Code_07-01-2026_11h.57m.48s
+User: ars4041
+--------------------
+Code Ran:
+--------------------
+ from robot import Robot
+
+with Robot() as r:
+    r.rotate(180)
+--------------------
+Log:
+--------------------

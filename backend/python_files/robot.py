@@ -8,14 +8,18 @@ class Robot(AbstractContextManager):
 		"""
 
 		self.robot_ip = os.environ.get("ROBOT_HOST")
-
 		self.port = 10001
 
 		# create task queues
 		self._is_traveling = False
 		self.block_queue = queue.Queue()
 		self.non_block_queue = queue.Queue()
-		self.destination = "N/A"
+		self.dest_name = "N/A"
+		self.dest_pos = None
+
+		self.playlist = queue.Queue()
+		self.music_playing = False
+		self.current_song = "N/A"
 
 		# connect socket
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,57 +34,9 @@ class Robot(AbstractContextManager):
 		self.non_block_thread = threading.Thread(target=self.queue_executor, daemon=False)
 		self.non_block_thread.start()
 
-	def listener(self):
-		"""
-		Handle communication sent back from the robot (listener)
-		and blocking commands.
-		"""
-		buffer = ""
-		while self.running_program:
-			try:	# same bit as listener.py
-				data = self.sock.recv(1024).decode("utf-8")
-				if not data:
-					break
-
-				buffer += data
-				while "\n" in buffer:
-					line, buffer = buffer.split("\n", 1)
-					line = line.strip()
-
-					# empty
-					if not line:
-						continue
-
-					# end
-					if line.startswith("STATUS"):
-						self._is_traveling = False
-						self.destination = "N/A"
-						print("\nROBOT: Movement finished with",
-							" status: ", line)
-
-					elif "STARTED" in line:
-						print("ROBOT: Movement started")
-
-					else:
-						self.block_queue.put(line)
-
-			except Exception as e:
-				print(f"\n Error - robot disconnect.")
-				break
-		print("bob")
-
-	def send_command(self, command, cmd_type):
-		"""
-		Handles "command" sending, based on "B" - blocking,
-		or non-blocking commands.
-		"""
-		if "\n" not in command:
-			command += "\n"
-		if cmd_type == "B":
-			self.sock.sendall(command.encode("utf-8"))
-		else:
-			print("ROBOT: QUEUED COMMAND: ", command)
-			self.non_block_queue.put(command)
+		# jukebox
+		self.jukebox = threading.Thread(target=self.song_player, daemon=True)
+		self.jukebox.start()
 
 	def pixel_to_map(self, x, y):
 		command = f"PIXEL_TO_MAP:{x},{y}\n"
@@ -93,6 +49,43 @@ class Robot(AbstractContextManager):
 			return response
 		except Exception as e:
 			print("Error: thread timed out")
+
+	def get_targets(self):
+		"""
+		Return a list of tuples in the format (item, x, y) of all
+		the items spotted during the scan and their locations.
+		"""
+		command = "GET_TARGETS\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get(timeout=1.0)
+			if "ERROR" not in response:
+				objects = ast.literal_eval(response)
+				return objects
+			return response
+		except Exception as e:
+			print("Error: thread timed out")
+
+
+	def whos_there(self):
+		command = f"WHOS_THERE\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get(timeout=1.0)
+			if "ERROR" not in response:
+				object_set = ast.literal_eval(response)
+				return object_set
+			return response
+		except Exception as e:
+			print("Error: thread timed out")
+
+	def play_music(self, song_link):
+		# check if url allowed
+		# send
+		self.playlist.put(song_link)
+
+	def add_to_queue(self, song_link):
+		pass
 
 	def speak(self, message, voice_id=1):
 		# enforce character limit
@@ -117,8 +110,6 @@ class Robot(AbstractContextManager):
 			return None
 		except Exception as e:
 			print("Error: thread timed out")
-
-
 
 	def get_legs(self):
 		"""
@@ -182,12 +173,15 @@ class Robot(AbstractContextManager):
 		except Exception as e:
 			print("Error: thread timed out")
 
-	def get_destination(self):
+	def get_dest_name(self):
 		"""
 		Return the current destination of the robot, or "N/A"
 		if there is None.
 		"""
-		return self.destination
+		return self.dest_name
+
+	def get_dest_pos(self):
+		return self.dest_pos
 
 	def get_pos(self):
 		"""
@@ -254,41 +248,6 @@ class Robot(AbstractContextManager):
 		while self.is_traveling():
 			time.sleep(0.1)
 
-	def queue_executor(self):
-		"""
-		Handle non blocking commands. Each command is put into a
-		queue. Once one is done, the next one is sent to Nav2 and
-		executes accordingly.
-		"""
-		while self.running_program:
-			try:
-				# get command and wait for previous to finish
-				command = self.non_block_queue.get(timeout=0.5)
-
-				while self._is_traveling and self.running_program:
-					time.sleep(0.1)
-
-				self._is_traveling = True
-
-				# update dest
-				cmd_arr = command.split(":")
-				self.destination = cmd_arr[1]
-				print(cmd_arr[1])
-
-				# send command to Nav2
-				print("Sending command to Nav2: ", command)
-				self.sock.sendall(command.encode("utf-8"))
-
-				time.sleep(0.1)
-
-				# dequeue once robot is done with cmd
-				while self._is_traveling and self.running_program:
-					time.sleep(0.1)
-				self.non_block_queue.task_done()
-
-			except queue.Empty:
-				continue
-
 	def is_traveling(self):
 		"""
 		Returns whether0 the robot is travelling.
@@ -322,12 +281,140 @@ class Robot(AbstractContextManager):
 		command = f"ROTATE:{degrees}\n"
 		self.send_command(command, "NB")
 
+	def listener(self):
+		"""
+		Handle communication sent back from the robot (listener)
+		and blocking commands.
+		"""
+		buffer = ""
+		while self.running_program:
+			try:	# same bit as listener.py
+				data = self.sock.recv(1024).decode("utf-8")
+				if not data:
+					break
+
+				buffer += data
+				while "\n" in buffer:
+					line, buffer = buffer.split("\n", 1)
+					line = line.strip()
+
+					# empty
+					if not line:
+						continue
+
+					# end
+					if line.startswith("STATUS"):
+						self._is_traveling = False
+						self.dest_name = "N/A"
+						self.dest_pos = None
+						print("\nROBOT: Movement finished with",
+							" status: ", line)
+
+					elif "STARTED" in line:
+						print("ROBOT: Movement started")
+
+					elif "SONG" in line:
+						self.music_playing = False
+						self.current_song = "N/A"
+						print("\nROBOT: Song ended: ", line)
+					else:
+						self.block_queue.put(line)
+
+			except Exception as e:
+				print(f"\n Error - robot disconnect.")
+				break
+		print("bob")
+
+	def queue_executor(self):
+		"""
+		Handle non blocking commands. Each command is put into a
+		queue. Once one is done, the next one is sent to Nav2 and
+		executes accordingly.
+		"""
+		while self.running_program:
+			try:
+				# get command and wait for previous to finish
+				command = self.non_block_queue.get(timeout=0.5)
+
+				while self._is_traveling and self.running_program:
+					time.sleep(0.1)
+
+				self._is_traveling = True
+
+				# update dest
+				cmd_arr = command.split(":")
+				loc = cmd_arr[1]
+				self.dest_name = loc
+				print(cmd_arr[1])
+
+				# send command to Nav2
+				print("Sending command to Nav2: ", command)
+				self.sock.sendall(command.encode("utf-8"))
+
+				time.sleep(0.1)
+
+				# dequeue once robot is done with cmd
+				while self._is_traveling and self.running_program:
+					time.sleep(0.1)
+				self.non_block_queue.task_done()
+
+			except queue.Empty:
+				continue
+
+
+	def song_player(self):
+		"""
+		Handle playlist. Each command is put into a
+		queue. Once one is done, the next one is sent to listener and
+		executes accordingly.
+		"""
+		while self.running_program:
+			try:
+				# get command and wait for previous to finish
+				song = self.playlist.get(timeout=0.5)
+
+				while self.music_playing and self.running_program:
+					time.sleep(0.1)
+
+				self.music_playing = True
+
+				# update song
+				self.current_song = song
+				command = f"PLAY_MUSIC:{song}\n"
+
+				# send command to Nav2
+				print("Sending command to Nav2: ", command)
+				self.sock.sendall(command.encode("utf-8"))
+
+				time.sleep(0.1)
+
+				# dequeue once robot is done with cmd
+				while self.music_playing and self.running_program:
+					time.sleep(0.1)
+				self.playlist.task_done()
+
+			except queue.Empty:
+				continue
+
+	def send_command(self, command, cmd_type):
+		"""
+		Handles "command" sending, based on "B" - blocking,
+		or non-blocking commands.
+		"""
+		if "\n" not in command:
+			command += "\n"
+		if cmd_type == "B":
+			self.sock.sendall(command.encode("utf-8"))
+		elif cmd_type == "NB":
+			print("ROBOT: QUEUED COMMAND: ", command)
+			self.non_block_queue.put(command)
+
 	def __exit__(self, exc_type, exc_value, traceback):
 		"""
 		Wait for the non-blocking commands to execute,
 		then end the program and close the socket.
 		"""
-		while self.is_traveling():
+		while self.is_traveling() and self.music_playing:
 			time.sleep(0.1)
 
 		self.running_program = False
