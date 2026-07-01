@@ -59,7 +59,6 @@ function saveUsers(usersObj) {
   }
 }
 
-let latestSavedText = 'Hello World!'; // broadcast message
 const robotConnections = {}; // each robot is saved here
 
 /**
@@ -85,7 +84,7 @@ function initializeRobotConnection(robotId, ipAddress) {
   }
 
   const wsUrl = `ws://${ipAddress}:9090`; // rosbridge websocket url
-  const rosInstance = new ROSLIB.Ros({ url: wsUrl }); // rosbridge websocket connection
+  const rosInstance = new ROSLIB.Ros({ url: wsUrl,  encoding: 'ascii'}); // rosbridge websocket connection
 
   // Track if a connection retry timer is already pending for this cycle
   let retryTriggered = false;
@@ -196,7 +195,7 @@ function initializeRobotConnection(robotId, ipAddress) {
    * Note: roslib always fires 'close' right after 'error', but this trigger retry safely as an extra safeguard.
    */
   rosInstance.on('error', (error) => {
-    console.log(`ROSLIB Status: ${robotId} at ${ipAddress} is offline or unreachable.`);
+    //console.log(`ROSLIB Status: ${robotId} at ${ipAddress} is offline or unreachable.`);
     triggerRetry();
   });
 
@@ -382,7 +381,7 @@ app.get('/api', (req, res) => {
       active: trackingData.isActive
     };
   }
-  res.json({ latestSavedText: latestSavedText, fleet: statusReport }); // puts all of this information in a json file to transfer to the frontend
+  res.json({ fleet: statusReport }); // puts all of this information in a json file to transfer to the frontend
 });
 
 /**
@@ -425,7 +424,6 @@ app.post('/api/save', (req, res) => {
     // If the selected robot is online and connected to rosbridge then it creates a new topic /frontend_commands and publishes to it.
     // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
     if (trackingData.isConnected && trackingData.instance) {
-        latestSavedText = code;
 
         robotConnections[robotId].isActive = true;
         robotRun(code, title, user, robotId, hostName, (active) => { // runs the robot
@@ -433,9 +431,9 @@ app.post('/api/save', (req, res) => {
         });
 
         console.log(`Forwarded "${code}" to ${robotId} on topic /frontend_commands`);
-        return res.json({ message: `Saved and forwarded to ${robotId}: "${code}"` });
+        return res.json({ message: `Attempted to run code on ${robotId}` });
     } else {
-        return res.status(503).json({ message: `Message not saved, ${robotId} is offline.` });
+        return res.status(503).json( {message: `Error running code on ${robotId}`});
     }
 });
 
