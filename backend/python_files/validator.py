@@ -28,43 +28,23 @@ def validate_operations(file_path):
 
 def validate_illegal(file_path):
     allowed_modules = {
-            # --- Python Standard Library Frameworks ---
-    'sys', 'os', 'ast', 'queue', 'threading', 'time', 'logging', 'socket', 'contextlib', 'math',
-    
-    # --- Interactive Media Drivers ---
-    'pyttsx3', 'pygame', 'speech_recognition',
-    
-    # --- ROS2 & Nav2 System Frameworks ---
-    'rclpy', 
-    'ament_index_python', 
-    'geometry_msgs.msg', 
-    'nav2_msgs.action', 
-    'nav_msgs.msg', 
-    'vision_msgs.msg', 
-    'sensor_msgs.msg',
-    
-    # --- Your Custom Local Extensions ---
-    'extras',  # Contains PointDataset and PoseReader
-
     'robot'
     }
 
-    banned_operations = {    # --- Standard High-Risk OS Exploits ---
-    'system', 'popen', 'rmdir', 'remove', 'unlink', 'eval', 'exec',
-    
-    # --- Network Infrastructure Hijacking ---
-    'connect',   # Blocks rogue secondary outbound network connections
-    'bind',      # Prevents unauthorized secondary listening ports 
-    'shutdown',  # Blocks cutting off rclpy nodes or sockets abruptly
-    
-    # --- ROS2 State Disruptions ---
-    'destroy_node', # Prevents destroying active listener/pose reader nodes
-    'publish',      # Forces scripts to use your safe move/rotate logic instead of 
-                    # broadcasting raw motor strings directly to '/cmd_vel'
-                    
-    # --- Peripheral Sabotage (Audio & Hardware) ---
-    'init',  # Stops scripts from re-initializing pygame.mixer or pyttsx3 engines mid-loop
-    'stop'   # Prevents scripts from cutting off active text-to-speech outputs
+    banned_builtins = {
+    'eval', 'exec', 'open', 'compile', '__import__',
+    'getattr', 'setattr', 'delattr', 'globals', 'locals'
+    }
+
+    banned_operations = { 
+    # Standard High-Risk Exploits
+    'system', 'popen', 'rmdir', 'remove', 'unlink', 
+    # Network Infrastructure Hijacking
+    'connect', 'bind', 'shutdown', 
+    # ROS2 State Disruptions
+    'destroy_node', 'publish', 
+    # Peripheral Sabotage
+    'init', 'stop'
     }
 
     try:
@@ -76,31 +56,44 @@ def validate_illegal(file_path):
     try:
         tree = ast.parse(code)
     except SyntaxError:
+        print("VALIDATE ILLEGAL: N/A (SyntaxError)", file=sys.stderr)
         return check.VALID
     
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for module in node.names:
                 if module.name not in allowed_modules:
-                    print("ALLOWED MODULE ERROR: Import", file=sys.stderr)
+                    print(f"ALLOWED MODULE ERROR: Import '{module.name}'", file=sys.stderr)
                     return check.INVALID
         
         elif isinstance(node, ast.ImportFrom):
             if node.module not in allowed_modules:
-                print("ALLOWED MODULE ERROR: ImportFrom", file=sys.stderr)
+                print(f"ALLOWED MODULE ERROR: ImportFrom '{node.module}'", file=sys.stderr)
                 return check.INVALID
         
-        elif isinstance(node, ast.Call):
-            function_name = None
-            if isinstance(node.func, ast.Name):
-                function_name = node.func.id
-            elif isinstance(node.func, ast.Attribute):
-                function_name = node.func.attr
-            
-            if function_name in banned_operations:
-                print("BANNED OPERATION ERROR", file=sys.stderr)
+        elif isinstance(node, ast.Name):
+            if node.id in banned_builtins:
+                print(f"BANNED BUILTINS ERROR: NAME '{node.id}'", file=sys.stderr)
+                return check.INVALID
+            if node.id in banned_operations:
+                print(f"BANNED OPERATIONS ERROR: NAME '{node.id}'", file=sys.stderr)
+                return check.INVALID
+            if node.id.startswith('__'):
+                print(f"STARTS WITH __ ERROR: NAME '{node.id}'", file=sys.stderr) 
+                return check.INVALID
+
+        elif isinstance(node, ast.Attribute):
+            if node.attr in banned_builtins:
+                print(f"BANNED BUILTINS ERROR: ATTRIBUTE '{node.attr}'", file=sys.stderr)
+                return check.INVALID
+            if node.attr in banned_operations:
+                print(f"BANNED OPERATIONS ERROR: ATTRIBUTE '{node.attr}'", file=sys.stderr)
+                return check.INVALID
+            if node.attr.startswith('__'):
+                print(f"STARTS WITH __ ERROR: ATTRIBUTE '{node.attr}'", file=sys.stderr)
                 return check.INVALID
     
+    print("VALIDATE ILLEGAL: PASSED", file=sys.stdout)
     return check.VALID
 
 ### Main ###

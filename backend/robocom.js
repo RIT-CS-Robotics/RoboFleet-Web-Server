@@ -57,7 +57,7 @@ async function robotRun(code, title, user, robotId, host, callBack) {
         code_file = tmp.fileSync(temps);
         script_path = code_file.name;
         console.log(`temp code file created with path: ${script_path}`);
-        writeCode(code, script_path, true);
+        fs.writeFileSync(script_path, code, 'utf-8');
         fs.chmodSync(script_path, 0o644); // Gives global read permission to the file
     }
     catch (err) {
@@ -170,22 +170,6 @@ function validate(code) {
             }
         });
     });
-}
-
-/**
- * Writes the students code to the specific robot code file.
- * 
- * @param code: The students code
- * @param robotId: The robot to run the code on
- */
-function writeCode(code, writePath, toRun) {
-    let fileContent = '';
-    if (toRun) {
-        fileContent = 'import sys\nimport os\n';
-    }
-    fileContent += code;
-    //fileContent += '\nsys.exit(0)';
-    fs.writeFileSync(writePath, fileContent, 'utf-8');
 }
 
 /**
