@@ -66,7 +66,13 @@ async function robotRun(code, title, user, robotId, host, callBack) {
         return;
     }
 
-    const shouldRun = await validate(script_path);
+    const logStream = fs.createWriteStream(output_path_log, { flags: 'a', encoding: 'utf-8' });
+    const permStream = fs.createWriteStream(output_path_perm, { flags: 'a', encoding: 'utf-8' });
+
+    logStream.on('error', (err) => console.error(`System logStream write error: ${err}`));
+    permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
+
+    const shouldRun = await validate(script_path, logStream, permStream);
     if (!shouldRun) {
         console.error(`Code validation failed for User: ${user}`);
         cleanupFile(code_file, script_path);
@@ -75,12 +81,6 @@ async function robotRun(code, title, user, robotId, host, callBack) {
         return;
     }
     console.log(`Code validation passed for User: ${user}`);
-
-    const logStream = fs.createWriteStream(output_path_log, { flags: 'a', encoding: 'utf-8' });
-    const permStream = fs.createWriteStream(output_path_perm, { flags: 'a', encoding: 'utf-8' });
-
-    logStream.on('error', (err) => console.error(`System logStream write error: ${err}`));
-    permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
     
     
     // Map the temporary python script safely inside the container's working directory (/app) as read-only (:ro)
@@ -138,19 +138,19 @@ async function robotRun(code, title, user, robotId, host, callBack) {
  * @param code: The students code
  * @returns: true if code should run, false otherwise
  */
-function validate(code) {
+function validate(code, logStream, permStream) {
     return new Promise( (resolve) => {
         const validatorPath = path.join(pythonDir, 'validator.py');
         const validator = spawn('python3', ['-u', validatorPath, code]);
 
-        // Fix 1: Capture standard text outputs from the python script
         validator.stdout.on('data', (data) => {
             console.log(`Validator Output: ${data.toString().trim()}`);
         });
 
-        // Fix 2: Capture syntax errors or trackbacks from the python script
         validator.stderr.on('data', (data) => {
             console.error(`Validator Error Stream: ${data.toString().trim()}`);
+            logStream.write(data.toString());
+            permStream.write(data.toString());
         });
 
         validator.on('error', (err) => {

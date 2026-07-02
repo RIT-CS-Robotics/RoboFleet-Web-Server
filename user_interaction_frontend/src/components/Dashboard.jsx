@@ -428,15 +428,12 @@ return (
                   <button 
                     type="button"
                     onClick={async () => { 
-                      const check = confirm(`Are you sure you want to select this code log?`); 
-                      if (check) { 
-                        const [log, code, title] = await handleLogButton(fileName); 
-                        setLogText(log); 
-                        setLoggedCode(code); 
-                        setLoggedCodeTitle(title); 
-                        handleLogSwitch(true); 
-                        setCurrentLog(fileName); 
-                      } 
+                      const [log, code, title] = await handleLogButton(fileName); 
+                      setLogText(log); 
+                      setLoggedCode(code); 
+                      setLoggedCodeTitle(title); 
+                      handleLogSwitch(true); 
+                      setCurrentLog(fileName); 
                     }} 
                     className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`} 
                     title={fileName} 

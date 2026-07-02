@@ -151,12 +151,9 @@ export default function Admin({ onLogout }) {
             <div key={index} className="log-item-wrapper">
               <button 
                 onClick={async () => {
-                  const check = confirm(`Are you sure you want to select this code log?`);
-                  if (check) {
-                    const perm = await handlePermButton(currentStudent, fileName);
-                    setLogText(perm);
-                    setCurrentLog(fileName);
-                  }
+                  const perm = await handlePermButton(currentStudent, fileName);
+                  setLogText(perm);
+                  setCurrentLog(fileName);
                 }} 
                 className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`}
                 title={fileName}
