@@ -400,7 +400,7 @@ app.get('/api/robots', (req, res) => {
 /**
  * REST post command that saves the broadcast message in the backend and forwards it to the robot.
  */
-app.post('/api/save', (req, res) => {
+app.post('/api/deploy', (req, res) => {
     const robotId = req.body.robotId || 'robot_default';  // robot_default is for unconfigured robots
     const code = req.body.text; // broadcast message
     const title = req.body.codeTitle; // code/log title

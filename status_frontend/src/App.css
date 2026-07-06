@@ -266,3 +266,84 @@ button:active {
   transform: translate(-50%, 50%);
   transition: left 0.5s linear, bottom 0.5s linear;
 }
+
+/* ==========================================================================
+   6. CAMERA VIEWPORT & VIDEO STREAMING CLASSES
+   ========================================================================== */
+
+/* Overrides the compact width rule specifically for camera containers so the feed can expand */
+.camera-dropdown-content {
+  width: 100% !important; 
+  max-width: 440px; /* Balances dashboard card layout columns gracefully */
+  padding: 0 !important; /* Strips layout padding so video touches container edge */
+  border-left: none !important; /* Cleans up framing borders around imagery */
+  background: transparent !important;
+  margin-top: 10px !important;
+}
+
+/* Base wrapper component housing stream state mechanics */
+.video-card {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background-color: var(--bg-primary);
+  overflow: hidden;
+}
+
+/* Layer controller to handle positioning constraints for the absolute text badge */
+.stream-wrapper {
+  position: relative;
+  width: 100%;
+  background-color: #000000; /* Dark baseline blocks screen flicker during canvas fetch */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Native MJPEG tracking tag configuration profile */
+.robot-stream-feed {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Absolute floating cyber tag indicating operational active feeds */
+.live-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(239, 68, 68, 0.85); /* Semitransparent Crimson */
+  color: var(--text-main);
+  padding: 3px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  border-radius: 3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none; /* Keeps element interactions invisible to user pointer tracking */
+  animation: streamPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Fallback terminal state layout while searching network sockets */
+.stream-loading {
+  padding: 16px;
+  text-align: center;
+  background-color: rgba(11, 19, 41, 0.4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.stream-loading p {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin: 0;
+}
+
+/* Cyber accent blinking animation keyframe rules */
+@keyframes streamPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

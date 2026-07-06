@@ -125,7 +125,7 @@ export default function Dashboard({ onLogout, currentUser }) {
     setStatusMessage(`Sending to ${selectedRobot}...`);
     try {
       const title = await constructTitle();
-      const response = await fetch('/api/save', {
+      const response = await fetch('/api/deploy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export default function Dashboard({ onLogout, currentUser }) {
 
       handleLog(title);
       
-      // Fixed: Only opens the window after a successful database save
+      // Fixed: Only opens the status page after a successful database post
       window.open('status', '_blank');
 
     } catch (error) {

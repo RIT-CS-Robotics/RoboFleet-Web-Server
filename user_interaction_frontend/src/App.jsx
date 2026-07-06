@@ -1,9 +1,9 @@
 // src/App.jsx
 import { useState } from 'react';
 import './App.css';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import Admin from './components/Admin';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Admin from './pages/Admin';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {

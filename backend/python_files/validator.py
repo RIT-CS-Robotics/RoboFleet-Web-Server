@@ -1,7 +1,7 @@
 """
 File: validator.py
 Date: 7/1/2026
-Author:
+Author: Aidan Sanderson
 
 Functionality: Validates code to check for syntax errors and illegal actions and 
 returns the validation result as success or failure to decide to run the code or not.

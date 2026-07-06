@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'; 
 import './App.css'; 
 import GolisanoMap from './components/MapComponent'; 
+import VideoStream from './components/VideoComponent';
 
 // Base padding offsets to push (0,0) slightly out from the sharp cut lines of the image border 
 const MAP_SIZE_X = 2012; 
@@ -114,6 +115,11 @@ export default function App() {
                       <details className="robot-dropdown camera-dropdown">
                           <summary>Live Footage</summary>
                             <div className="robot-dropdown-content camera-dropdown-content">
+                              {info?.online ? (
+                                <VideoStream robotId={robotId} />
+                              ) : (
+                                 <p>Cannot view feed: Robot is offline</p>
+                                  )}
                             </div>
                       </details>
 
