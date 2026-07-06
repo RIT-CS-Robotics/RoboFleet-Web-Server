@@ -185,6 +185,9 @@ function initializeRobotConnection(robotId, ipAddress) {
         if (destName !== undefined) {
           robotConnections[robotId].destinationName = destName;
         }
+        else {
+          robotConnections[robotId].destinationName = 'N/A';
+        }
       }
     });
 
@@ -377,7 +380,7 @@ app.get('/api', (req, res) => {
       online: trackingData.isConnected,
       position: trackingData.position,
       destination: trackingData.destination,
-      destination_name: trackingData.destination_name,
+      destinationName: trackingData.destinationName,
       active: trackingData.isActive
     };
   }

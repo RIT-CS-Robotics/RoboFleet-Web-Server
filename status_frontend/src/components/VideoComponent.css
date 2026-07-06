@@ -1,33 +1,56 @@
-/* ==========================================================================
-   VIDEO COMPONENT LIFECYCLE STYLES
-   ========================================================================== */
+/* src/components/VideoComponent.css */
 
 /* The primary outer layout block for the camera stream */
 .video-card {
   width: 100%;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background-color: var(--bg-primary);
+  /* UNIFIED BACKDROP: Matches the exact alpha shade tint of position/destination panels */
+  background-color: rgba(3, 7, 18, 0.4); 
   overflow: hidden; /* Clips the image edges neatly to the border radius */
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), inset 0 0 16px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Adds a high-tech terminal glow when hovering over the video card */
+.video-card:hover {
+  border-color: rgba(56, 189, 248, 0.5); /* Faded accent color tint */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
 }
 
 /* Positioning context for the absolute layout elements */
 .stream-wrapper {
   position: relative;
   width: 100%;
-  background-color: #000000; /* Pure black backdrop while frames render */
+  aspect-ratio: 16 / 9; /* CRITICAL: Enforces clean cinematic screen dimensions */
+  /* UNIFIED BACKDROP: Ensures the backing canvas matches the panel layout tint exactly */
+  background-color: rgba(3, 7, 18, 0.4); 
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+/* High-tech overlay: Creates a subtle CRT/Scanline grid matrix pattern across the feed */
+.stream-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Softened the scanline opacity to blend nicely into the unified background panel tint */
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 4px, 6px 100%;
+  z-index: 2;
+  pointer-events: none; /* Allows underlying canvas or video clicks */
 }
 
 /* Core video tag constraints - ensures perfect scaling and aspect ratio */
 .robot-stream-feed {
   width: 100%;
-  height: auto;
+  height: 100%; /* Fills vertical widescreen box constraints completely */
   display: block;
-  object-fit: contain; /* Prevents raw imagery from distorting or stretching */
+  object-fit: cover; /* Eliminates empty blank margins without layout distortion */
+  z-index: 1;
 }
 
 /* Floating overlay cyber badge for active streams */
@@ -35,30 +58,50 @@
   position: absolute;
   top: 12px;
   left: 12px;
-  background-color: rgba(239, 68, 68, 0.9); /* High-contrast crimson */
+  background-color: rgba(3, 7, 18, 0.85); /* Deep midnight backdrop */
   color: var(--text-main);
-  padding: 3px 8px;
+  padding: 4px 10px;
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: bold;
-  letter-spacing: 0.06em;
-  border-radius: 3px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.4); /* Clean crimson outline border */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
   pointer-events: none; /* Stops the badge from intercepting mouse clicks */
-  animation: streamBlink 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A glowing neon dot indicator placed right inside the live text badge */
+.live-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background-color: var(--danger);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--danger);
+  animation: streamBlink 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Terminal-styled box displayed while fetching endpoint data */
 .stream-loading {
   width: 100%;
-  padding: 24px 16px;
+  height: 100%; /* Matches 16:9 widescreen proportions exactly during loaders */
+  min-height: 200px;
+  padding: 32px 16px;
   text-align: center;
-  background-color: rgba(11, 19, 41, 0.3);
+  /* UNIFIED BACKDROP: Changes loading screen panel shade from navy-grey to matching slate alpha tint */
+  background-color: rgba(3, 7, 18, 0.4); 
   border: 1px dashed var(--border);
   border-radius: var(--radius);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
 .stream-loading p {
@@ -66,17 +109,14 @@
   font-family: var(--font-mono);
   font-size: 13px;
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
 }
 
-/* Smooth blinking pulse loop for the Live tracking icon */
-@keyframes streamBlink {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.98);
-  }
+/* Sleek digital dots terminal animation loop for loading screens */
+.stream-loading p::after {
+  content: "...";
+  display: inline-block;
+  width: 12px;
+  text-align: left;
+  animation: terminalDots 1.5s steps(4, end) infinite;
 }

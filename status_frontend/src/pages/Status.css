@@ -1,0 +1,424 @@
+/* ==========================================================================
+   1. COLUMN STRUCTURAL GRIDS & SCROLL SYSTEM (BALANCED ALIGNMENT)
+   ========================================================================== */
+/* Allocation rules for the left text-metrics list column */
+.status-column {
+  flex: 1;
+  min-width: 450px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Allocation rules for the right map column layout container */
+.map-column {
+  flex: 1;
+  min-width: 450px;
+  position: sticky;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Left column header label tracking specs - 35PX SPEC */
+.status-column h3 {
+  font-size: 35px; /* MATCHED: Your exact requested title scale */
+  color: var(--text-main);
+  margin: 0 0 16px 0; /* Slightly tightened margin to compensate for font growth */
+  font-weight: 600;
+  line-height: 1.1; /* Tightened line-height to keep the text block compact */
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+/* FIXED PANEL HOUSING: Wraps the cards inside a solid, high-tech command chassis */
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px; /* RECALIBRATED: Accommodates the larger 35px headers so your bottom lines anchor level */
+  height: calc(100vh - 202px);
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom terminal layout scrollbar styling specifically for your robot list */
+.inventory-list::-webkit-scrollbar {
+  width: 6px;
+}
+.inventory-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.inventory-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.inventory-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ==========================================================================
+   2. ROBOT INTERACTIVE DROPDOWN CONTAINER (DETAILS ACCORDION)
+   ========================================================================== */
+/* The parent wrapper element converted into an elegant interactive panel sheet */
+.robot-card {
+  display: block;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background-color: var(--bg-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden; /* CRITICAL EXPANSION OVERRIDES: Fixes layout blocking and overlap errors */
+  height: auto !important; /* Lets the card expand dynamically downwards */
+  min-height: max-content !important; /* Guarantees layout cells never clip or shrink text rows */
+}
+
+.robot-card:hover {
+  border-color: rgba(56, 189, 248, 0.35); /* Cyber accent glow on mouse hover */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Faded crimson background variant if a hardware block breaks down offline */
+.robot-card.offline {
+  background-color: rgba(239, 68, 68, 0.01);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+/* The permanent single-line summary header clickable row bar */
+.robot-card-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  cursor: pointer;
+  list-style: none; /* Removes native triangle arrow markers */
+  user-select: none;
+}
+
+.robot-card-summary::-webkit-details-marker {
+  display: none; /* Removes Safari native triangle arrow markers */
+}
+
+/* Subtle row trace highlighter when aiming pointer at summary fields */
+.robot-card-summary:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Expanded interior layout container frame */
+.robot-expanded-body {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px dashed var(--border);
+  margin-top: 2px;
+  padding-top: 18px;
+}
+
+/* Stacks data panels cleanly over each other and ensures they stretch to full width */
+.telemetry-stack-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Forces hardware details alignment layouts */
+.card-profile-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Real-time blinker light bulbs inside summary columns */
+.robot-id-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+.robot-card.online .robot-id-dot {
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+.robot-card.offline .robot-id-dot {
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+/* Target item headings layout text styled with custom terminal indicators */
+.robot-title {
+  text-transform: capitalize;
+  font-size: 19px;
+  color: var(--text-main);
+  font-weight: bold;
+}
+
+/* Custom terminal prefix indicator which turns down when expanded */
+.robot-title::before {
+  content: "▶ ";
+  font-size: 11px;
+  color: var(--accent);
+  display: inline-block;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+}
+
+.robot-card[open] .robot-title::before {
+  transform: rotate(90deg);
+}
+
+/* Telemetry data info box block panel styling inside expanded views */
+.robot-dropdown-content {
+  padding: 14px 18px;
+  background: rgba(3, 7, 18, 0.4);
+  border-left: 2px solid var(--border);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  width: 100%;
+}
+
+.robot-dropdown-content p {
+  margin: 4px 0;
+}
+
+/* Crisp clean headers for telemetry items */
+.telemetry-block-title {
+  color: var(--text-main);
+  font-size: 12px;
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-sans);
+  letter-spacing: 0.05em;
+}
+
+/* Central design guide divider lines */
+.telemetry-divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 6px 0;
+}
+
+/* ==========================================================================
+   3. STATUS & PERFORMANCE BADGES (HIGH-VISIBILITY UPGRADE)
+   ========================================================================== */
+.status-badge, .active-badge {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 110px;
+}
+
+/* HIGH-VISIBILITY ONLINE STATUS */
+.robot-card.online .status-badge {
+  color: #00ff9d;
+  background-color: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.15);
+}
+
+/* HIGH-VISIBILITY OFFLINE STATUS */
+.robot-card.offline .status-badge {
+  color: #ff4545;
+  background-color: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.15);
+}
+
+/* HIGH-VISIBILITY ACTIVE PERFORMANCES */
+.robot-card.active .active-badge {
+  color: var(--accent);
+  background-color: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* HIGH-VISIBILITY INACTIVE PERFORMANCES */
+.robot-card.inactive .active-badge {
+  color: #94a3b8;
+  background-color: rgba(148, 163, 184, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: none;
+}
+
+/* ==========================================================================
+   4. CAMERA VIEWPORT & VIDEO STREAMING FIXES
+   ========================================================================== */
+.camera-dropdown-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin-top: 4px;
+}
+
+/* The primary outer camera housing frame */
+.video-card {
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  /* HARD CONTRAST OVERRIDE: Swapped onyx token for pure ink hardware black */
+  background: #000000 !important;
+  background-color: #000000 !important;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), inset 0 0 16px rgba(0, 0, 0, 0.9);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* High-tech terminal glow when hovering over the video card */
+.video-card:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+/* Stream backdrop engine canvas container */
+.stream-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000000 !important; /* Pure ink black backdrop block layout */
+  background-color: #000000 !important; /* Prevents container color leak bleed paths */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* High-tech overlay Matrix: Injects subtle horizontal CRT/Scanlines transparency grid layers */
+.stream-wrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 4px, 6px 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Core streaming feed asset boundary controls */
+.robot-stream-feed {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover; /* Stretches and scales canvas cleanly across widescreen without black gaps */
+  z-index: 1;
+}
+
+/* Floating overlay cyber badge marking real-time feeds */
+.live-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: rgba(3, 7, 18, 0.85);
+  color: var(--text-main);
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  border-radius: 4px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* A glowing neon dot indicator placed right inside the live text badge wrapper */
+.live-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background-color: var(--danger);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--danger);
+  animation: streamBlink 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Terminal dashed container box rendered when video streams go blank or resolve loading connections */
+.stream-loading {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  padding: 32px 16px;
+  text-align: center;
+  background-color: rgba(11, 19, 41, 0.4);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box; /* Safe layout bounds mapping constraints */
+}
+
+.stream-loading p {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   5. FLOATING MAP PIN GRAPHICS (CALIBRATED ACCURACY RUNTIME ENGINE)
+   ========================================================================== */
+.robot-map-dot {
+  position: absolute; /* REQUIRED: Unlocks structural coordinate plane processing */
+  
+  /* 1. SMALLER SIZE: Reduced from 14px to 10px */
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 10; /* Floats above graphic backgrounds safely */
+  
+  /* 2. NO SHADOWS: Kept the white high-contrast border ring, but removed the drop-shadow */
+  box-shadow: 0 0 0 2px #ffffff; 
+}
+
+/* ==========================================================================
+   6. ANIMATION LIFECYCLE ENGINES
+   ========================================================================== */
+@keyframes streamBlink {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.2; 
+    transform: scale(0.85); 
+  }
+}
+
+@keyframes terminalDots {
+  0%, 100% { 
+    content: ""; 
+  }
+  25% { 
+    content: "."; 
+  }
+  50% { 
+    content: ".."; 
+  }
+  75% { 
+    content: "..."; 
+  }
+}

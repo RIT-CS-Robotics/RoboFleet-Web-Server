@@ -1,20 +1,23 @@
 /* src/App.css */
 
-/* 1. GLOBAL DESIGN TOKENS */
+/* ==========================================================================
+   1. GLOBAL DESIGN TOKENS (Shared System Theme Variables)
+   ========================================================================== */
 :root {
   /* Almost Black Canvas Tones */
-  --bg-primary: #030712; /* Midnight Core Page Canvas */
-  --bg-secondary: #0b1329; /* Dark Onyx Workspace Blocks */
-  --text-main: #f8fafc; /* Off-White Text */
-  --text-muted: #64748b; /* Slate Gray Subtext */
-  --border: #1e293b; /* Dark Faded Outlines */
+  --bg-primary: #030712;       /* Midnight Core Page Canvas */
+  --bg-secondary: #0b1329;     /* Dark Onyx Workspace Blocks */
+  --text-main: #f8fafc;        /* Off-White Text */
+  --text-muted: #64748b;       /* Slate Gray Subtext */
+  --border: #1e293b;           /* Dark Faded Outlines */
 
   /* High-Contrast Cyber Accents */
-  --accent: #38bdf8; /* Bright Terminal Cyan */
+  --accent: #38bdf8;           /* Bright Terminal Cyan */
   --accent-hover: #0ea5e9;
-  --danger: #ef4444; /* Crimson Red */
+  --danger: #ef4444;           /* Crimson Red */
   --danger-hover: #dc2626;
-  --success-bg: #022c22; /* Deep Emerald Status Log (Dark Room Friendly) */
+  --success-bg: #022c22;       /* Deep Emerald Status Log */
+  --success-text: #34d399;     /* Vivid Emerald Mint */
 
   /* Global Layout Tokens */
   --radius: 6px;
@@ -22,328 +25,185 @@
   --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-/* 2. GLOBAL RESET & BASE RULES */
+/* ==========================================================================
+   2. GLOBAL RESET, SCROLLBARS & BASE RULES
+   ========================================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
-  font-family: var(--font-sans);
+/* Enforces hard full-screen structural canvas limits layout */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  min-height: 0 !important;
   background-color: var(--bg-primary);
   color: var(--text-main);
+  font-family: var(--font-sans);
   line-height: 1.5;
+  overflow: hidden; /* Erases dual window scrolling tracks */
   -webkit-font-smoothing: antialiased;
 }
 
+/* High-tech navigation menu action triggers */
 button {
   font-family: inherit;
   font-size: 14px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+  color: var(--accent) !important; /* Forces hover glowing feedback elements */
 }
 
 button:active {
   transform: scale(0.98);
 }
 
-/* 3. MONITOR PANEL LAYOUT CONSTRAINTS */
-.dashboard-container {
-  padding: 20px;
-  font-family: var(--font-sans);
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: var(--bg-primary);
-}
-
-.dashboard-container h2 {
-  font-size: 34px;
+/* Base text styling rules */
+p {
   color: var(--text-main);
-  margin-bottom: 24px;
-  font-weight: bold;
-  letter-spacing: -0.025em;
 }
 
-/* Force the metrics list panel and the map-canvas panel to stand side-by-side */
-.dashboard-layout {
-  display: flex;
-  gap: 30px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  margin-top: 20px;
+ul, ol {
+  padding-left: 20px;
 }
 
-/* Allocation rules for the left text-metrics list column */
-.status-column {
-  flex: 1;
-  min-width: 320px;
+/* Custom terminal webkit scrollbars used internally by text columns or sub-pages */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-.status-column h3 {
-  font-size: 24px;
-  color: var(--text-muted);
-  margin-bottom: 16px;
-  font-weight: bold;
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
 }
-
-/* Allocation rules for the right map-canvas display column */
-.map-column {
-  flex: 1.5;
-  min-width: 350px;
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
 }
-
-.inventory-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* Individual heavy card workspace container for each tracking sheet entry */
-.robot-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start; /* Handles multiple stacked panels nicely */
-  padding: 20px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  margin-bottom: 0;
-}
-
-/* Background color connectivity assignments */
-.robot-card.online {
-  background-color: var(--bg-secondary);
-}
-
-.robot-card.offline {
-  background-color: rgba(239, 68, 68, 0.04);
-}
-
-/* Forces profile details into a single row alignment layout */
-.card-profile-group {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  flex: 1; /* CRITICAL: Forces profile group container to consume maximal width */
-}
-
-/* NEW: Enforces horizontal uniformity on the text block container across different cards */
-.card-profile-group > div:last-child {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-}
-
-/* Real-time indicator light bulbs */
-.robot-id-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
-  margin-top: 6px; /* Balance position relative to the main profile title text */
-}
-
-/* Target item headings layout text */
-.robot-title {
-  text-transform: capitalize;
-  font-size: 22px;
-  color: var(--text-main);
-  font-weight: bold;
-  display: block;
-  margin-bottom: 8px;
-  text-align: left;
-}
-
-/* 4. EXPANDABLE TELEMETRY DROPDOWN ARCHITECTURE */
-
-/* Arranges the dropdowns vertically and forces a crisp left alignment */
-.robot-dropdown-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start; /* Forces all elements flush against the same left wall */
-  margin-top: 10px;
-  width: 100%;
-}
-
-/* Force each dropdown element to stand on its own separate line layout */
-.robot-dropdown {
-  display: block;
-  width: 100%;
-}
-
-.robot-dropdown summary {
-  cursor: pointer;
-  list-style: none; /* Removes default triangle arrow marker in Chrome/Firefox */
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--accent);
-  user-select: none;
-  transition: color 0.2s ease;
-  display: flex; /* Changed inline-flex to flex to help align to the parent's layout starting wall */
-  align-items: center;
-  text-align: left;
-  width: max-content; /* Locks typography bounds tightly around text length */
-}
-
-/* Removes default triangle arrow marker in Safari */
-.robot-dropdown summary::-webkit-details-marker {
-  display: none;
-}
-
-.robot-dropdown summary:hover {
-  color: var(--accent-hover);
-}
-
-/* Custom terminal layout arrow icon */
-.robot-dropdown summary::before {
-  content: "▶ ";
-  font-size: 10px;
-  display: inline-block;
-  margin-right: 8px; /* Strict spacing gap after arrow */
-  width: 12px;       /* Fixed footprint prevents text labels from shifting alignment */
-  text-align: left;
-  flex-shrink: 0;    /* Safeguards arrow size from layout squishing */
-  transition: transform 0.2s ease;
-}
-
-/* Rotate indicator arrow when details box expands open */
-.robot-dropdown[open] summary::before {
-  transform: rotate(90deg);
-}
-
-/* Telemetry data box grid container styling */
-.robot-dropdown-content {
-  margin-top: 6px;
-  padding: 8px 12px;
-  background: rgba(3, 7, 18, 0.6);
-  border-left: 2px solid var(--border);
-  border-radius: 4px;
-  font-size: 13px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  width: 260px; /* Constrains card growth parameters */
-}
-
-.robot-dropdown-content p {
-  margin: 4px 0;
-}
-
-/* 5. STATUS BADGES & PIN DOTS */
-.status-badge {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: bold;
-  font-family: var(--font-mono);
-  flex-shrink: 0;
-}
-
-.robot-card.online .status-badge {
-  color: #34d399;
-  background-color: var(--success-bg);
-  border: 1px solid #064e3b;
-}
-
-.robot-card.offline .status-badge {
-  color: var(--danger);
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-/* Floating Matrix Absolute Pin Dots */
-.robot-map-dot {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 2px solid white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  z-index: 10;
-  pointer-events: none;
-  transform: translate(-50%, 50%);
-  transition: left 0.5s linear, bottom 0.5s linear;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 /* ==========================================================================
-   6. CAMERA VIEWPORT & VIDEO STREAMING CLASSES
+   3. UNIFIED LAYOUT CONTAINER FRAMES (Status / About Alignment)
    ========================================================================== */
-
-/* Overrides the compact width rule specifically for camera containers so the feed can expand */
-.camera-dropdown-content {
-  width: 100% !important; 
-  max-width: 440px; /* Balances dashboard card layout columns gracefully */
-  padding: 0 !important; /* Strips layout padding so video touches container edge */
-  border-left: none !important; /* Cleans up framing borders around imagery */
-  background: transparent !important;
-  margin-top: 10px !important;
+/* The main dashboard and page wrapper */
+.dashboard-container {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  background-color: var(--bg-primary);
+  height: 100%;
+  overflow-y: auto; /* Fallback safe scroll path inside page container matrices */
 }
 
-/* Base wrapper component housing stream state mechanics */
-.video-card {
-  width: 100%;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background-color: var(--bg-primary);
+/* Core grid interface used to position items side-by-side cleanly */
+.dashboard-layout {
+  display: flex;
+  gap: 32px;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin-top: 20px;
+  /* CALIBRATED: Height optimized for the global navigation bar layout footprint */
+  height: calc(100vh - 70px); 
+}
+
+/* RENDER VIEW SWITCHER APP STAGE WRAPPER */
+.app-viewport-stage {
+  flex: 1;
   overflow: hidden;
 }
 
-/* Layer controller to handle positioning constraints for the absolute text badge */
-.stream-wrapper {
-  position: relative;
-  width: 100%;
-  background-color: #000000; /* Dark baseline blocks screen flicker during canvas fetch */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Shared telemetry alert text framework blocks */
+.system-bulletin-box {
+  background-color: rgba(56, 189, 248, 0.02);
+  border-left: 4px solid var(--accent);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-family: var(--font-mono);
+  border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-/* Native MJPEG tracking tag configuration profile */
-.robot-stream-feed {
-  width: 100%;
-  height: auto;
+.system-bulletin-title {
+  color: var(--accent);
+  font-size: 12px;
   display: block;
+  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* Standalone container component sheet box model (Used for lists or about fields) */
+.content-card-panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   4. UNIFIED HIGH-TECH TOP NAVBAR COMPONENT STYLES (UPGRADED SIZE)
+   ========================================================================== */
+/* Global top navbar row structure block */
+.global-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;       /* MODIFIED: Slight vertical padding boost to frame the larger logo */
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+
+/* Left side header assembly grouping icon and title together */
+.brand-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;                /* INCREASED: Slightly widened the gap to match the larger scaling */
+}
+
+/* Brand logo dimensions restriction rules */
+.brand-logo-group img {
+  height: 36px;             /* INCREASED: Boosted height from 24px to 36px for strong visibility */
+  width: auto;              /* Automatically handles your 512x512 file proportions cleanly */
   object-fit: contain;
 }
 
-/* Absolute floating cyber tag indicating operational active feeds */
-.live-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background-color: rgba(239, 68, 68, 0.85); /* Semitransparent Crimson */
-  color: var(--text-main);
-  padding: 3px 8px;
-  font-family: var(--font-mono);
-  font-size: 11px;
+/* Master text heading markup parameter controls */
+.brand-logo-group h1 {
+  font-size: 22px;          /* INCREASED: Scaled up font from 18px to a bold 22px presence */
   font-weight: bold;
-  letter-spacing: 0.05em;
-  border-radius: 3px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  pointer-events: none; /* Keeps element interactions invisible to user pointer tracking */
-  animation: streamPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Fallback terminal state layout while searching network sockets */
-.stream-loading {
-  padding: 16px;
-  text-align: center;
-  background-color: rgba(11, 19, 41, 0.4);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius);
-}
-
-.stream-loading p {
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
+  color: var(--text-main);
   margin: 0;
+  font-family: var(--font-sans);
+  letter-spacing: -0.025em; /* Slightly tightened tracking to keep it sharp at larger sizes */
 }
 
-/* Cyber accent blinking animation keyframe rules */
-@keyframes streamPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+/* Right side page control button deck positioning box */
+.nav-buttons-group {
+  display: flex;
+  gap: 20px;
+}
+
+/* Individual tactical navigation menu tabs */
+.nav-item-btn {
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+}
+
+/* Class toggle helpers to mark selected screen paths brightly */
+.nav-item-btn.active-tab {
+  color: var(--accent);
 }
