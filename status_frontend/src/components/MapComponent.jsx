@@ -19,14 +19,6 @@ export function robotPlacement(metersX, metersY) {
   };
 }
 
-function getRobotColor(robotId) {
-  let robotColor = "gray";
-  if (robotId.includes("1")) robotColor = "red";
-  if (robotId.includes("2")) robotColor = "blue";
-  if (robotId.includes("3")) robotColor = "green";
-  return robotColor;
-}
-
 export default function MapComponent({ fleetData }) {
   return (
     <div className="map-container">
@@ -48,7 +40,7 @@ export default function MapComponent({ fleetData }) {
               title={robotId} 
               className="robot-map-dot" 
               style={{ 
-                backgroundColor: getRobotColor(robotId), 
+                backgroundColor: info.color, 
                 left: x, 
                 top: percentYTop, 
                 transform: 'translate(-50%, -50%)', 

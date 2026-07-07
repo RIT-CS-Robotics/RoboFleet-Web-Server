@@ -3,14 +3,6 @@ import './Status.css';
 import GolisanoMap from '../components/MapComponent';
 import VideoStream from '../components/VideoComponent';
 
-function getRobotColor(robotId) {
-  let robotColor = "gray";
-  if (robotId.includes("1")) robotColor = "red";
-  if (robotId.includes("2")) robotColor = "blue";
-  if (robotId.includes("3")) robotColor = "green";
-  return robotColor;
-}
-
 export default function Status() {
   const [fleetData, setFleetData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -62,7 +54,7 @@ export default function Status() {
               <details key={robotId} className={`robot-card ${info?.online ? 'online' : 'offline'} ${info?.active ? 'active' : 'inactive'}`} >
                 <summary className="robot-card-summary">
                   <div className="card-profile-group">
-                    <div className="robot-id-dot" style={{ backgroundColor: getRobotColor(robotId) }} />
+                    <div className="robot-id-dot" style={{ backgroundColor: info.color }} />
                     <strong className="robot-title">
                       {robotId.replace('_', ' ')}
                     </strong>

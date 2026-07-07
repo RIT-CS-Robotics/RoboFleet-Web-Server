@@ -68,7 +68,7 @@ const robotConnections = {}; // each robot is saved here
  * @param robotId: The id number to give the robot
  * @param ipAddress: The IP/Hostname of the robot
  */
-function initializeRobotConnection(robotId, ipAddress) {
+function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
   //console.log(`Initializing connection loop for ${robotId} at ${ipAddress}...`);
   // Ensure we have a placeholder state object in our tracker if it doesn't exist
   if (!robotConnections[robotId]) {
@@ -79,7 +79,8 @@ function initializeRobotConnection(robotId, ipAddress) {
       position: {x: 0, y: 0},
       destination: {x: 0, y: 0,},
       destinationName: 'N/A',
-      isActive: false
+      isActive: false,
+      color: optionalColor
     };
   }
 
@@ -381,7 +382,8 @@ app.get('/api', (req, res) => {
       position: trackingData.position,
       destination: trackingData.destination,
       destinationName: trackingData.destinationName,
-      active: trackingData.isActive
+      active: trackingData.isActive,
+      color: trackingData.color
     };
   }
   res.json({ fleet: statusReport }); // puts all of this information in a json file to transfer to the frontend
@@ -447,9 +449,9 @@ function pythonCallback(active, robotId) {
 // ----------------------------------------------------
 // ROBOFLEET REGISTRATION: add or edit robots here!
 // ----------------------------------------------------
-initializeRobotConnection('Robot 1', process.env.ROBOT_1_ADDRESS); 
-initializeRobotConnection('Robot 2', process.env.ROBOT_2_ADDRESS); 
-initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS); 
+initializeRobotConnection('Robot 1', process.env.ROBOT_1_ADDRESS, '#307D7E'); 
+initializeRobotConnection('Robot 2', process.env.ROBOT_2_ADDRESS, 'pink'); 
+initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS, 'blue'); 
 
 // Open the HTTP gateway bound securely to the local bridge
 app.listen(PORT, bridge, () => { 

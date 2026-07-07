@@ -1,42 +1,57 @@
 // src/components/About.jsx
 import React from 'react';
+import './About.css';
+import robotImage from '../assets/robot.png';
 
 export default function About() {
   return (
-    <div style={{ 
-      padding: '40px 24px', 
-      maxWidth: '800px', 
-      margin: '0 auto', 
-      color: 'var(--text-main)',
-      fontFamily: 'var(--font-sans)',
-      height: '100%',
-      overflowY: 'auto'
-    }}>
-      <h2 style={{ fontSize: '34px', marginBottom: '16px', letterSpacing: '-0.025em' }}>
-        About RoboFleet Live Monitor
-      </h2>
-      <p style={{ color: 'var(--text-muted)', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
-        Welcome to the control instrumentation matrix. This application serves as a localized tracking system for autonomous network assets.
-      </p>
+    <div className="about-container">
 
-      <div style={{ 
-        backgroundColor: 'var(--bg-secondary)', 
-        border: '1px solid var(--border)', 
-        borderRadius: 'var(--radius)', 
-        padding: '24px',
-        marginBottom: '24px'
-      }}>
-        <h3 style={{ fontSize: '20px', marginBottom: '12px', color: 'var(--accent)' }}>System Features</h3>
-        <ul style={{ color: 'var(--text-main)', paddingLeft: '20px', lineHeight: '2' }}>
-          <li>Real-time websocket socket tracking loops.</li>
-          <li>Widescreen MJPEG camera hardware streams.</li>
-          <li>Independent percentage map layout coordinates tracking.</li>
-        </ul>
+        <header className="about-header">
+          <h2>About RoboFleet</h2>
+        </header>
+
+      <div className="about-scrollable-content">
+
+        <main className="about-content">
+
+          <img src={robotImage} alt='A RoboFleet Robot'></img>
+
+          {/* System Features Panel */}
+          <section className="content-card-panel">
+            <h3>System Features</h3>
+            <ul className="features-list">
+              <li>Real-time robot tracking</li>
+              <li>Deployable robots by student code</li>
+              <li>Boosting student engagement in computer science</li>
+            </ul>
+          </section>
+
+          {/* Project Purpose Panel */}
+          <section className="content-card-panel">
+            <p className="purpose-text">
+              The purpose of the RoboFleet project is to... (Will fill in later)
+            </p>
+          </section>
+
+          {/* Research Team Information */}
+          <section className="team-section">
+            <h3>Research Team</h3>
+            <p className="team-roster">
+              Zachary Butler, Aidan Sanderson, Anusha Ghosh, Mayank Rawat
+            </p>
+
+          </section>
+        </main>
       </div>
 
-      <p style={{ color: 'var(--text-muted)', fontSize: '14px', fontFamily: 'var(--font-mono)' }}>
-        Build Version: 1.0.0 // Environment: Production
-      </p>
+      {/* Technical Build Metadata Footer - Fixed to Bottom */}
+      <footer className="about-footer">
+        <code className="build-version">Build Version: 0.9.0 // BETA</code>
+          <p className="email-section">
+              For more information please email Zachary Butler @ zxbvcs@rit.edu (Professor of Computer Science at Rochester Institute of Technology, Ph.D. in Robotics)
+          </p>
+      </footer>
     </div>
   );
 }

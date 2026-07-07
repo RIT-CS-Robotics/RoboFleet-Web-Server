@@ -36,7 +36,7 @@ export default function App() {
             onClick={() => setActivePage('about')} 
             className={`nav-item-btn ${activePage === 'about' ? 'active-tab' : ''}`}
           >
-            ℹ️ About Project
+            ℹ️ About
           </button>
         </div>
 

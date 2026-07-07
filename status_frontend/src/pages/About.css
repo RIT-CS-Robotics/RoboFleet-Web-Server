@@ -1,0 +1,105 @@
+/* src/components/About.css */
+
+/* Main Layout Wrapper - Hybrid resolution rules for all screen sizes */
+.about-container {
+  padding: 16px 24px;
+  width: 100%;       /* Fluid percentage scales smoothly on laptops/small screens */
+  max-width: 1350px; /* Hard pixel ceiling prevents over-stretching on 4K/ultrawide monitors */
+  margin: 0 auto;    /* Centers the workspace container on larger viewports */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Scroll Wrapper - Holds content while keeping footer fixed */
+.about-scrollable-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px; /* Adds space for the custom scrollbar tracking */
+}
+
+/* Page Header Element */
+.about-header h2 {
+  font-size: 30px; 
+  margin-bottom: 16px; 
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+}
+
+/* Robot Image Styling - Balanced proportions across screen sizes */
+.about-content img {
+  display: block;
+  width: 100%;       /* Allows fluid reduction on small monitors */
+  max-width: 500px;  /* Locks growth threshold for a clean centerpiece footprint */
+  margin: 0 auto 16px auto; /* Centers the graphic and pushes content down */
+  object-fit: contain; /* Guarantees full image renders without cropping borders */
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Feature Grid List Formatting */
+.features-list {
+  padding-left: 20px;
+  margin-top: 12px;
+}
+
+.features-list li {
+  line-height: 2;
+  color: var(--text-main);
+}
+
+/* Dynamic Panel Section Headings */
+.content-card-panel h3,
+.team-section h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+
+/* Descriptive Paragraph Formatting */
+.purpose-text {
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* Team Panel Details */
+.team-section {
+  margin-top: 24px; 
+  margin-bottom: 24px; 
+}
+
+.team-roster {
+  color: var(--text-main);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* Professor Email Contact Section */
+.email-section {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+}
+
+/* Anchor Technical System Footer */
+.about-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 8px; 
+  margin-top: 8px;  
+  background-color: var(--bg-primary); 
+  flex-shrink: 0; /* Structural rule: Prevents browser from ever compressing footer */
+}
+
+/* Build Version Code Token */
+.build-version {
+  color: var(--text-muted);
+  font-size: 12px; 
+  font-family: var(--font-mono);
+  display: block;
+  line-height: 1; 
+}
