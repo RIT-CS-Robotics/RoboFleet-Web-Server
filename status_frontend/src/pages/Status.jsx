@@ -1,13 +1,27 @@
+/**
+ * @file status_frontend/src/pages/Status.jsx
+ * 
+ * @fileoverview Status page for RoboFleet (robotics-project.gccis.rit.edu/status)
+ * 
+ * @date 7/8/2026
+ * @author Aidan Sanderson
+ */
+
 import { useState, useEffect } from 'react';
 import './Status.css'; 
 import GolisanoMap from '../components/MapComponent';
 import VideoStream from '../components/VideoComponent';
 
 export default function Status() {
-  const [fleetData, setFleetData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [fleetData, setFleetData] = useState({}); // Robotics fleet data
+  const [loading, setLoading] = useState(true); // Is the page loading?
+  const [error, setError] = useState(null); // A page error
 
+  /**
+   * Gets the needed information for the robots connected to the web server.
+   * 
+   * @returns: The robots established on the web server and the information they contain.
+   */
   const fetchFleetStatus = async () => {
     try {
       const response = await fetch('/api', { method: 'GET' });
@@ -25,9 +39,10 @@ export default function Status() {
     }
   };
 
+  // Updates the robot fleet status every 2 seconds and on initial load.
   useEffect(() => {
     fetchFleetStatus();
-    const interval = setInterval(fetchFleetStatus, 500);
+    const interval = setInterval(fetchFleetStatus, 2000);
     return () => clearInterval(interval);
   }, []);
 
@@ -46,7 +61,7 @@ export default function Status() {
       )}
 
       <div className="dashboard-layout">
-        {/* Left Robot Display Column */}
+        {/* ROBOT DISPLAY LEFT COLUMN*/}
         <div className="status-column">
           <h3>Robots</h3>
           <div className="inventory-list">
@@ -71,7 +86,7 @@ export default function Status() {
 
                 <div className="robot-expanded-body">
                   <div className="telemetry-stack-group">
-                    {/* 1. Position Panel */}
+                    {/* 1. POSITION PANEL */}
                     <div className="robot-dropdown-content">
                       <strong className="telemetry-block-title">POSITION INFO</strong>
                       <p>Current X: {info?.position?.x ?? '0'}</p>
@@ -79,7 +94,7 @@ export default function Status() {
                       <p>Current Y: {info?.position?.y ?? '0'}</p>
                     </div>
 
-                    {/* 2. Destination Panel */}
+                    {/* 2. DESTINATION PANEL */}
                     <div className="robot-dropdown-content">
                       <strong className="telemetry-block-title">DESTINATION INFO</strong>
                       <p>Target: {info?.destinationName || 'N/A'}</p>
@@ -89,10 +104,10 @@ export default function Status() {
                       <p>Target Y: {info?.destination?.y ?? 'N/A'}</p>
                     </div>
 
-                    {/* 3. Live Camera Asset Container */}
+                    {/* 3. LIVE CAMERA STREAMING */}
                     <div className="camera-dropdown-content">
                       {info?.online ? (
-                        <VideoStream robotId={robotId} />
+                        <VideoStream host={info.host} isOnline={info.online} robotId={robotId} />
                       ) : (
                         <div className="stream-loading">
                           <p>Cannot view feed: Robot is offline</p>
@@ -106,7 +121,7 @@ export default function Status() {
           </div>
         </div>
 
-        {/* Right Map Display Column */}
+        {/* MAP DISPLAY RIGHT COLUMN */}
         <div className="map-column">
           <GolisanoMap fleetData={fleetData} />
         </div>

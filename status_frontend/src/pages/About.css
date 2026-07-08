@@ -1,4 +1,13 @@
-/* src/components/About.css */
+/**
+ * @file status_frontend/src/pages/About.css
+ * 
+ * @fileoverview Styling for About page for RoboFleet (robotics-project.gccis.rit.edu/status)
+ * 
+ * @disclosure Base styling generated with AI (Google Gemini)
+ * 
+ * @date 7/8/2026
+ * @author Aidan Sanderson
+ */
 
 /* Main Layout Wrapper - Hybrid resolution rules for all screen sizes */
 .about-container {
@@ -39,15 +48,43 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Feature Grid List Formatting */
+/* Upgraded Terminal Console Features List */
 .features-list {
-  padding-left: 20px;
-  margin-top: 12px;
+  list-style: none; /* Strips away generic boring browser dots */
+  padding-left: 0;   /* Resets original indentation */
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;        /* Even spacing between feature rows */
 }
 
+/* Individual feature list line tracks */
 .features-list li {
-  line-height: 2;
+  font-family: var(--font-mono); /* Uses terminal text formatting */
+  font-size: 14px;
   color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.02); /* Subtle tracking row tint */
+  border: 1px solid rgba(30, 41, 59, 0.5);    /* Soft matching divider line */
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Cyber accent hover state for list rows */
+.features-list li:hover {
+  background-color: rgba(56, 189, 248, 0.04); /* Faint cyan glow tint */
+  border-color: rgba(56, 189, 248, 0.3);     /* Highlights row border on hover */
+}
+
+/* Injects custom Terminal Cyan prompt arrows (>) into the layout */
+.features-list li::before {
+  content: ">";
+  color: var(--accent); /* Uses your bright terminal cyan theme variable */
+  font-weight: bold;
+  font-size: 15px;
 }
 
 /* Dynamic Panel Section Headings */

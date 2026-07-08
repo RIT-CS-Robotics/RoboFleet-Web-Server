@@ -1,4 +1,13 @@
-/* src/components/VideoComponent.css */
+/**
+ * @file status_frontend/src/components/VideoComponent.css
+ * 
+ * @fileoverview Styling for robot video streaming component for the status page (robotics-project.gccis.rit.edu/status)
+ * 
+ * @disclosure Base styling generated with AI (Google Gemini)
+ *
+ * @date 7/8/2026
+ * @author Aidan Sanderson
+ */
 
 /* The primary outer layout block for the camera stream */
 .video-card {

@@ -1,4 +1,11 @@
-// src/components/About.jsx
+/**
+ * @file status_frontend/src/pages/About.jsx
+ * 
+ * @fileoverview About page for RoboFleet (robotics-project.gccis.rit.edu/status)
+ * 
+ * @date 7/8/2026
+ * @author Aidan Sanderson
+ */
 import React from 'react';
 import './About.css';
 import robotImage from '../assets/robot.png';
@@ -17,7 +24,7 @@ export default function About() {
 
           <img src={robotImage} alt='A RoboFleet Robot'></img>
 
-          {/* System Features Panel */}
+          {/* SYSTEM FEATURES */}
           <section className="content-card-panel">
             <h3>System Features</h3>
             <ul className="features-list">
@@ -27,14 +34,14 @@ export default function About() {
             </ul>
           </section>
 
-          {/* Project Purpose Panel */}
+          {/* PROJECT PURPOSE */}
           <section className="content-card-panel">
             <p className="purpose-text">
-              The purpose of the RoboFleet project is to... (Will fill in later)
+              The purpose of the RoboFleet project is to research the effects that robots can have on beginner computer science courses when implemented as a core part of the ciriculum. Evidence has shown that the use of robots in beginner computer science courses can boost student motivation, engagement, and learning. Students can use the RoboFleet website to write code and deploy robots to run that code in order to practice coding while interacting with real world environments through the robots. Students can also view code logs from previous robot deployments to get a better understanding of what their code did, and use that feedback to improve their coding skills and understanding of computer science principles.
             </p>
           </section>
 
-          {/* Research Team Information */}
+          {/* RESEARCH TEAM INFO */}
           <section className="team-section">
             <h3>Research Team</h3>
             <p className="team-roster">
@@ -45,7 +52,7 @@ export default function About() {
         </main>
       </div>
 
-      {/* Technical Build Metadata Footer - Fixed to Bottom */}
+      {/* FOOTER */}
       <footer className="about-footer">
         <code className="build-version">Build Version: 0.9.0 // BETA</code>
           <p className="email-section">

@@ -1,3 +1,14 @@
+/**
+ * @file status_frontend/src/components/MapComponent.css
+ * 
+ * @fileoverview Styling for map component for the status page (robotics-project.gccis.rit.edu/status)
+ * 
+ * @disclosure Base styling generated with AI (Google Gemini)
+ *
+ * @date 7/8/2026
+ * @author Aidan Sanderson
+ */
+
 .map-container {
   margin-top: 0; /* Stays completely level with the left status title elements */
   font-family: var(--font-sans);
