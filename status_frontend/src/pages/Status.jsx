@@ -106,13 +106,7 @@ export default function Status() {
 
                     {/* 3. LIVE CAMERA STREAMING */}
                     <div className="camera-dropdown-content">
-                      {info?.online ? (
-                        <VideoStream host={info.host} isOnline={info.online} robotId={robotId} />
-                      ) : (
-                        <div className="stream-loading">
-                          <p>Cannot view feed: Robot is offline</p>
-                        </div>
-                      )}
+                      <VideoStream host={info.host} isOnline={info.online} robotId={robotId} />
                     </div>
                   </div>
                 </div>

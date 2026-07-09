@@ -142,7 +142,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       handleLog(title);
       
       // Fixed: Only opens the status page after a successful database post
-      window.open('status', '_blank');
+      window.open('status', 'status');
 
     } catch (error) {
       console.error("Transmission error:", error);
