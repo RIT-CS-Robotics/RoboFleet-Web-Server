@@ -51,6 +51,8 @@ export default function MapComponent({ fleetData }) {
           const { x, y } = robotPlacement(info.position.x, info.position.y);
           const percentYTop = `${100 - parseFloat(y)}%`;
 
+          const directionAngle = (parseFloat(info.direction) - 90) || 0;
+
           // ROBOT DOT ON THE MAP
           return (
             <div 
@@ -62,7 +64,9 @@ export default function MapComponent({ fleetData }) {
                 left: x, 
                 top: percentYTop, 
                 transform: 'translate(-50%, -50%)', 
-                transition: 'left 2s linear, top 2s linear' 
+                transition: 'left 2s linear, top 2s linear',
+                '--robot-color': info.color,
+                '--robot-angle': `${directionAngle}deg`
               }} 
             />
           );

@@ -39,10 +39,10 @@ export default function Status() {
     }
   };
 
-  // Updates the robot fleet status every 2 seconds and on initial load.
+  // Updates the robot fleet status every 0.5 seconds and on initial load.
   useEffect(() => {
     fetchFleetStatus();
-    const interval = setInterval(fetchFleetStatus, 2000);
+    const interval = setInterval(fetchFleetStatus, 500);
     return () => clearInterval(interval);
   }, []);
 
@@ -92,6 +92,8 @@ export default function Status() {
                       <p>Current X: {info?.position?.x ?? '0'}</p>
                       <hr className="telemetry-divider" />
                       <p>Current Y: {info?.position?.y ?? '0'}</p>
+                      <hr className="telemetry-divider" />
+                      <p>Current Direction: {Math.round(info?.direction) ?? '0'}°</p>
                     </div>
 
                     {/* 2. DESTINATION PANEL */}

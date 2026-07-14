@@ -77,6 +77,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       isConnected: false,
       instance: null,
       position: {x: 0, y: 0},
+      direction: 0,
       destination: {x: 0, y: 0,},
       destinationName: 'N/A',
       isActive: false,
@@ -102,6 +103,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       rosInstance.removeAllListeners();
       robotConnections[robotId].isConnected = false;
       robotConnections[robotId].position = { x: 0, y: 0};
+      robotConnections[robotId].direction = 0;
       robotConnections[robotId].instance = null;
       robotConnections[robotId].destination = {x: 0, y: 0,};
       robotConnections[robotId].destinationName = 'N/A';
@@ -135,6 +137,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       messageType: "geometry_msgs/msg/PoseStamped",
     });
 
+
     const destinationTopic = new ROSLIB.Topic({
       ros: rosInstance,
       name: '/nav_destination',
@@ -151,19 +154,26 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
     // ----------------------------------------------------
 
     /**
-     * Subscribes to a topic /robot_pos that continuously gets the robots read from the new tracking object structure current position 
+     * Subscribes to a topic /robot_pos that continuously gets the robots current position and quaternion (for facing direction) 
      * in the building in x and y coordinates and updates them in the backend.
      * 
      * @param message: The message being received from the topic publisher.
      */
-    posTopic.subscribe((posMessage) => {
+    posTopic.subscribe((message) => {
       //console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", posMessage);
       const now = Date.now();
-      if (now - lastProcessedTime_pos > THROTTLE_MS) {
+      if ((now - lastProcessedTime_pos) > THROTTLE_MS) {
         lastProcessedTime_pos = now;
-        const xPos = posMessage.pose.position.x;
-        const yPos = posMessage.pose.position.y;
+        const xPos = message.pose.position.x;
+        const yPos = message.pose.position.y;
+
+        const quaternionZ = message.pose.orientation.z;
+        const quaternionW = message.pose.orientation.w; // normalization value
+        const angleRad = 2 * Math.atan2(quaternionZ, quaternionW); // radians
+        const angleDeg = angleRad * (180/Math.PI); // deg (used for status page and map)
+
         robotConnections[robotId].position = { x: Number(xPos.toFixed(3)), y: Number(yPos.toFixed(3)) };
+        robotConnections[robotId].direction = angleDeg;
       }
     });
 
@@ -174,13 +184,13 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
      * 
      * @param message: The message being received from the topic publisher.
      */
-    destinationTopic.subscribe((destMessage) => {
+    destinationTopic.subscribe((message) => {
       //console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", destMessage);
       const now = Date.now();
-      if (now - lastProcessedTime_dest > THROTTLE_MS) {
+      if ((now - lastProcessedTime_dest) > THROTTLE_MS) {
         lastProcessedTime_dest = now;
-        const xDest = destMessage.pose.position.x;
-        const yDest = destMessage.pose.position.y;
+        const xDest = message.pose.position.x;
+        const yDest = message.pose.position.y;
         robotConnections[robotId].destination = { x: Number(xDest.toFixed(3)), y: Number(yDest.toFixed(3)) };
         const destName = getDestination(xDest, yDest);
         if (destName !== undefined) {
@@ -380,6 +390,7 @@ app.get('/api', (req, res) => {
       host: trackingData.host,
       online: trackingData.isConnected,
       position: trackingData.position,
+      direction: trackingData.direction,
       destination: trackingData.destination,
       destinationName: trackingData.destinationName,
       active: trackingData.isActive,

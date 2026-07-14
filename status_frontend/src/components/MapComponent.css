@@ -9,44 +9,93 @@
  * @author Aidan Sanderson
  */
 
+/**
+ * @file status_frontend/src/components/MapComponent.css
+ *
+ * @fileoverview Styling for map component for the status page (robotics-project.gccis.rit.edu/status)
+ *
+ * @disclosure Base styling generated with AI (Google Gemini)
+ *
+ * @date 7/8/2026
+ * @author Aidan Sanderson
+ */
+
 .map-container {
-  margin-top: 0; /* Stays completely level with the left status title elements */
-  font-family: var(--font-sans);
-  height: 100%; /* Fills the sticky layout column height wrapper */
-  display: flex;
-  flex-direction: column;
+    margin-top: 0; /* Stays completely level with the left status title elements */
+    font-family: var(--font-sans);
+    height: 100%; /* Fills the sticky layout column height wrapper */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Explicitly target h4 elements used in your JSX file - 35PX SPEC */
 h4.map-title, .map-title {
-  color: var(--text-main);
-  font-size: 35px; /* MATCHED: Mirrored to perfectly balance with the left h3 element */
-  margin: 0 0 16px 0;
-  font-weight: 600;
-  line-height: 1.1; /* Tightened line-height to standardize vertical dimensions */
-  letter-spacing: -0.02em;
-  text-transform: none;
+    color: var(--text-main);
+    font-size: 35px; /* MATCHED: Mirrored to perfectly balance with the left h3 element */
+    margin: 0 0 16px 0;
+    font-weight: 600;
+    line-height: 1.1; /* Tightened line-height to standardize vertical dimensions */
+    letter-spacing: -0.02em;
+    text-transform: none;
 }
 
 /* CONTAINER FOR PIXEL CONVERSION & PERCENTAGE DOT ACCURACY */
 .map-wrapper {
-  position: relative;
-  display: block;
-  /* 1. LOCK VERTICAL FOOTPRINT TO LEVEL WITH LEFT COLUMN */
-  max-height: calc(100vh - 202px); 
-  /* 2. AUTOMATIC EXTENSION LOGIC */
-  aspect-ratio: 2012 / 3069; /* Centering constraints to keep layout uniform inside the right column */
-  margin: 10px auto 0 auto;
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  overflow: visible; /* Allows pins resting right on edge bounds to render cleanly */
+    position: relative;
+    display: block; /* 1. LOCK VERTICAL FOOTPRINT TO LEVEL WITH LEFT COLUMN */
+    max-height: calc(100vh - 202px); /* 2. AUTOMATIC EXTENSION LOGIC */
+    aspect-ratio: 2012 / 3069; /* Centering constraints to keep layout uniform inside the right column */
+    margin: 10px auto 0 auto;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: visible; /* Allows pins resting right on edge bounds to render cleanly */
 }
 
 .map-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Safeguards mapping coordinate math by stopping aspect stretching */
-  border-radius: var(--radius);
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Safeguards mapping coordinate math by stopping aspect stretching */
+    border-radius: var(--radius);
+}
+
+/* ROBOT DOT ON THE MAP */
+.robot-map-dot {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: left 2s linear, top 2s linear; /* Smoothly moves coordinates */
+    z-index: 10;
+}
+
+/* THE DIRECTIONAL VISION ARC */
+.robot-map-dot::before {
+    content: '';
+    position: absolute;
+    top: -27.5px;
+    left: -27.5px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    
+    transform-origin: center center;
+    
+    /* 🔄 INVERTED ROTATION: Multiplies the angle by -1 to flip the direction */
+    transform: rotate(calc(var(--robot-angle, 0deg) * -1));
+    
+    transition: none; 
+
+    background: conic-gradient(
+        from -22.5deg at 50% 50%, 
+        rgb(from var(--robot-color) r g b / 0.25) 0deg 45deg, 
+        transparent 45deg
+    );
 }
