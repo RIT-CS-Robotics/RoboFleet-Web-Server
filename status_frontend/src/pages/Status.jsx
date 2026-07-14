@@ -75,6 +75,20 @@ export default function Status() {
                     </strong>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+
+                    {/* BATTERY CONTAINER */}
+                  <div className="inline-battery-container">
+                    <div className="inline-battery-shell">
+                      <div 
+                        className="inline-battery-fill" 
+                        style={{ height: `${Math.max(0, Math.min(100, info.battery ?? 0))}%` }}
+                      />
+                    </div>
+                    <div className="inline-battery-tip" />
+                    <span className="inline-battery-text">{info.battery ?? 0}%</span>
+                  </div>
+
+
                     <span className="status-badge">
                       {info?.online ? '● ONLINE' : '○ OFFLINE'}
                     </span>

@@ -81,7 +81,8 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       destination: {x: 0, y: 0,},
       destinationName: 'N/A',
       isActive: false,
-      color: optionalColor
+      color: optionalColor,
+      battery: 0
     };
   }
 
@@ -108,6 +109,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       robotConnections[robotId].destination = {x: 0, y: 0,};
       robotConnections[robotId].destinationName = 'N/A';
       robotConnections[robotId].isActive = false;
+      robotConnections[robotId].battery = 0;
 
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);
@@ -144,10 +146,17 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       messageType: 'geometry_msgs/msg/PoseStamped',
     });
 
+    const batteryTopic = new ROSLIB.Topic({
+      ros: rosInstance,
+      name: '/laptop_battery',
+      messageType: 'std_msgs/msg/Int32',
+    });
+
     // timers for the backend to refresh how often to take in topic information.
     const THROTTLE_MS = 500; // time refreshers for each topic
     let lastProcessedTime_pos = 0;
     let lastProcessedTime_dest = 0;
+    let lastProcessedTime_battery = 0;
 
     // ----------------------------------------------------
     // TOPIC SUBSCRIPTIONS
@@ -160,7 +169,6 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
      * @param message: The message being received from the topic publisher.
      */
     posTopic.subscribe((message) => {
-      //console.log("=== RECEIVED A PoseStamped POSITION MESSAGE ===", posMessage);
       const now = Date.now();
       if ((now - lastProcessedTime_pos) > THROTTLE_MS) {
         lastProcessedTime_pos = now;
@@ -185,7 +193,6 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
      * @param message: The message being received from the topic publisher.
      */
     destinationTopic.subscribe((message) => {
-      //console.log("=== RECEIVED A PoseStamped DESTINATION MESSAGE ===", destMessage);
       const now = Date.now();
       if ((now - lastProcessedTime_dest) > THROTTLE_MS) {
         lastProcessedTime_dest = now;
@@ -199,6 +206,21 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
         else {
           robotConnections[robotId].destinationName = 'N/A';
         }
+      }
+    });
+
+
+    /**
+     * Subscribes to a topic /laptop_battery that continuously gets the robot laptops current battery charge value from 0 to 100
+     * 
+     * @param message: The message being received from the topic publisher.
+     */
+    batteryTopic.subscribe((message) => {
+      const now = Date.now();
+      if ((now - lastProcessedTime_battery) > THROTTLE_MS) {
+        lastProcessedTime_battery = now;
+        const laptopBattery = message.data;
+        robotConnections[robotId].battery = laptopBattery;
       }
     });
 
@@ -394,7 +416,8 @@ app.get('/api', (req, res) => {
       destination: trackingData.destination,
       destinationName: trackingData.destinationName,
       active: trackingData.isActive,
-      color: trackingData.color
+      color: trackingData.color,
+      battery: trackingData.battery
     };
   }
   res.json({ fleet: statusReport }); // puts all of this information in a json file to transfer to the frontend

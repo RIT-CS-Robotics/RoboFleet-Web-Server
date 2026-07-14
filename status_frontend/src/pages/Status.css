@@ -433,3 +433,93 @@
     content: "..."; 
   }
 }
+
+/* ==========================================================================
+   7. INLINE BATTERY PERFORMANCE METRICS (INTEGRATED LAYOUT)
+   ========================================================================== */
+.inline-battery-container { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; /* Slightly wider gap to match the larger components */
+  margin-right: 14px; 
+} 
+
+/* SCALED UP: Outer shell matching the thick, smooth rounded lines from your image */ 
+.inline-battery-shell { 
+  width: 32px;       /* Increased from 22px */
+  height: 56px;      /* Increased from 38px */
+  border: 4px solid var(--border); /* Thicker border lines to balance the larger chassis */
+  border-radius: 7px; /* Smoother corner curves for the larger resolution scale */
+  padding: 3px;      /* Increased padding for an even internal cushion frame */
+  background-color: rgba(3, 7, 18, 0.4); 
+  position: relative; 
+  margin-top: 8px;   /* Extra room so the taller top cap clears the upper boundary line */
+  box-sizing: border-box; 
+  
+  display: flex; 
+  flex-direction: column;
+  justify-content: flex-end;
+  isolation: isolate; 
+} 
+
+/* SCALED UP: SOLID CAP ATTACHMENT: Recreates the exact battery node shape from your image */
+.inline-battery-shell::before {
+  content: "";
+  position: absolute;
+  width: 14px;       /* Increased from 10px to scale with the wider body */
+  height: 5px;        /* Taller cap profile */
+  background-color: var(--border); 
+  border-radius: 3px 3px 0 0; 
+  top: -8px;          /* Shifted upwards to sit flush on top of the thicker 4px border */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* SCALED UP CRISP VOLTAGE BOLT OVERLAY: Balanced and centered horizontally and vertically */
+.inline-battery-shell::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;        /* Increased from 10px */
+  height: 30px;       /* Increased from 20px */
+  transform: translate(-50%, -50%);
+  background-color: rgba(3, 7, 18, 0.9); 
+  z-index: 1;
+  pointer-events: none;
+  margin: 0; 
+  
+  /* Polygon vector coordinates mapped perfectly across the larger footprint dimensions */
+  clip-path: polygon(60% 0%, 10% 55%, 50% 55%, 40% 100%, 90% 45%, 50% 45%);
+} 
+
+/* Hides your trailing HTML tip element completely */
+.inline-battery-tip {
+  display: none !important;
+}
+
+/* Green fill - tracks height perfectly underneath the scaled bolt overlay layer */ 
+.inline-battery-fill { 
+  background-color: #00ff9d; 
+  border-radius: 3px; 
+  transition: height 0.3s ease; 
+  width: 100%; 
+  z-index: 0;
+} 
+
+/* SCALED UP: Upgraded terminal-style percentage readout text block */ 
+.inline-battery-text { 
+  font-family: var(--font-mono); 
+  font-size: 16px;          /* Increased font size from 13px */
+  font-weight: 900; 
+  color: var(--text-main); 
+  letter-spacing: 0.05em; 
+  background-color: rgba(255, 255, 255, 0.04); 
+  padding: 6px 12px;        /* Expanded padding from 4px 8px to scale with text volume */
+  border-radius: var(--radius); 
+  border: 1px solid rgba(255, 255, 255, 0.05); 
+  min-width: 64px;          /* Widened boundary box from 52px to prevent text jitter layout shifts */
+  text-align: center; 
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2); 
+}
