@@ -16,7 +16,7 @@ const passport = require('passport'); // for saml authentification
 const { defaultSamlStrategy, SP_CERT } = require('./samlConfig'); // samlConfig
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
-const {robotRun, clearTempsOnRestart} = require('./robocom.js'); // running student code
+const {robotRunPY, robotRunJAVA, clearTempsOnRestart} = require('./robocom.js'); // running student code
 const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode, getPerms, loadPerm} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
@@ -419,19 +419,6 @@ app.delete('/api/users/:username', (req, res) => {
 // Code Logging Routes
 // ====================================================
 
-// logs code
-app.post('/api/log', (req, res) => {
-  const userName = req.body.user;
-  const logName = req.body.log;
-  const code = req.body.code;
-  console.log(`Backend received data for log request for user: ${userName} and log: ${logName}`);
-  const result = saveCode(userName, logName, code);
-  if (result === false) {
-    return res.status(400).json({message: 'Could not log student code'});
-  }
-  return res.status(201).json({message: 'Successfully logged student code'});
-});
-
  // gets the text from the specified log file for code and log versions
 app.get('/api/log/:userName/:fileName', async (req,res) => {
   const user = req.params.userName;
@@ -539,6 +526,8 @@ app.post('/api/deploy', (req, res) => {
     const title = req.body.codeTitle; // code/log title
     const user = req.body.user; // current user
 
+    const fileType = title.split('$')[0]; // The raw file name without log info
+
     console.log(`Received data from frontend for ${robotId}:`, code);
 
     // selects the correct robot
@@ -552,25 +541,43 @@ app.post('/api/deploy', (req, res) => {
         return res.status(409).json({ message: `Robot ID "${robotId}" is already active.` });
     }
 
+    console.log(fileType);
+
+    if (!fileType.endsWith('.py') && !fileType.endsWith('.java')) {
+      console.error(`Error: Invalid file type`);
+      return res.status(503).json( {message: `Invalid file type`});
+    }
+
     const hostName = trackingData.host;
 
     // If the selected robot is online and connected to rosbridge then it creates a new topic /frontend_commands and publishes to it.
     // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
     if (trackingData.isConnected && trackingData.instance) {
 
-        robotConnections[robotId].isActive = true;
-        robotRun(code, title, user, robotId, hostName, (active) => { // runs the robot
-          pythonCallback(active, robotId);
-        });
+      robotConnections[robotId].isActive = true;
 
-        console.log(`Forwarded "${code}" to ${robotId} on topic /frontend_commands`);
-        return res.json({ message: `Attempted to run code on ${robotId}` });
-    } else {
-        return res.status(503).json( {message: `Error running code on ${robotId}`});
-    }
+      saveCode(user, title, code); // writes student code in log file
+
+      if (fileType.endsWith('.py')) {
+        console.log(`Attempting to deploy Robot: ${robotId} -> (PYTHON VERSION)`);
+        robotRunPY(code, title, user, robotId, hostName, (active) => { // runs the robot
+          codeCallback(active, robotId);
+        });
+        return res.json({ message: `Attempted to deploy ${robotId} with Python code` });
+      }
+      else if (fileType.endsWith('.java')) {
+        console.log(`Attempting to deploy Robot: ${robotId} -> (JAVA VERSION)`);
+        robotRunJAVA(code, title, user, robotId, hostName, (active) => { // runs the robot
+          codeCallback(active, robotId);
+        });
+        return res.json({ message: `Attempted to deploy ${robotId} with Java code` });
+      }
+  } else {
+      return res.status(503).json( {message: `Error running code on ${robotId}`});
+  }
 });
 
-function pythonCallback(active, robotId) {
+function codeCallback(active, robotId) {
   robotConnections[robotId].isActive = active;
 }
 

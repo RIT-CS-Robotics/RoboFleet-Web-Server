@@ -15,54 +15,41 @@ const { resolve } = require('dns');
 
 tmp.setGracefulCleanup(); // cleanup on server exit
 
-const pythonDir = path.join(__dirname, 'python_files');
-if (!fs.existsSync(pythonDir)) {
-    fs.mkdirSync(pythonDir, { recursive: true});
+const codeDir = path.join(__dirname, 'code_files');
+if (!fs.existsSync(codeDir)) {
+    fs.mkdirSync(codeDir, { recursive: true});
 }
 
 // file options for temp files for running code
 const temps = {
-    postfix: '.py',
+    postfix: '.py' || '.java',
     keep: false, // cleanup
-    tmpdir: pythonDir
+    tmpdir: codeDir
 }
 
 // file options for student logs
 const logs = {
-    postfix: '.py',
+    postfix: '.py' || '.java',
     keep: true // saves in the backend
 }
 
 const dir_path = path.join(__dirname, 'user_logs');
 
-/**
- * Clears any temporary code files on server restart
- */
-function clearTempsOnRestart() {
-try {
-    if (fs.existsSync(pythonDir)) {
-      const files = fs.readdirSync(pythonDir);
-      for (const file of files) {
-        // Only target temporary python scripts, never touches the validator or robot scripts
-        if (file.endsWith('.py') && file !== 'validator.py' && file !== 'robot.py') {
-          fs.unlinkSync(path.join(pythonDir, file));
-        }
-      }
-    }
-    console.log(`Cleared temp code files on backend.`);
-  } 
-  catch (err) {
-    console.error(`Failed to clear code files on backend -> Error: ${err}`);
-  }
-}
+// ----------------------------------------------------
+// PYTHON VERSION
+// ----------------------------------------------------
 
 /**
- * Uses the written to robot code file to run the students code on the specified robot.
+ * Runs the students code to control a robot (PYTHON VERSION).
  * 
  * @param code: The students code
+ * @param title: The title of the code file
+ * @param user: The user running the code
  * @param robotId: The robot to run the code on
+ * @param host: The robot IP to run the code on
+ * @param callBack: The callback function to activate once the code is finished running
  */
-async function robotRun(code, title, user, robotId, host, callBack) {
+async function robotRunPY(code, title, user, robotId, host, callBack) {
     let script_path;
     let code_file;
     const output_path_log = path.join(dir_path, user, 'log', (title + '.log') );
@@ -93,7 +80,7 @@ async function robotRun(code, title, user, robotId, host, callBack) {
     logStream.on('error', (err) => console.error(`System logStream write error: ${err}`));
     permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
 
-    const shouldRun = await validate(script_path, logStream, permStream);
+    const shouldRun = await validatePY(script_path, logStream, permStream);
     if (!shouldRun) {
         console.error(`Code validation failed for User: ${user}`);
         cleanupFile(code_file, script_path);
@@ -154,14 +141,16 @@ async function robotRun(code, title, user, robotId, host, callBack) {
 }
 
 /**
- * Checks the users code for syntax errors and illigal calls to validate if it should run and connect to the robot.
+ * Checks the users code for syntax errors and illigal calls to validate if it should run and connect to the robot (PYTHON VERSION).
  * 
  * @param code: The students code
+ * @param logStream: Stream to write validation output to for log files
+ * @param permStream: Stream to write validation output to for perm files
  * @returns: true if code should run, false otherwise
  */
-function validate(code, logStream, permStream) {
+function validatePY(code, logStream, permStream) {
     return new Promise( (resolve) => {
-        const validatorPath = path.join(pythonDir, 'validator.py');
+        const validatorPath = path.join(codeDir, 'validator.py');
         const validator = spawn('python3', ['-u', validatorPath, code]);
 
         validator.stdout.on('data', (data) => {
@@ -193,8 +182,37 @@ function validate(code, logStream, permStream) {
     });
 }
 
+// ----------------------------------------------------
+// JAVA VERSION
+// ----------------------------------------------------
+
 /**
- * Deletes a file from the backend.
+ * Runs the students code to control a robot (JAVA VERSION).
+ * 
+ * @param code: The students code
+ * @param title: The title of the code file
+ * @param user: The user running the code
+ * @param robotId: The robot to run the code on
+ * @param host: The robot IP to run the code on
+ * @param callBack: The callback function to activate once the code is finished running
+ */
+async function robotRunJAVA(code, title, user, robotId, host, callBack) {
+}
+
+/**
+ * Checks the users code for syntax errors and illigal calls to validate if it should run and connect to the robot (JAVA VERSION).
+ * 
+ * @param code: The students code
+ * @param logStream: Stream to write validation output to for log files
+ * @param permStream: Stream to write validation output to for perm files
+ * @returns: true if code should run, false otherwise
+ */
+function validateJAVA(code, logStream, permStream) {
+
+}
+
+/**
+ * Deletes a temp file from the backend.
  * 
  * @param file_obj: the file object to delete
  * @param path: the path of the file to delete
@@ -212,5 +230,26 @@ function cleanupFile(file_obj, path) {
     }
 }
 
+/**
+ * Clears any temporary code files on server restart
+ */
+function clearTempsOnRestart() {
+try {
+    if (fs.existsSync(codeDir)) {
+      const files = fs.readdirSync(codeDir);
+      for (const file of files) {
+        // Only target temporary python scripts, never touches the validator or robot scripts
+        if ( (file.endsWith('.py') || file.endsWith('.java')) && file !== 'validator.py' && file !== 'robot.py' && file !== 'validator.java' && file !== 'robot.java') {
+          fs.unlinkSync(path.join(codeDir, file));
+        }
+      }
+    }
+    console.log(`Cleared temp code files on backend.`);
+  } 
+  catch (err) {
+    console.error(`Failed to clear code files on backend -> Error: ${err}`);
+  }
+}
+
 // Use as an import in app.js
-module.exports = {robotRun, clearTempsOnRestart};
+module.exports = {robotRunPY, robotRunJAVA, clearTempsOnRestart};

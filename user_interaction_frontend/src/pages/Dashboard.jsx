@@ -36,7 +36,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       const hours = String(logInfo.getHours()).padStart(2, '0');
       const minutes = String(logInfo.getMinutes()).padStart(2, '0');
       const seconds = String(logInfo.getSeconds()).padStart(2, '0');
-      title = `${title}_${month}-${day}-${year}_${hours}h.${minutes}m.${seconds}s`;
+      title = `${title}$${month}-${day}-${year}_${hours}h.${minutes}m.${seconds}s`;
       return title;
   }
 
@@ -75,35 +75,6 @@ export default function Dashboard({ onLogout, currentUser }) {
     initRobots();
   }, [currentUser]); 
 
-  // Handles the logging of the student code
-  const handleLog = async (title) => {
-    try {
-      const logTitle = title;
-
-      const response = await fetch('/api/log', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user: currentUser, log: logTitle, code: codeText}),
-      });
-
-      if (response.ok) {
-        console.log(`Log handled successfully for user: ${currentUser}`);
-      } 
-      else {
-        alert('Failed to Log Code');
-        throw new Error(`Server returned status code ${response.status}`);
-      }
-
-    } catch (err) {
-      console.error(`Could not save log for user: ${currentUser} -> Error: ${err}`);
-    }
-
-      const logs = await loadLogs(currentUser, false);
-      setUserLogs(logs);
-  }
-
   async function chooseAny() {
     const loadedRobots = await initRobots();
     let selection = 'default'
@@ -122,7 +93,6 @@ export default function Dashboard({ onLogout, currentUser }) {
     if (selection === 'any') {
       selection = await chooseAny();
     }
-    setStatusMessage(`Sending to ${selectedRobot}...`);
     try {
       const title = await constructTitle();
       const response = await fetch('/api/deploy', {
@@ -133,20 +103,20 @@ export default function Dashboard({ onLogout, currentUser }) {
         body: JSON.stringify({ text: codeText, codeTitle: title, user: currentUser, robotId: selection }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Server returned status code ${response.status}`);
-      }
       const data = await response.json();
       setStatusMessage(data.message);
 
-      handleLog(title);
+      if (!response.ok) {
+        throw new Error(response.status);
+      }
+
+      setUserLogs(await loadLogs(currentUser, false));
       
       // Fixed: Only opens the status page after a successful database post
       window.open('status', 'status');
 
-    } catch (error) {
-      console.error("Transmission error:", error);
-      setStatusMessage('Error connecting to robot');
+    } catch (err) {
+      console.error(`Error deploying Robot: ${selection} -> Error: ${err}`);
     }
   };
 
@@ -167,7 +137,7 @@ export default function Dashboard({ onLogout, currentUser }) {
   };
 
   const handleUnderscorePress = (event) => {
-    if ( (event.key === '_') || (event.key === '/') ) {
+    if ( (event.key === '$') || (event.key === '/') ) {
       event.preventDefault();
         setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + indent.length;
@@ -257,8 +227,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
 
         if (response.ok) {
-          const logs = await loadLogs(currentUser, false);
-          setUserLogs(logs);
+          setUserLogs(await loadLogs(currentUser, false));
           console.log(`Log successfully removed for User: ${currentUser}`);
         }
         else {
@@ -297,8 +266,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         });
         
         if (response.ok) {
-          const logs = await loadLogs(currentUser, false);
-          setUserLogs(logs);
+          setUserLogs(await loadLogs(currentUser, false));
           console.log(`Logs successfully cleared for User: ${currentUser}`);
         }
         else {
@@ -351,7 +319,7 @@ export default function Dashboard({ onLogout, currentUser }) {
       const data = await response.json();
       const log = data.userLog;
       const code = data.userCode;
-      const fileSplit = fileName.split('_');
+      const fileSplit = fileName.split('$');
       const title = fileSplit[0];
 
       info[0] = log;
@@ -513,8 +481,9 @@ return (
             </label> 
             <input id="code-file-upload" type="file" accept=".txt,.py,.css" style={{ display: 'none' }} onChange={(changeEvent) => { 
               const selectedFile = changeEvent.target.files[0]; 
-              if (!selectedFile) return; 
-              setLogName(selectedFile.name); 
+              if (!selectedFile) return;
+              const cleanName = selectedFile.name.replaceAll('$', '');
+              setLogName(cleanName); 
               const reader = new FileReader(); 
               reader.onload = (readEvent) => { 
                 setCodeText(readEvent.target.result); 
