@@ -175,13 +175,25 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   };
 
-  // Modern Export system with standard automatic fallback for Safari/Firefox
+  // Gets the filename for exporting and chooses the correct version (for modern or older browsers)
   async function handleExport() {
+    let fileName = logName;
+    if (fileName.trim() === '') {
+      fileName = 'Unnamed Code.py';
+    }
+    if (window.showSaveFilePicker) {
+      console.log(`Code export type chosen: MODERN`);
+      await handleExportModern(fileName);
+    }
+    else {
+      console.log(`Code export type chosen: OLD`);
+      handleExportOld(fileName);
+    }
+  }
+
+  // Modern Export system
+  async function handleExportModern(fileName) {
     try {
-      let fileName = logName;
-      if (fileName.trim() === '') {
-        fileName = 'Unnamed Code.py';
-      }
       const fileHandler = await window.showSaveFilePicker({
         suggestedName: fileName,
         types: [{
@@ -193,14 +205,41 @@ export default function Dashboard({ onLogout, currentUser }) {
       const writable = await fileHandler.createWritable();
       await writable.write(codeText);
       await writable.close();
-      console.log(`Code file saved for user: ${currentUser}`);
+      console.log(`Code file exported (saved) for user: ${currentUser}`);
       alert('File Saved');
     } catch (err) {
       if (err.name !== 'AbortError') {
-        console.error(`Could not save file for user: ${currentUser} -> Error: ${err}`);
+        console.error(`Could not export code file for user: ${currentUser} -> Error: ${err}`);
         alert('Failed to Save File');
       }
     }
+  }
+
+  // Older Export system for users on an older browser
+  function handleExportOld(fileName) {
+    // create a raw data object containing the code
+    const mimeType = fileName.endsWith('.java') ? 'text/x-java-source' : 'text/x-python'; // file type
+    const blob = new Blob([codeText], { type: `${mimeType};charset=utf-8;` }); // generates raw data file for code
+    const blobUrl = URL.createObjectURL(blob); // temp url created containing raw code data
+    
+    // creates a built in link that downloads the code from the raw data
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl; 
+    anchor.download = fileName; 
+    anchor.style.display = 'none'; 
+    
+    // does an automatic download from the anchor
+    document.body.appendChild(anchor); 
+    anchor.click(); // Triggers file processing instantly upon user interaction click loop
+    
+    // Once the code is being downloaded, clean up by removing temp raw data url to prevent memory leaks
+    setTimeout(() => { 
+      document.body.removeChild(anchor); 
+      URL.revokeObjectURL(blobUrl); 
+    }, 1000); // 1 second before cleanup 
+
+    console.log(`Code file exported (downloaded) for user: ${currentUser}`);
+    alert('File Downloaded');
   }
 
   const handleLogRemove = async (e, fileName) => {
