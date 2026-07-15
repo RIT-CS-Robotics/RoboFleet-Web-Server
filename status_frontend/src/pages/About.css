@@ -1,20 +1,20 @@
 /**
  * @file status_frontend/src/pages/About.css
- * 
- * @fileoverview Styling for About page for RoboFleet (robotics-project.gccis.rit.edu/status)
- * 
+ *
+ * @fileoverview Finalized styling for the RoboFleet About Page
+ *
  * @disclosure Base styling generated with AI (Google Gemini)
- * 
- * @date 7/8/2026
+ *
+ * @date 7/15/2026
  * @author Aidan Sanderson
  */
 
 /* Main Layout Wrapper - Hybrid resolution rules for all screen sizes */
 .about-container {
   padding: 16px 24px;
-  width: 100%;       /* Fluid percentage scales smoothly on laptops/small screens */
+  width: 100%; /* Fluid percentage scales smoothly on laptops/small screens */
   max-width: 1350px; /* Hard pixel ceiling prevents over-stretching on 4K/ultrawide monitors */
-  margin: 0 auto;    /* Centers the workspace container on larger viewports */
+  margin: 0 auto; /* Centers the workspace container on larger viewports */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -28,19 +28,26 @@
   padding-right: 8px; /* Adds space for the custom scrollbar tracking */
 }
 
-/* Page Header Element */
+/* Page Header Element - CLEAN MINIMALIST DESIGN */
 .about-header h2 {
-  font-size: 30px; 
-  margin-bottom: 16px; 
-  letter-spacing: -0.025em;
+  font-size: 32px;
+  font-weight: 700; /* Crisp bold text weight */
   color: var(--text-main);
+  letter-spacing: -0.025em; /* Sharp tracking alignment */
+  font-family: var(--font-sans);
+  
+  /* Modern clean border treatment */
+  display: inline-block;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent); /* Thin cyan line beneath the title */
+  margin-bottom: 28px; /* Breathing room before the content begins */
 }
 
 /* Robot Image Styling - Balanced proportions across screen sizes */
-.about-content img {
+.about-hero-image {
   display: block;
-  width: 100%;       /* Allows fluid reduction on small monitors */
-  max-width: 500px;  /* Locks growth threshold for a clean centerpiece footprint */
+  width: 100%; /* Allows fluid reduction on small monitors */
+  max-width: 500px; /* Locks growth threshold for a clean centerpiece footprint */
   margin: 0 auto 16px auto; /* Centers the graphic and pushes content down */
   object-fit: contain; /* Guarantees full image renders without cropping borders */
   border-radius: var(--radius);
@@ -51,11 +58,11 @@
 /* Upgraded Terminal Console Features List */
 .features-list {
   list-style: none; /* Strips away generic boring browser dots */
-  padding-left: 0;   /* Resets original indentation */
+  padding-left: 0; /* Resets original indentation */
   margin-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;        /* Even spacing between feature rows */
+  gap: 10px; /* Even spacing between feature rows */
 }
 
 /* Individual feature list line tracks */
@@ -64,7 +71,7 @@
   font-size: 14px;
   color: var(--text-main);
   background-color: rgba(255, 255, 255, 0.02); /* Subtle tracking row tint */
-  border: 1px solid rgba(30, 41, 59, 0.5);    /* Soft matching divider line */
+  border: 1px solid rgba(30, 41, 59, 0.5); /* Soft matching divider line */
   padding: 10px 14px;
   border-radius: var(--radius);
   display: flex;
@@ -76,20 +83,15 @@
 /* Cyber accent hover state for list rows */
 .features-list li:hover {
   background-color: rgba(56, 189, 248, 0.04); /* Faint cyan glow tint */
-  border-color: rgba(56, 189, 248, 0.3);     /* Highlights row border on hover */
+  border-color: rgba(56, 189, 248, 0.3); /* Highlights row border on hover */
 }
 
-/* Injects custom Terminal Cyan prompt arrows (>) into the layout */
 .features-list li::before {
-  content: ">";
-  color: var(--accent); /* Uses your bright terminal cyan theme variable */
-  font-weight: bold;
-  font-size: 15px;
+  content: none;
 }
 
 /* Dynamic Panel Section Headings */
-.content-card-panel h3,
-.team-section h3 {
+.content-card-panel h3, .team-section h3 {
   font-size: 20px;
   margin-bottom: 12px;
   color: var(--accent);
@@ -103,15 +105,33 @@
 
 /* Team Panel Details */
 .team-section {
-  margin-top: 24px; 
-  margin-bottom: 24px; 
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
 .team-roster {
   color: var(--text-main);
   font-size: 16px;
   line-height: 1.6;
-  margin-bottom: 12px;
+  margin-bottom: 16px; /* Generates a small cushion above the nested build text */
+}
+
+/* Build Version Code Token - Hidden away neatly inside the scrolling loop */
+.build-version {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  display: block;
+  line-height: 1;
+  opacity: 0.6; /* Softly dims tracking metadata inside the card matrix */
+}
+
+/* Anchor Technical System Footer - Always pinned to the bottom window viewport */
+.about-footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 0 8px 0; /* Padding adjustments handle balanced container spacing */
+  background-color: var(--bg-primary); /* Keeps scrolling items hidden behind the bar canvas mask */
+  flex-shrink: 0; /* Structural rule: Prevents browser from ever compressing footer */
 }
 
 /* Professor Email Contact Section */
@@ -119,24 +139,5 @@
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.6;
-  border-top: 1px dashed var(--border);
-  padding-top: 12px;
-}
-
-/* Anchor Technical System Footer */
-.about-footer {
-  border-top: 1px solid var(--border);
-  padding-top: 8px; 
-  margin-top: 8px;  
-  background-color: var(--bg-primary); 
-  flex-shrink: 0; /* Structural rule: Prevents browser from ever compressing footer */
-}
-
-/* Build Version Code Token */
-.build-version {
-  color: var(--text-muted);
-  font-size: 12px; 
-  font-family: var(--font-mono);
-  display: block;
-  line-height: 1; 
+  margin: 0;
 }

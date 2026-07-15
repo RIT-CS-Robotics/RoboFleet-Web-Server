@@ -22,22 +22,24 @@ export default function About() {
 
         <main className="about-content">
 
-          <img src={robotImage} alt='A RoboFleet Robot'></img>
+          <img src={robotImage} alt="A RoboFleet Robot" className="about-hero-image" />
 
           {/* SYSTEM FEATURES */}
           <section className="content-card-panel">
             <h3>System Features</h3>
             <ul className="features-list">
-              <li>Real-time robot tracking</li>
               <li>Deployable robots by student code</li>
-              <li>Boosting student engagement in computer science</li>
+              <li>Real-time robot location tracking</li>
+              <li>Robot live video streaming</li>
+              <li>Robot destination tracking</li>
+              <li>Pullable code logs for student understanding and practice</li>
             </ul>
           </section>
 
           {/* PROJECT PURPOSE */}
           <section className="content-card-panel">
             <p className="purpose-text">
-              The purpose of the RoboFleet project is to research the effects that robots can have on beginner computer science courses when implemented as a core part of the ciriculum. Evidence has shown that the use of robots in beginner computer science courses can boost student motivation, engagement, and learning. Students can use the RoboFleet website to write code and deploy robots to run that code in order to practice coding while interacting with real world environments through the robots. Students can also view code logs from previous robot deployments to get a better understanding of what their code did, and use that feedback to improve their coding skills and understanding of computer science principles.
+              The purpose of the RoboFleet project is to research the effects that robots can have on beginner computer science courses when implemented as a core part of the curriculum. Evidence has shown that the use of robots in beginner computer science courses can boost student motivation, engagement, and learning. Students can use the RoboFleet website to write code and deploy robots to run that code in order to practice coding while interacting with real world environments through the robots. Students can also view code logs from previous robot deployments to get a better understanding of what their code did, and use that feedback to improve their coding skills and understanding of computer science principles.
             </p>
           </section>
 
@@ -48,13 +50,14 @@ export default function About() {
               Zachary Butler, Aidan Sanderson, Anusha Ghosh, Mayank Rawat
             </p>
 
+            <code className="build-version">Build Version: 0.9.0 // BETA</code>
+
           </section>
         </main>
       </div>
 
       {/* FOOTER */}
       <footer className="about-footer">
-        <code className="build-version">Build Version: 0.9.0 // BETA</code>
           <p className="email-section">
               For more information please email Zachary Butler @ zxbvcs@rit.edu (Professor of Computer Science at Rochester Institute of Technology, Ph.D. in Robotics)
           </p>

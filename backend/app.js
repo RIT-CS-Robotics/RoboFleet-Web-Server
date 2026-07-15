@@ -12,6 +12,8 @@ const cors = require('cors'); // Version: cors@2.8.6
 const ROSLIB = require('roslib'); // Version: roslib@1.4.1
 const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
+const passport = require('passport'); // for saml authentification
+const { defaultSamlStrategy, SP_CERT } = require('./samlConfig'); // samlConfig
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun} = require('./robocom.js'); // running student code
@@ -28,11 +30,15 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 })); // Note: May be able to remove later if apache can do 100% of everything under the hood.
+
 app.use(express.json());
 
 // Security
 app.set('trust proxy', 'loopback'); // allows any connections that apache provides, giving it reverse proxy controls
 const passkey = process.env.PASSKEY;
+
+app.use(passport.initialize());
+passport.use('saml', defaultSamlStrategy);
 
 const USERS_FILE = path.join(__dirname, 'users.json');
 
@@ -58,6 +64,12 @@ function saveUsers(usersObj) {
     console.error("Error writing to users file:", err);
   }
 }
+
+// generates the meta data for saml authentification
+app.get("/saml2/metadata", (req, res) => {
+  res.set('Content-Type', 'text/xml');
+  res.send(defaultSamlStrategy.generateServiceProviderMetadata(SP_CERT, SP_CERT));
+});
 
 const robotConnections = {}; // each robot is saved here
 
@@ -244,11 +256,91 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
   });
 }
 
+// Necessary to tell passport how to serialize the user
+// In a production environment we may just serialize the
+// user.id and then read from the database when deserializing
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+// Same as the above, we could just have an id and need to hydrate
+// that into a full user object. In this example we just store the
+// full attribute array in the session and retrieve it every time.
+passport.deserializeUser(function (user, done) {
+  done(null, user);
+});
+
+
 // ====================================================
 // AUTHENTICATION & STUDENT REGISTRATION ROUTES
 // ====================================================
 
-app.post('/api/login', (req, res) => {
+// Passes the SAML login function handler to passport.
+// Passport will then redirect the client to the IdP
+app.get('/login', passport.authenticate('saml'));
+
+// Passes the ACS function to passport. 
+// Passport will then extract the attributes from the IdP
+// assertion and store the user in the session.
+app.post(
+  "/saml2/acs",
+  express.urlencoded({ extended: false }), // Modern Express replacement for bodyParser
+  passport.authenticate("saml", {
+    failureRedirect: "/loginFailed", // Redirect back to login if authentication fails
+    failureFlash: false,       // Turn off flash messages unless you installed connect-flash
+  }),
+  function (req, res) {
+    // Successful login! 
+    // The RIT user attributes are now saved inside: req.user
+    const cleanUsername = req.user.uid;
+    const users = loadUsers();
+    console.log("Logged in RIT User Attributes:", req.user);
+
+    if(users[cleanUsername]) {
+      console.log(`Authenticated user: ${cleanUsername} found in system. Redirecting to dashboard.`);
+      return res.redirect('/dashboard');
+    }
+
+    else {
+      console.warn(`Authenticated user: ${cleanUsername} not found in system. Denying access to dashboard.`);
+      req.logout(() => {
+        return res.redirect("/loginFailed");
+      });
+    }
+  }
+);
+
+// LOGIN FAILURE ROUTE
+app.get('/loginFailed', (req, res) => {
+  // Extract why they landed here (if passed via query param)
+  const reason = req.query.reason || 'saml_error';
+  
+  console.warn(`Login denied: ${reason}`);
+
+  // Redirect the browser back to the status frontend with an error parameter
+  // Vite can read this URL parameter and show an error popup or banner
+  res.redirect(`/?error=${reason}`);
+});
+
+// ==================================================== //
+// SECURE SESSION ENDPOINT (Feeds the User to Vite)
+// ==================================================== //
+app.get('/api/userSession', (req, res) => {
+  // If the Passport session is valid, req.user exists
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    // Deliver the RIT user to your Vite dashboard instantly
+    return res.json({ 
+      username: req.user.uid.trim() 
+    });
+  }
+
+  // Security check: If someone tries to bypass login, block them
+  console.error(`Unauthorized attempt to access dashboard`);
+  return res.status(401).json({ message: "Unauthorized" });
+});
+
+
+app.post('/api/loginOld', (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {

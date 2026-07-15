@@ -71,6 +71,7 @@ export default function Status() {
                   <div className="card-profile-group">
                     <div className="robot-id-dot" style={{ backgroundColor: info.color }} />
                     <strong className="robot-title">
+                      {/* if the robotId is using _ as spaces in configuration */}
                       {robotId.replace('_', ' ')}
                     </strong>
                   </div>

@@ -15,7 +15,7 @@ export default function Login({ onLoginSuccess }) {
     
     try {
       // Send credentials directly to your backend server
-      const response = await fetch('/api/login', {
+      const response = await fetch('/api/loginOld', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json' 

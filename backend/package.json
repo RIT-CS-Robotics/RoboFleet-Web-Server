@@ -13,11 +13,14 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@node-saml/passport-saml": "^5.1.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "jsonwebtoken": "^9.0.3",
+    "passport": "^0.7.0",
     "roslib": "^1.4.1",
     "tmp": "^0.2.7",
     "ws": "^8.21.0"

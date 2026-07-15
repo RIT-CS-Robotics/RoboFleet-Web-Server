@@ -31,6 +31,7 @@ export default function App() {
         <div className="brand-logo-group">
           <img src={logo} alt="Company Brand Logo" />
           <h1>RoboFleet Live Monitor Panel</h1>
+          <a href="/login" className="btn btn-primary">Login to Dashboard</a>
         </div>
 
         {/* NAVIGATION TOGGLE BUTTONS GROUP */}

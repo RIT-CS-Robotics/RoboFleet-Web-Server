@@ -171,14 +171,13 @@
   font-weight: bold;
 }
 
-/* Custom terminal prefix indicator which turns down when expanded */
 .robot-title::before {
-  content: "▶ ";
-  font-size: 11px;
-  color: var(--accent);
-  display: inline-block;
-  margin-right: 10px;
-  transition: transform 0.2s ease;
+  content: none;
+}
+
+/* Disables the rotation animation since square/dot shapes don't turn */
+.robot-card[open] .robot-title::before {
+  transform: none;
 }
 
 .robot-card[open] .robot-title::before {
