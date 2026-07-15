@@ -36,6 +36,27 @@ const logs = {
 const dir_path = path.join(__dirname, 'user_logs');
 
 /**
+ * Clears any temporary code files on server restart
+ */
+function clearTempsOnRestart() {
+try {
+    if (fs.existsSync(pythonDir)) {
+      const files = fs.readdirSync(pythonDir);
+      for (const file of files) {
+        // Only target temporary python scripts, never touches the validator or robot scripts
+        if (file.endsWith('.py') && file !== 'validator.py' && file !== 'robot.py') {
+          fs.unlinkSync(path.join(pythonDir, file));
+        }
+      }
+    }
+    console.log(`Cleared temp code files on backend.`);
+  } 
+  catch (err) {
+    console.error(`Failed to clear code files on backend -> Error: ${err}`);
+  }
+}
+
+/**
  * Uses the written to robot code file to run the students code on the specified robot.
  * 
  * @param code: The students code
@@ -192,4 +213,4 @@ function cleanupFile(file_obj, path) {
 }
 
 // Use as an import in app.js
-module.exports = {robotRun};
+module.exports = {robotRun, clearTempsOnRestart};
