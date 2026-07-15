@@ -73,9 +73,10 @@
   background: var(--accent);
 }
 
-/* ==========================================================================
-   2. ROBOT INTERACTIVE DROPDOWN CONTAINER (DETAILS ACCORDION)
+/* ========================================================================== 
+   2. ROBOT INTERACTIVE DROPDOWN CONTAINER (DETAILS ACCORDION) 
    ========================================================================== */
+
 /* The parent wrapper element converted into an elegant interactive panel sheet */
 .robot-card {
   display: block;
@@ -84,7 +85,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   background-color: var(--bg-primary);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  overflow: hidden; /* CRITICAL EXPANSION OVERRIDES: Fixes layout blocking and overlap errors */
+  overflow: hidden;
+  /* CRITICAL EXPANSION OVERRIDES: Fixes layout blocking and overlap errors */
   height: auto !important; /* Lets the card expand dynamically downwards */
   min-height: max-content !important; /* Guarantees layout cells never clip or shrink text rows */
 }
@@ -200,6 +202,26 @@
   margin: 4px 0;
 }
 
+/* Container to arrange Position and Destination side-by-side */
+.telemetry-merged-row {
+  display: flex;
+  align-items: stretch; /* Stretches blocks and vertical line to matching heights */
+  gap: 20px;
+}
+
+/* Allows each panel sub-section to occupy equivalent room */
+.telemetry-sub-panel {
+  flex: 1;
+}
+
+/* The vertical divider line between panel views */
+.telemetry-vertical-divider {
+  width: 1px;
+  background-color: var(--border); /* Pulls styling from your native borders variable */
+  margin: 0 4px;
+  align-self: stretch;
+}
+
 /* Crisp clean headers for telemetry items */
 .telemetry-block-title {
   color: var(--text-main);
@@ -216,6 +238,7 @@
   border-top: 1px solid var(--border);
   margin: 6px 0;
 }
+
 
 /* ==========================================================================
    3. STATUS & PERFORMANCE BADGES (HIGH-VISIBILITY UPGRADE)
