@@ -13,7 +13,7 @@ const ROSLIB = require('roslib'); // Version: roslib@1.4.1
 const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 const passport = require('passport'); // for saml authentification
-const { defaultSamlStrategy, SP_CERT } = require('./samlConfig'); // samlConfig
+const { defaultSamlStrategy, SP_CERT } = require('./samlConfig.js'); // samlConfig
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRunPY, robotRunJAVA, clearTempsOnRestart} = require('./robocom.js'); // running student code
@@ -42,7 +42,7 @@ passport.use('saml', defaultSamlStrategy);
 
 clearTempsOnRestart(); // clears any leftover temp code files (python for now) on server restart
 
-const USERS_FILE = path.join(__dirname, 'users.json');
+const USERS_FILE = path.join(__dirname, '../users.json');
 
 // Helper function to read the user file safely
 function loadUsers() {

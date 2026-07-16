@@ -1,197 +1,207 @@
-# RoboFleet-Web-Server
-The web server for the RoboFleet Project
-#
-#
-#
-# Apache Setup Instructions (for connecting to an online web server):
-Enter the following in the SSH terminal
-# update system
-1. sudo apt update
-# install Apache
-2. sudo apt install apache2 -y
-# only allow rit computers to access the servers port
-3. sudo ufw allow from 129.21.0.0/16 to any port 80 proto tcp
-# find the IP address for the server
-4. hostname -I
-# connect to the server
-5. Either use the server IP or enter robotics-project.gccis.rit.edu in the web browser on an RIT internet enabled computer
-#
-#
-#
-# Express.js (Backend) Setup Instructions:
-Go to the project root directory, create a backend directory, enter the following commands in the SSH terminal
-# install node.js and npm
-1. sudo apt update
-2. sudo apt install nodejs npm -y
-# initialize the project and install Express in the backend directory
-3. npm init -y
-4. npm install express
-#create the Express app file
-5. nano app.js
-# enter the following code inside of the app.js file
-# (see code section of the README)
-################################################## 
-const express = require('express');
-const app = express();
-const PORT = 3000;
+# RoboFleet Web Server
 
-// Basic route
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+The complete backend and frontend architecture for the RoboFleet Project, hosted at Rochester Institute of Technology (RIT). This project manages robotic fleets, real-time tracking streams over ROS2, secure SAML authentication, and student code execution sandboxing.
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-################################################## 
-# allow RIT internet enabled computers to access the backend directly (will be helpful for rosbidge_suite)
-6. sudo ufw allow from 129.21.0.0/16 to any port 3000 proto tcp
-# run the backend server
-7. node app.js
-#
-#
-#
-# React Setup Instruction With Vite (Both Frontends):
-Go to the project root directory and enter the following commands in the SSH terminal
-# initialize both react directories
-1. npm create vite@latest user_interaction_frontend -- --template react
-2. npm create vite@latest status_frontend -- --template react
-# manually ensure npm is installed correctly (DO THIS IN BOTH REACT DIRECTORIES)
-3. npm install
-# inside of package.json change the following line (DO THIS FOR BOTH REACT DIRECTORIES)
-4. "dev": "vite", ---> (CHANGE THIS TO) ---> "dev": "vite --host",
-# enter the following in vite.config.js (DO THIS ONLY IN THE USER_INTERACTION_FRONTEND REACT DIRECTORY)
-# (see code section of the README)
-################################################## 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+---
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5173
-  }
-})
-################################################## 
-# enter the following in vite.config.js (DO THIS ONLY IN THE STATUS_FRONTEND REACT DIRECTORY)
-# (see code section of the README)
-################################################## 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+## 📂 Project Architecture
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5174
-  }
-})
-################################################## 
-# enter a react directory and enter the following to run the react app in development mode
-5. npm run dev
-#
-#
-#
-# Routing the Project to the Apache Server Instructions:
-Enter the following commands on the SSH terminal
-# enable Apache proxy modules
-1. sudo a2enmod proxy
-2. sudo a2enmod proxy_http
-3. 3. sudo a2enmod rewrite
-# open the Apache site config file
-4. sudo nano /etc/apache2/sites-available/000-default.conf
-# replace the Apache config file with the following
-# (see code section of the README)
-##################################################
+```text
+RoboFleet_WebServer/
+├── backend/                      # Node.js Express Backend Service
+│   ├── certificates/             # Service SSL/IdP SAML Certs (Root Ignored)
+│   ├── code_files/               # Temporary runtime storage & core assets
+│   ├── user_logs/                # Dynamic log directories per student
+│   ├── src/                      # Source Code Matrix
+│   │   ├── app.js                # Core API Hub & Routing Gateway
+│   │   ├── destinations.js       # Coordinate-to-Room Mapping Engine
+│   │   ├── logs.js               # File stream controllers
+│   │   ├── robocom.js            # Docker process spawning controller
+│   │   └── samlConfig.js         # Shibboleth Authentication Layer
+│   ├── Dockerfile                # Student container sandbox builder
+│   ├── package.json              # Backend isolated configuration
+│   └── users.json                # User credentials database
+├── status_frontend/              # Vite + React Robot Monitoring Dashboard
+│   ├── src/                      # App views & dashboard grids
+│   └── package.json              # Status isolated configuration
+└── user_interaction_frontend/    # Vite + React Control Console (Root App)
+    ├── src/                      # User inputs & code submission deck
+    └── package.json              # Interface isolated configuration
+```
+
+---
+
+## 🛠️ Step 1: Apache Server Reverse Proxy Setup
+Run these commands inside your RIT web server host terminal to install Apache and lock network access exclusively to the RIT network ecosystem.
+
+```bash
+# Update system and install Apache
+sudo apt update && sudo apt install apache2 -y
+
+# Firewall configuration: Restrict port 80 strictly to RIT subnets
+sudo ufw allow from 129.21.0.0/16 to any port 80 proto tcp
+
+# Find the server host IP
+hostname -I
+```
+*Access the domain securely inside the network at:* `https://rit.edu`
+
+---
+
+## 💻 Step 2: Express.js Backend Deployment
+Navigate into your `backend/` directory to configure dependencies and establish security paths.
+
+```bash
+cd /home/ars4041/RoboFleet_WebServer/backend
+
+# Update packages and install Node core runtimes
+sudo apt update && sudo apt install nodejs npm -y
+
+# Install isolated local node dependencies
+npm install
+
+# Firewall configuration: Explicitly open API listener port to RIT traffic
+sudo ufw allow from 129.21.0.0/16 to any port 3000 proto tcp
+```
+
+---
+
+## ⚛️ Step 3: React Frontends Setup (Vite)
+Both user portals operate as self-contained Vite apps. You must initialize dependencies inside **both** frontend folders.
+
+### Setup User Interaction Portal (Port 5173)
+```bash
+cd /home/ars4041/RoboFleet_WebServer/user_interaction_frontend
+npm install
+```
+
+### Setup Status Monitoring Portal (Port 5174)
+```bash
+cd /home/ars4041/RoboFleet_WebServer/status_frontend
+npm install
+```
+
+---
+
+## 🔀 Step 4: Routing Network Matrix via Apache
+To bind your frontends and API layers smoothly under a single port 80 domain interface, configure Apache's reverse proxy modules.
+
+```bash
+# Enable proxy routing dependencies
+sudo a2enmod proxy proxy_http rewrite
+
+# Configure Apache virtual hosts routing maps
+sudo nano /etc/apache2/sites-available/000-default.conf
+```
+
+Replace the virtual configuration block with the tracking maps below:
+```apache
 <VirtualHost *:80>
     ServerName robotics-project.gccis.rit.edu
 
-    # Express Backend
+    # Express Backend API Gateway Proxy
     ProxyPass /api http://localhost:3000/api
     ProxyPassReverse /api http://localhost:3000/api
 
-    # Frontend 2 (Must be placed above the root '/' proxy)
+    # Status Monitor Portal Gateway Proxy
     ProxyPass /status http://localhost:5174/status
     ProxyPassReverse /status http://localhost:5174/status
 
-    # Frontend 1 (Root site)
+    # User Interface Portal Gateway Proxy (Root Layout)
     ProxyPass / http://localhost:5173/
     ProxyPassReverse / http://localhost:5173/
 </VirtualHost>
-##################################################
-# test and restart Apache
-5. sudo apache2ctl configtest
-6. sudo systemctl restart apache2
-# enter the following line above plugins in the defineconfig section in the vite.config.js directory (DO THIS ONLY IN THE STATUS_FRONTEND REACT DIRECTORY)
-base: '/status', 
-# replace the app.get() function in the app.js file in the backend with the following
-// Basic route
-app.get('/api', (req, res) => {
-  res.send('Hello World!');
-});
-# ensure the backend and both frontends are running and everything should now be working
-# to manually start/stop/restart Apache, you can enter the following commands
-7. sudo systemctl start apache2
-8. sudo systemctl stop apache2
-9. sudo systemctl start apache2
-#
-#
-#
-# Keeping the Web Server Online 24/7 Instructions
-Enter the following commands in the SSH terminal
-# install pm2 for keeping the web server open through proccesses that constantly run
-1. npm install pm2 -g
-2. pm2 -v
-# navigate to the BACKEND directory
-3. pm2 start app.js --name "robotics-api"
-# navigate to the USER_INTERACTION_FRONTEND directory
-4. pm2 start "npm run dev -- --port 5173" --name "robotics-main"
-# navigate to the STATUS_FRONTEND directory
-5. pm2 start "npm run dev -- --port 5174" --name "robotics-status"
-# navigate to the project root directory and save these changes
-6. pm2 save
-# now each part of the web server will stay up and run through a proccess
-# the following is a list of helpful pm2 commands to run in the SSH terminal if needed
-7. pm2 list
-8. pm2 logs
-9. pm2 restart all
-10. pm2 stop all
-# you will need to use pm2 restart all when code changes
-#
-#
-#
-# Setting Up ros2 Communication to the Web Server
-# stop the web server
-1. pm2 stop all
-# enter the following commands to install roslib, websockets, and cors on the SSH terminal while in the BACKEND directory
-2. npm install cors
-3. npm install ws
-4. npm install roslib@1.4.1
-# find the robot IP by running hostname -I on the robots laptop
-# add the robots IP to the app.js code in the BACKEND directory
-# enter the following command on the SSH terminal to run the web server again
-5. pm2 run all
-# on the robot laptop source a terminal and install rosbridge_server and web sockets with the following commands in the terminal
-6. sudo apt-get update
-7. sudo apt-get install ros-jazzy-rosbridge-server
-8. sudo apt-get install ros-jazzy-rosbridge-suite
-# run the robot with the websocket connection on the robots laptop
-9. ros2 launch rosbridge_server rosbridge_websocket_launch.xml
-#
-#
-#
-SETTING UP DOCKER CONTAINER:
-.
-.
-.
-.
-.
-#
-#
-#
-General Notes:
-1. Be sure to only allow web server access through the reverse proxy apache by configuring its file to have all routing done exclusivly through the proxy. You can however add a few manual diract access IPs by adding them as exceptions to the apache configuration file.
-2. The web server initially runs on the web via http, however it should be changed to https by enabling the use of an SSL certificate. This will add encryption to your web services and open up a wider range of things that modern browsers can do on the website.
+```
 
+```bash
+# Audit settings and bounce the web service engine
+sudo apache2ctl configtest
+sudo systemctl restart apache2
+```
+
+---
+
+## ♾️ Step 5: Keep the Server Online 24/7 (PM2 Process Controls)
+Use PM2 to manage processes persistently so they automatically survive server restarts and service log rotation.
+
+```bash
+# Install PM2 utility manager globally on host
+sudo npm install pm2 -g
+
+# Start the Backend Hub (Execute from the backend folder context)
+cd /home/ars4041/RoboFleet_WebServer/backend
+pm2 start src/app.js --name "robotics-api"
+
+# Start the Interactive Web Console
+cd /home/ars4041/RoboFleet_WebServer/user_interaction_frontend
+pm2 start "npm run dev -- --port 5173" --name "robotics-main"
+
+# Start the Status Dashboard Deck
+cd /home/ars4041/RoboFleet_WebServer/status_frontend
+pm2 start "npm run dev -- --port 5174" --name "robotics-status"
+
+# Snapshot state lists to survive host hardware reboots
+pm2 save
+```
+
+### Essential PM2 Process Diagnostic Commands
+```bash
+pm2 list          # Check running apps statuses and up-times
+pm2 logs          # Monitor console outputs and errors streams live
+pm2 restart all   # Restart all elements to apply code modifications
+pm2 stop all      # Halt all background running processes
+```
+
+---
+
+## 🤖 Step 6: Establish ROS2 Communication Framework
+To subscribe to telemetry streams (`/robot_pos`, `/nav_destination`, `/laptop_battery`), you must run the server gateway layer.
+
+### Robot Setup Tasks (Run on each Physical Robot Laptop)
+```bash
+# Sync package indexes
+sudo apt-get update
+
+# Install target ROS2 Jazzy bridge utilities
+sudo apt-get install ros-jazzy-rosbridge-server ros-jazzy-rosbridge-suite
+
+# Launch the websocket socket interface loop
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+```
+
+---
+
+## 🐳 Step 7: Docker Sandbox Engine Configuration
+Instructions for provisioning the restricted runtime code execution engine container image.
+
+### Building the Runner Image
+```bash
+cd /home/ars4041/RoboFleet_WebServer/backend
+docker build -t my-robot-runner .
+```
+
+### [Docker Optimization Notes - To Be Expanded]
+*Placeholder: Detail container memory fencing, container pruning cycles, and access control profiles.*
+
+---
+
+## 📦 Critical Package Manifest & Dependencies
+Below is an index of core installation modules and libraries critical to the initialization of the stack.
+
+### Backend Dependencies (`backend/package.json`)
+*   **`express`** — API routing framework.
+*   **`cors`** — Cross-Origin Resource Sharing handling network mappings to RIT domains.
+*   **`roslib`** — ROSbridge WebSocket interface connector.
+*   **`@node-saml/passport-saml`** — Shibboleth authentication layer interface.
+*   **`dotenv`** — Key-value environment variable load automation tool.
+*   **`tmp`** — Absolute file-path safe host scratchfile engine.
+
+### System Utilities
+*   **`python3`** & **`ast`** — Static evaluation script analyzers.
+*   **`default-jdk-headless`** — Container sandbox decoupled Java execution library.
+
+---
+
+## 📝 General Production Operations Notes
+1. **Network Firewalls**: Ensure all raw connection ports outside of explicit Apache routing maps are closed via internal `ufw` policies to prevent arbitrary execution outside reverse proxy boundaries.
+2. **SSL Upgrade Path**: The system web interface operates on HTTP. Transitioning the platform to HTTPS via trusted SSL certificates is necessary to enable browser-level security checks and complete authentication bindings.

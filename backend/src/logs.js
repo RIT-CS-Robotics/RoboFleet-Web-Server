@@ -10,7 +10,7 @@ const fs = require('node:fs/promises'); // Version: node@24.16.0
 const { promiseHooks } = require('node:v8');
 const path = require('path'); // Version: node@24.16.0
 
-const dir_path = path.join(__dirname, 'user_logs');
+const dir_path = path.join(__dirname, '../user_logs');
 
 /**
  * Creates a new code log directory for a given user.

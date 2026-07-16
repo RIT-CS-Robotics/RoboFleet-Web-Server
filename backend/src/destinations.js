@@ -11,7 +11,7 @@ require('dotenv').config(); // Version: dotenv@17.4.2
 const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 
-const destinationData_path = path.join(__dirname, process.env.DESTINATIONS); // path to the destinations database
+const destinationData_path = path.join(__dirname, '../', process.env.DESTINATIONS); // path to the destinations database
 const destinationData = fs.readFileSync(destinationData_path, 'utf-8'); // reads destination database in and saves to variable
 
 /**

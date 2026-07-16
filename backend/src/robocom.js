@@ -15,7 +15,7 @@ const { resolve } = require('dns');
 
 tmp.setGracefulCleanup(); // cleanup on server exit
 
-const codeDir = path.join(__dirname, 'code_files');
+const codeDir = path.join(__dirname, '../code_files');
 if (!fs.existsSync(codeDir)) {
     fs.mkdirSync(codeDir, { recursive: true});
 }
@@ -33,7 +33,7 @@ const logs = {
     keep: true // saves in the backend
 }
 
-const dir_path = path.join(__dirname, 'user_logs');
+const logs_path = path.join(__dirname, '../user_logs');
 
 // ----------------------------------------------------
 // PYTHON VERSION
@@ -52,8 +52,8 @@ const dir_path = path.join(__dirname, 'user_logs');
 async function robotRunPY(code, title, user, robotId, host, callBack) {
     let script_path;
     let code_file;
-    const output_path_log = path.join(dir_path, user, 'log', (title + '.log') );
-    const output_path_perm = path.join(dir_path, user, 'perm', (title + '.perm') );
+    const output_path_log = path.join(logs_path, user, 'log', (title + '.log') );
+    const output_path_perm = path.join(logs_path, user, 'perm', (title + '.perm') );
 
     if (host === null) {
         console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);

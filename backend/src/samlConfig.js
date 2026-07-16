@@ -10,8 +10,8 @@ const BASE_URL = 'https://robotics-project.gccis.rit.edu/';
 const SP_ENTITY_ID = 'https://robotics-project.gccis.rit.edu/saml2';
 
 // Your generated keypair information
-const SP_PVK = fs.readFileSync(path.join(__dirname, 'certificates', 'service.key'), { encoding: 'utf8' });
-const SP_CERT = fs.readFileSync(path.join(__dirname, 'certificates', 'service.crt'), { encoding: 'utf8' });
+const SP_PVK = fs.readFileSync(path.join(__dirname, '../certificates', 'service.key'), { encoding: 'utf8' });
+const SP_CERT = fs.readFileSync(path.join(__dirname, '../certificates', 'service.crt'), { encoding: 'utf8' });
 /** End SP Section **/
 
 /** IdP Section **/
@@ -19,7 +19,7 @@ const SP_CERT = fs.readFileSync(path.join(__dirname, 'certificates', 'service.cr
 const IDP_SSO_URL = 'https://shibboleth.main.ad.rit.edu/idp/profile/SAML2/Redirect/SSO';
 
 // Base64 encoded certificate (PEM) for RIT's IdP
-const IDP_CERT = fs.readFileSync(path.join(__dirname, 'certificates', 'idp.crt'), { encoding: 'utf8' });
+const IDP_CERT = fs.readFileSync(path.join(__dirname, '../certificates', 'idp.crt'), { encoding: 'utf8' });
 /** End IdP Section **/
 
 /** Common Settings **/
