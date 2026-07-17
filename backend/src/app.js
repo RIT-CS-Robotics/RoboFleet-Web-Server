@@ -16,7 +16,7 @@ const passport = require('passport'); // for saml authentification
 const { defaultSamlStrategy, SP_CERT } = require('./samlConfig.js'); // samlConfig
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
-const {robotRunPY, robotRunJAVA, clearTempsOnRestart} = require('./robocom.js'); // running student code
+const {robotRun, refreshOnRestart} = require('./robocom.js'); // running student code
 const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode, getPerms, loadPerm} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
@@ -40,7 +40,7 @@ const passkey = process.env.PASSKEY;
 app.use(passport.initialize());
 passport.use('saml', defaultSamlStrategy);
 
-clearTempsOnRestart(); // clears any leftover temp code files (python for now) on server restart
+(async () => {await refreshOnRestart();}) () ; // clears any leftover temp code files and compiles Validator.java on server restart
 
 const USERS_FILE = path.join(__dirname, '../users.json');
 
@@ -560,14 +560,14 @@ app.post('/api/deploy', (req, res) => {
 
       if (fileType.endsWith('.py')) {
         console.log(`Attempting to deploy Robot: ${robotId} -> (PYTHON VERSION)`);
-        robotRunPY(code, title, user, robotId, hostName, (active) => { // runs the robot
+        robotRun(code, title, user, robotId, hostName, 'Python', (active) => { // runs the robot
           codeCallback(active, robotId);
         });
         return res.json({ message: `Attempted to deploy ${robotId} with Python code` });
       }
       else if (fileType.endsWith('.java')) {
         console.log(`Attempting to deploy Robot: ${robotId} -> (JAVA VERSION)`);
-        robotRunJAVA(code, title, user, robotId, hostName, (active) => { // runs the robot
+        robotRun(code, title, user, robotId, hostName, 'Java', (active) => { // runs the robot
           codeCallback(active, robotId);
         });
         return res.json({ message: `Attempted to deploy ${robotId} with Java code` });

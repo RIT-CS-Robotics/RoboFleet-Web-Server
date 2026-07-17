@@ -133,6 +133,11 @@ Runs the validation tests to validate the code.
 @exit(1): Exit failure for failed validation (check.INVALID).
 """
 def main():
+    # checks for correct number of args
+    if len(sys.argv) != 2:
+        print("VALIDATION ERROR: Missing file path argument.", file=sys.stderr)
+        sys.exit(check.INVALID.value)
+
     # code file to validate for
     file_path = sys.argv[1]
 
