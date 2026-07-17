@@ -1,0 +1,4 @@
+from robot import Robot
+
+with Robot() as r:
+    r.rotate(360)

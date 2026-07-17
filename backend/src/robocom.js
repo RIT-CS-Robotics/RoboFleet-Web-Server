@@ -13,6 +13,7 @@ const { spawn, spawnSync } = require('child_process');
 const tmp = require('tmp'); // Version: tmp@0.2.7
 const { resolve } = require('dns');
 const { tmpdir } = require('os');
+const { dir } = require('console');
 
 tmp.setGracefulCleanup(); // cleanup on server exit
 
@@ -23,16 +24,9 @@ if (!fs.existsSync(codeDir)) {
     fs.mkdirSync(codeDir, { recursive: true});
 }
 
-const tempsPY = {
+const temps = {
     keep: false,
-    tmpdir: codeDir,
-    postfix: '.py'
-};
-
-const tempsJAVA = {
-    keep: false,
-    tmpdir: codeDir,
-    postfix: '.java'
+    tmpdir: codeDir
 };
 
 /**
@@ -75,48 +69,34 @@ async function refreshOnRestart() {
 /**
  * Deletes a temp file from the backend.
  * 
- * @param file_obj: the file object to delete
- * @param path: the path of the file to delete
+ * @param scriptDir:
  */
-function cleanupFile(file_obj, path) {
-    if (file_obj && fs.existsSync(path)) {
-        try {
-            fs.unlinkSync(path);
-            console.log(`Removed file with path: ${path}`);
-        }
-        catch (err) {
-            console.error(`Could not remove temp code file with path: ${path}`);
-            console.error(`unlinkSync() error: ${err}`);
-        }
-    }
+function cleanupTemp(scriptDir) {
 }
 
 /**
  * Writes the student code to a temp file to be able to run as a script.
  * 
- * @param code: The student code to write to a temp file
- * @param codeType: 'Python' or 'Java'
+ * @param code: The student code to write
+ * @param title: The title the student gave their code
  * 
- * @returns The temp code file object and path to it -> {code_file, script_path}
+ * @returns The temp code directory and path to the script file in it -> {scriptDir, scriptPath}
  */
-async function getTempScript(code, codeType) {
-    let code_file;
-    let script_path
+async function getTempDir(code, title) {
+    let scriptDir;
+    let scriptPath
     try {
-        if (codeType === 'Python') {code_file = tmp.fileSync(tempsPY);}
-        else if (codeType === 'Java') {code_file = tmp.fileSync(tempsJAVA);}
-        else {throw new Error(`Invalid code type for creating temp script file.`);}
-        script_path = code_file.name;
-        console.log(`temp code file created with path: ${script_path}`);
-        await fs.writeFileSync(script_path, code, 'utf-8');
-        fs.chmodSync(script_path, 0o644); // Gives global read permission to the file
+        scriptDir = tmp.dirSync(temps);
+        const cleanTitle = title.split('$')[0]; // no log info
+        scriptPath = path.join(scriptDir.name, cleanTitle);
+        fs.writeFileSync(scriptPath, code, 'utf-8');
     }
     catch (err) {
-        console.error(`Could not write student code to script -> Error: ${err}`);
-        code_file = null;
-        script_path = null;
+        console.error(`Could not generate temp code directory -> Error: ${err}`);
+        scriptDir = null;
+        scriptPath = null;
     }
-    return {code_file, script_path};
+    return {scriptDir, scriptPath}
 }
 
 /**
@@ -194,30 +174,30 @@ async function validate(code, logStream, permStream, codeType) {
  * 
  * @returns The docker arguments for the specific type of script to run robot code on (Python or Java).
  */
-async function getDockerArgs(codeType, host, script_path) {
+async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
     let dockerArgs;
+     fs.chmodSync(scriptDir, 0o755); // Explicit temp directory permisions for docker
+     fs.chmodSync(scriptPath, 0o644); // Explicit code file permisions for docker
     // Map the temporary Python script safely inside the container's working directory (/app) as read-only (:ro)
     if (codeType === 'Python') {
         dockerArgs = [
-            'run', '--rm',
-            '--read-only',                        // Lock the file system completely
-            '--memory=256m', '--cpus=0.5',        // Prevent server crashes from infinite loops
-            '-e', `ROBOT_HOST=${host}`,          // Inject ONLY the robot host IP
-            '-v', `${script_path}:/app/user_code.py:ro`, // Mount user code as read-only
-            'robot-runner'   
+            'run', '--rm', '--read-only',
+            '--memory=256m', '--cpus=0.5',
+            '-e', `ROBOT_HOST=${host}`,
+            // Mount ONLY this single student's temp folder directly to the container workspace
+            '-v', `${scriptDir}:/app/workspace:ro`, 
+            'robot-runner'
         ];
     }
     // Map the temporary Java script safely inside the container's working directory (/app) as read-only (:ro)
     else if (codeType === 'Java') {
-        // Extract the actual filename (e.g., "MyCode.java") so Java class-naming rules don't break
-        const javaFileName = path.basename(script_path);
-                dockerArgs = [
+        dockerArgs = [
             'run', '--rm', '--read-only',
-            '--tmpfs', '/tmp:rw,noexec,nosuid', // Isolated RAM disk for compiling
+            '--tmpfs', '/tmp:rw,noexec,nosuid', 
             '--memory=256m', '--cpus=0.5',
             '-e', `ROBOT_HOST=${host}`,
-            // 4. BIND MOUNT MAGIC: Mount your backend's exact temp file directly to the fixed target filename
-            '-v', `${script_path}:/app/StudentCode.java:ro`,
+            // Mount ONLY this single student's temp folder directly to the container workspace
+            '-v', `${scriptDir}:/app/workspace:ro`, 
             'robot-runner'
         ];
     } 
@@ -232,13 +212,13 @@ async function getDockerArgs(codeType, host, script_path) {
  * Takes the students code, writes it as a temp file, validates it, and runs the students code to control a robot.
  * @param dockerArgs:
  * @param robotId: The robot to run the code on
- * @param code_file: The temp code file object
+ * @param scriptDir: Temp directory for student code
  * @param script_path: The path to the temp code file object
  * @param logStream: Writable stream to the code log file
  * @param permStream: Writable stream to the code perm file
  * @param callBack: The callback function to activate once the code is finished running
  */
-function runScript(dockerArgs, robotId, code_file, script_path, logStream, permStream, callBack) {
+function runScript(dockerArgs, robotId, scriptDir, script_path, logStream, permStream, callBack) {
     const script = spawn('docker', dockerArgs);
 
     script.stdout.on('data', (data) => {
@@ -263,8 +243,7 @@ function runScript(dockerArgs, robotId, code_file, script_path, logStream, permS
          console.error(`Error: ${err}`)
          logStream.end();
          permStream.end();
-         cleanupFile(code_file, script_path);
-           code_file = null;
+         cleanupTemp(scriptDir);
         callBack(false);
     });
     script.on('close', () => {
@@ -272,8 +251,7 @@ function runScript(dockerArgs, robotId, code_file, script_path, logStream, permS
         console.log(`Disconnecting robot with ID: ${robotId}`);
          logStream.end();
          permStream.end();
-         cleanupFile(code_file, script_path);
-         code_file = null;
+         cleanupTemp(scriptDir);
         callBack(false);
      });
 }
@@ -298,10 +276,10 @@ async function robotRun(code, title, user, robotId, host, codeType, callBack) {
     }
 
     // Creates a temp file with the student code written to it and gets a path to it for running it as a script
-    const tempFetch = await getTempScript(code, codeType);
-    const code_file = tempFetch.code_file;
-    const script_path = tempFetch.script_path;
-    if (!code_file || !script_path) {
+    const tempFetch = await getTempDir(code, title);
+    const scriptDir = tempFetch.scriptDir;
+    const scriptPath= tempFetch.scriptPath;
+    if (!scriptDir || !scriptPath) {
         callBack(false);
         return;
     }
@@ -315,25 +293,24 @@ async function robotRun(code, title, user, robotId, host, codeType, callBack) {
     permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
 
     // Validates student code
-    const shouldRun = await validate(script_path, logStream, permStream, codeType);
+    const shouldRun = await validate(scriptPath, logStream, permStream, codeType);
     if (!shouldRun) {
         console.error(`Code validation failed for User: ${user}`);
-        cleanupFile(code_file, script_path);
-        code_file = null;
+        cleanupTemp(scriptDir);
         callBack(false);
         return;
     }
     console.log(`Code validation passed for User: ${user}`);
     
     // Gets the specific Docker arguments for the type of code being ran (Python or Java)
-    const dockerArgs = await getDockerArgs(codeType, host, script_path);
+    const dockerArgs = await getDockerArgs(codeType, host, scriptDir.name, scriptPath);
     if (!dockerArgs) {
         callBack(false);
         return;
     }
 
     // Runs the student code to control the robot.
-    runScript(dockerArgs, robotId, code_file, script_path, logStream, permStream, callBack);
+    runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, callBack);
 }
 
 // Use as an import in app.js
