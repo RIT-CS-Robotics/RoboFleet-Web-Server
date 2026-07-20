@@ -541,8 +541,6 @@ app.post('/api/deploy', (req, res) => {
         return res.status(409).json({ message: `Robot ID "${robotId}" is already active.` });
     }
 
-    console.log(fileType);
-
     if (!fileType.endsWith('.py') && !fileType.endsWith('.java')) {
       console.error(`Error: Invalid file type`);
       return res.status(503).json( {message: `Invalid file type`});

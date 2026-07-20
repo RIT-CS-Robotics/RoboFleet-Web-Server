@@ -1,5 +1,17 @@
-import socket, ast, os, queue, threading, time, logging
+import socket, sys, ast, os, queue, threading, time, logging
+import cv2 as cv
+import numpy as np
 from contextlib import AbstractContextManager
+from pathlib import Path
+from ultralytics import YOLO
+
+#project_root = Path(__file__).resolve().parents[2]
+#sys.path.append(str(project_root))
+
+#from ros2_coco_detector.coco_detector.coco_detector.coco_detector_node import CocoDetector
+
+METRE_MAX = 3.0
+BANNED_WORDS = "banned.txt"
 
 class Robot(AbstractContextManager):
 	def __init__(self):
@@ -17,9 +29,16 @@ class Robot(AbstractContextManager):
 		self.dest_name = "N/A"
 		self.dest_pos = None
 
+		# playlist
 		self.playlist = queue.Queue()
 		self.music_playing = False
 		self.current_song = "N/A"
+
+		# banned words
+		self.banned_words = set()
+		with open(BANNED_WORDS) as file:
+			for line in file:
+				self.banned_words.add(line.strip())
 
 		# connect socket
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -38,18 +57,6 @@ class Robot(AbstractContextManager):
 		self.jukebox = threading.Thread(target=self.song_player, daemon=True)
 		self.jukebox.start()
 
-	def pixel_to_map(self, x, y):
-		command = f"PIXEL_TO_MAP:{x},{y}\n"
-		self.send_command(command, "NB")
-		try:
-			response = self.block_queue.get(timeout=1.0)
-			if "ERROR" not in response:
-				x, y = float(map, response.split(","))
-				return x, y
-			return response
-		except Exception as e:
-			print("Error: thread timed out")
-
 	def get_targets(self):
 		"""
 		Return a list of tuples in the format (item, x, y) of all
@@ -61,23 +68,26 @@ class Robot(AbstractContextManager):
 			response = self.block_queue.get(timeout=1.0)
 			if "ERROR" not in response:
 				objects = ast.literal_eval(response)
+				if objects is None:
+					objects = []
 				return objects
 			return response
 		except Exception as e:
 			print("Error: thread timed out")
 
-
 	def whos_there(self):
 		command = f"WHOS_THERE\n"
 		self.send_command(command, "B")
 		try:
-			response = self.block_queue.get(timeout=1.0)
+			response = self.block_queue.get(timeout=5.0)
 			if "ERROR" not in response:
 				object_set = ast.literal_eval(response)
+				if object_set is None:
+					object_set = set()
 				return object_set
 			return response
 		except Exception as e:
-			print("Error: thread timed out")
+			print(f"whos_there() error: {e}")
 
 	def play_music(self, song_link):
 		# check if url allowed
@@ -87,20 +97,59 @@ class Robot(AbstractContextManager):
 	def add_to_queue(self, song_link):
 		pass
 
-	def speak(self, message, voice_id=1):
-		# enforce character limit
+	def show(self, message):
 		if len(message) > 250:
 			return "Exceeds character limit of 250."
+		command = f"SHOW:{message}\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get()
+			return response
+		except Exception as e:
+			print("[ERROR] {e}")
+
+	def speak(self, message, voice_id=1):
+		# disallow speaking while playing music
+		if self.music_playing:
+			return "[ERROR] Cannot speak while music is playing."
+		# enforce character limit
+		CHAR_LIMIT = 250
+		if len(message) > CHAR_LIMIT:
+			message = message[:CHAR_LIMIT]
+			print(f"Warning: only the first {CHAR_LIMIT} characters will be said.")
+
+		for word in self.banned_words:
+			if word in message:
+				return "[ERROR] Message contained banned word. Denied."
+
+		# replace commas
+		message = message.replace(",", ".")
+
 		# send cmd
 		command = f"SPEAK:{message},{voice_id}\n"
 		self.send_command(command, "B")
 		try:
-			response = self.block_queue.get(timeout=1.0)
+			response = self.block_queue.get(timeout=15.0)
 			return response
 		except Exception as e: 
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
 
 	def listen(self, listen_timeout=10, phrase_timeout=10):
+		# disallow while music playing
+		if self.music_playing:
+			return "[ERROR] cannot listen while playing music"
+
+		# handle out of bounds
+		if listen_timeout > 30:
+			listen_timeout = 30
+		elif listen_timeout < 0:
+			return "[ERROR] timeout values should be positive"
+		if phrase_timeout > 30:
+			phrase_timeout = 30
+		elif phrase_timeout < 0:
+			return "[ERROR] timeout values should be positive"
+
+		# send command
 		command = f"LISTEN:{listen_timeout},{phrase_timeout}\n"
 		self.send_command(command, "B")
 		try:
@@ -109,7 +158,21 @@ class Robot(AbstractContextManager):
 				return response.strip()
 			return None
 		except Exception as e:
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
+
+	def listen_until(self, lst, listen_timeout=10, phrase_timeout=10):
+		# disallow while music playing
+		if self.playing_music:
+			return "[ERROR] Cannot listen while music is playing"
+		command = f"LISTEN_UNTIL:{lst},{listen_timeout},{phrase_timeout}\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get()
+			if response.strip():
+				return response.strip()
+			return None
+		except Exception as e:
+			print("[ERROR] thread timed out")
 
 	def get_legs(self):
 		"""
@@ -124,7 +187,22 @@ class Robot(AbstractContextManager):
 				return legs
 			return response
 		except Exception as e:
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
+
+	def take_photo(self):
+		command = "TAKE_PHOTO\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get()
+			if "ERROR" not in response:
+				resp = response.replace("array('B',", "")
+				resp = resp.replace(")", "")
+				arr = ast.literal_eval(resp)
+				return arr
+			return response
+		except Exception as e:
+			print(f"take_photo [ERROR] {e}")
+			return None
 
 	def get_object_scan(self):
 		"""
@@ -137,10 +215,12 @@ class Robot(AbstractContextManager):
 			response = self.block_queue.get(timeout=1.0)
 			if "ERROR" not in response:
 				objects = ast.literal_eval(response)
+				if objects is None:
+					objects = []
 				return objects
 			return response
 		except Exception as e:
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
 
 	def objects_seen(self):
 		"""
@@ -152,10 +232,12 @@ class Robot(AbstractContextManager):
 			response = self.block_queue.get(timeout=1.0)
 			if "ERROR" not in response:
 				object_set = ast.literal_eval(response)
+				if object_set is None:
+					object_set = set()
 				return object_set
 			return response
 		except Exception as e:
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
 
 	def scan_for(self, item):
 		"""
@@ -168,10 +250,12 @@ class Robot(AbstractContextManager):
 			response = self.block_queue.get(timeout=1.0)
 			if "ERROR" not in response:
 				coordinate_list = ast.literal_eval(response)
+				if coordinate_list is None:
+					coordinate_list = []
 				return coordinate_list
 			return response
 		except Exception as e:
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
 
 	def get_dest_name(self):
 		"""
@@ -198,7 +282,7 @@ class Robot(AbstractContextManager):
 				return x, y
 			return response
 		except Exception as e:
-			print("Error: thread timed out")
+			print("[ERROR] thread timed out")
 
 	def get_laser_scan(self):
 		"""
@@ -214,7 +298,7 @@ class Robot(AbstractContextManager):
 				scan = ast.literal_eval(response)
 				return scan
 		except Exception as e:
-			print("ROBOT: Error, could not get scan.")
+			print("[ROBOT] Error, could not get scan.")
 
 
 	def halt(self):
@@ -228,18 +312,21 @@ class Robot(AbstractContextManager):
 		self.send_command("HALT\n","B")
 		try:
 			self.block_queue.get(timeout=3.0)
-			print("ROBOT: HALT confirmed.")
+			print("[ROBOT] HALT confirmed.")
 		except queue.Empty:
-			print("ROBOT: Could not halt.")
+			print("[ROBOT] Could not halt.")
 
 		self._is_traveling = False
 		self.destination = "N/A"
-		print("ROBOT: Queue is clear.")
+		print("[ROBOT] Queue is clear.")
 
 	def move(self, metres):
 		"""
 		Move {metres} metres.
 		"""
+		if 0.0 > metres or METRE_MAX < metres:
+			return "INVALID: metres must be between 0.0 and 3.0"
+			
 		command = f"MOVE:{metres}\n"
 		self.send_command(command, "NB")
 
@@ -317,13 +404,13 @@ class Robot(AbstractContextManager):
 						self.music_playing = False
 						self.current_song = "N/A"
 						print("\nROBOT: Song ended: ", line)
+
 					else:
 						self.block_queue.put(line)
 
 			except Exception as e:
 				print(f"\n Error - robot disconnect.")
 				break
-		print("bob")
 
 	def queue_executor(self):
 		"""
@@ -392,6 +479,7 @@ class Robot(AbstractContextManager):
 				while self.music_playing and self.running_program:
 					time.sleep(0.1)
 				self.playlist.task_done()
+				print("Song ended")
 
 			except queue.Empty:
 				continue
@@ -406,7 +494,7 @@ class Robot(AbstractContextManager):
 		if cmd_type == "B":
 			self.sock.sendall(command.encode("utf-8"))
 		elif cmd_type == "NB":
-			print("ROBOT: QUEUED COMMAND: ", command)
+			print("[ROBOT] QUEUED COMMAND: ", command)
 			self.non_block_queue.put(command)
 
 	def __exit__(self, exc_type, exc_value, traceback):
@@ -414,14 +502,43 @@ class Robot(AbstractContextManager):
 		Wait for the non-blocking commands to execute,
 		then end the program and close the socket.
 		"""
-		while self.is_traveling() and self.music_playing:
+
+		if self.non_block_queue.qsize() != 0:
+			moving = True
+		else:
+			moving = False
+
+		while self.is_traveling() or self.music_playing or moving:
 			time.sleep(0.1)
+			if self.non_block_queue.qsize() == 0:
+				moving = False
 
 		self.running_program = False
 		time.sleep(0.2)
+
 		try:
 			self.sock.shutdown(socket.SHUT_RDWR)
 		except Exception:
-			print("ROBOT: could not shut down socket.")
+			print("[ROBOT] could not shut down socket.")
 		self.sock.close()
 		return
+
+class Photo:
+	def __init__(self, frame):
+		self.frame = frame
+
+	def objects_seen(self):
+		HEIGHT = 480
+		WIDTH = 640
+		frame = np.array(self.frame, dtype=np.uint8)
+		bgr_array = frame.reshape((HEIGHT, WIDTH, 3))
+		model = YOLO("yolov8n.pt")
+		results = model([bgr_array], verbose=False)
+		objects = set()
+		for result in results:
+			boxes = result.boxes
+			for box in boxes:
+				cls_id = int(box.cls[0])
+				label = model.names[cls_id]
+				objects.add(label)
+		return f"{objects}"
