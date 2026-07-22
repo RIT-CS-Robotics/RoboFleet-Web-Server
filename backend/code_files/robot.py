@@ -5,11 +5,6 @@ from contextlib import AbstractContextManager
 from pathlib import Path
 from ultralytics import YOLO
 
-#project_root = Path(__file__).resolve().parents[2]
-#sys.path.append(str(project_root))
-
-#from ros2_coco_detector.coco_detector.coco_detector.coco_detector_node import CocoDetector
-
 METRE_MAX = 3.0
 BANNED_WORDS = "banned.txt"
 
@@ -56,6 +51,55 @@ class Robot(AbstractContextManager):
 		# jukebox
 		self.jukebox = threading.Thread(target=self.song_player, daemon=True)
 		self.jukebox.start()
+
+
+	def take_photo(self):
+		command = "TAKE_PHOTO\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get()
+			if "ERROR" not in response:
+				resp = response.replace("array('B',", "")
+				resp = resp.replace(")", "")
+				arr = ast.literal_eval(resp)
+				photo = Photo(self, arr)
+				return photo
+			return response
+		except Exception as e:
+			print(f"take_photo [ERROR] {e}")
+			return None
+
+	def photo_objects_seen(self, val):
+		command = f"PHOTO_OBJECTS_SEEN:{val}\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get(timeout=10.0)
+			if "ERROR" not in response:
+				object_set = ast.literal_eval(response)
+				if object_set is None:
+					object_set = set()
+				return object_set
+			return response
+		except Exception as e:
+			err = f"photo_objects_seen() error: {e}"
+			print(err)
+			return err
+
+	def photo_whos_there(self, val):
+		command = f"PHOTO_WHOS_THERE:{val}\n"
+		self.send_command(command, "B")
+		try:
+			response = self.block_queue.get(timeout=10.0)
+			if "ERROR" not in response:
+				object_set = ast.literal_eval(response)
+				if object_set is None:
+					object_set = set()
+				return object_set
+			return response
+		except Exception as e:
+			err = f"photo_objects_seen() error: {e}"
+			print(err)
+			return err
 
 	def get_targets(self):
 		"""
@@ -188,21 +232,6 @@ class Robot(AbstractContextManager):
 			return response
 		except Exception as e:
 			print("[ERROR] thread timed out")
-
-	def take_photo(self):
-		command = "TAKE_PHOTO\n"
-		self.send_command(command, "B")
-		try:
-			response = self.block_queue.get()
-			if "ERROR" not in response:
-				resp = response.replace("array('B',", "")
-				resp = resp.replace(")", "")
-				arr = ast.literal_eval(resp)
-				return arr
-			return response
-		except Exception as e:
-			print(f"take_photo [ERROR] {e}")
-			return None
 
 	def get_object_scan(self):
 		"""
@@ -368,6 +397,10 @@ class Robot(AbstractContextManager):
 		command = f"ROTATE:{degrees}\n"
 		self.send_command(command, "NB")
 
+		time.sleep(0.05)
+
+		self._is_traveling = True
+
 	def listener(self):
 		"""
 		Handle communication sent back from the robot (listener)
@@ -502,16 +535,8 @@ class Robot(AbstractContextManager):
 		Wait for the non-blocking commands to execute,
 		then end the program and close the socket.
 		"""
-
-		if self.non_block_queue.qsize() != 0:
-			moving = True
-		else:
-			moving = False
-
-		while self.is_traveling() or self.music_playing or moving:
+		while self.is_traveling() or self.music_playing:
 			time.sleep(0.1)
-			if self.non_block_queue.qsize() == 0:
-				moving = False
 
 		self.running_program = False
 		time.sleep(0.2)
@@ -524,21 +549,15 @@ class Robot(AbstractContextManager):
 		return
 
 class Photo:
-	def __init__(self, frame):
-		self.frame = frame
+	def __init__(self, robot_obj, data):
+		self.data = data
+		self.photo_objects_seen = robot_obj.photo_objects_seen
+		self.photo_whos_there = robot_obj.photo_whos_there
 
 	def objects_seen(self):
-		HEIGHT = 480
-		WIDTH = 640
-		frame = np.array(self.frame, dtype=np.uint8)
-		bgr_array = frame.reshape((HEIGHT, WIDTH, 3))
-		model = YOLO("yolov8n.pt")
-		results = model([bgr_array], verbose=False)
-		objects = set()
-		for result in results:
-			boxes = result.boxes
-			for box in boxes:
-				cls_id = int(box.cls[0])
-				label = model.names[cls_id]
-				objects.add(label)
-		return f"{objects}"
+		objects = self.photo_objects_seen(self.data)
+		return objects
+
+	def whos_there(self):
+		people = self.photo_whos_there(self.data)
+		return people

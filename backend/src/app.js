@@ -96,7 +96,8 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       destinationName: 'N/A',
       isActive: false,
       color: optionalColor,
-      battery: 0
+      battery: 0,
+      topic: null
     };
   }
 
@@ -124,6 +125,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       robotConnections[robotId].destinationName = 'N/A';
       robotConnections[robotId].isActive = false;
       robotConnections[robotId].battery = 0;
+      robotConnections[robotId].topic = null;
 
       setTimeout(() => {
         initializeRobotConnection(robotId, ipAddress);
@@ -164,6 +166,12 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       ros: rosInstance,
       name: '/laptop_battery',
       messageType: 'std_msgs/msg/Int32',
+    });
+
+    const statusTopic = new ROSLIB.Topic({
+      ros: rosInstance,
+      name: '/robot_status',
+      messageType: 'std_msgs/String',
     });
 
     // timers for the backend to refresh how often to take in topic information.
@@ -237,6 +245,20 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
         robotConnections[robotId].battery = laptopBattery;
       }
     });
+
+    robotConnections[robotId].topic = (msg) => {
+      const rosMessage = new ROSLIB.Message({
+        data: msg
+      });
+      statusTopic.publish(rosMessage);
+    };
+
+    if (robotConnections[robotId].topic) {
+      console.log(`/robot_status topic established for robot: ${robotId}`);
+    }
+    else {
+      console.error(`/robot_status topic could not be established for robot: ${robotId}`);
+    }
 
   });
 
@@ -552,20 +574,21 @@ app.post('/api/deploy', (req, res) => {
     // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
     if (trackingData.isConnected && trackingData.instance) {
 
+      const topicPub = robotConnections[robotId].topic;
       robotConnections[robotId].isActive = true;
 
       saveCode(user, title, code); // writes student code in log file
 
       if (fileType.endsWith('.py')) {
         console.log(`Attempting to deploy Robot: ${robotId} -> (PYTHON VERSION)`);
-        robotRun(code, title, user, robotId, hostName, 'Python', (active) => { // runs the robot
+        robotRun(code, title, user, robotId, hostName, 'Python', topicPub, (active) => { // runs the robot
           codeCallback(active, robotId);
         });
         return res.json({ message: `Attempted to deploy ${robotId} with Python code` });
       }
       else if (fileType.endsWith('.java')) {
         console.log(`Attempting to deploy Robot: ${robotId} -> (JAVA VERSION)`);
-        robotRun(code, title, user, robotId, hostName, 'Java', (active) => { // runs the robot
+        robotRun(code, title, user, robotId, hostName, 'Java', topicPub, (active) => { // runs the robot
           codeCallback(active, robotId);
         });
         return res.json({ message: `Attempted to deploy ${robotId} with Java code` });

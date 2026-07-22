@@ -229,19 +229,25 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
  * @param permStream: Writable stream to the code perm file
  * @param callBack: The callback function to activate once the code is finished running
  */
-function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, callBack) {
+function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, topicPub, callBack) {
     const script = spawn('docker', dockerArgs);
 
     script.stdout.on('data', (data) => {
-        if (logStream) {logStream.write(data.toString());}
-        if (permStream) {permStream.write(data.toString());}
+        const msg = data.toString()
+        if (logStream) {logStream.write(msg);}
+        if (permStream) {permStream.write(msg);}
+        topicPub(msg);
+
         console.log(`Robot standard output with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
      script.stderr.on('data', (data) => {
-         if (logStream) {logStream.write(data.toString());}
-         if (permStream) {permStream.write(data.toString());}
-         console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
+        const msg = data.toString();
+        if (logStream) {logStream.write(msg);}
+        if (permStream) {permStream.write(msg);}
+        topicPub(msg);
+
+        console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
     });
 
     script.on('spawn', () => {
@@ -278,7 +284,7 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
  * @param codeType: 'Python' or 'Java'
  * @param callBack: The callback function to activate once the code is finished running
  */
-async function robotRun(code, title, user, robotId, host, codeType, callBack) {
+async function robotRun(code, title, user, robotId, host, codeType, topicPub, callBack) {
     // Makes sure a robot IP is given
     if (host === null) {
         console.error(`Could not validate hostname with robot ID: ${robotId}. Can not run script.`);
@@ -322,7 +328,7 @@ async function robotRun(code, title, user, robotId, host, codeType, callBack) {
     }
 
     // Runs the student code to control the robot.
-    runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, callBack);
+    runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, topicPub, callBack);
 }
 
 // Use as an import in app.js
