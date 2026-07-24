@@ -607,7 +607,7 @@ function codeCallback(active, robotId) {
 // ----------------------------------------------------
 initializeRobotConnection('Robot 1', process.env.ROBOT_1_ADDRESS, '#307D7E'); 
 initializeRobotConnection('Robot 2', process.env.ROBOT_2_ADDRESS, 'pink'); 
-initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS, 'blue'); 
+initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS, '#38bdf8'); 
 
 // Open the HTTP gateway bound securely to the local bridge
 app.listen(PORT, bridge, () => { 
