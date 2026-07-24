@@ -7,16 +7,16 @@ import Admin from './pages/Admin';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
+    return sessionStorage.getItem('isLoggedIn') === 'true';
   });
 
   const [currentUser, setCurrentUser] = useState(() => {
-    return localStorage.getItem('currentUser') || '';
+    return sessionStorage.getItem('currentUser') || '';
   });
 
   // Determines the initial view based on who is logged in from localStorage
   const [currentView, setCurrentView] = useState(() => {
-    const savedUser = localStorage.getItem('currentUser');
+    const savedUser = sessionStorage.getItem('currentUser');
     return savedUser === 'admin' ? 'admin' : 'dashboard';
   });
 
@@ -31,16 +31,16 @@ export default function App() {
       setCurrentView('dashboard');
     }
 
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('currentUser', username);
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('currentUser', username);
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUser('');
     setCurrentView('dashboard');
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('currentUser');
+    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('currentUser');
   };
 
   return (
