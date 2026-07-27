@@ -17,7 +17,7 @@ const { defaultSamlStrategy, SP_CERT } = require('./samlConfig.js'); // samlConf
 
 const {getDestination} = require('./destinations.js'); // coordinate-destination mapping
 const {robotRun, refreshOnRestart} = require('./robocom.js'); // running student code
-const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode, getPerms, loadPerm} = require('./logs.js'); // create and remove code log directories for users
+const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode, getPerms, loadPerm, removeAllPerms} = require('./logs.js'); // create and remove code log directories for users
 
 // Initializes the app as an express app and sets the port for it to 3000
 const app = express();
@@ -496,6 +496,18 @@ app.delete('/api/log/:userName', async (req, res) => {
   }
   else {
     return res.status(500).json({message: 'Failed to remove student log'});
+  }
+});
+
+// removes all perm files for user
+app.delete('/api/perm/:userName', async (req, res) => {
+  const user = path.basename(req.params.userName);
+  const success = await removeAllPerms(user);
+  if (success) {
+    return res.status(200).json({message: 'Successfully removed student perms'});
+  }
+  else {
+    return res.status(500).json({message: 'Failed to remove student perms'});
   }
 });
 

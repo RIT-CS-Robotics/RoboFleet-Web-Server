@@ -14,6 +14,7 @@ export default function Admin({ onLogout }) {
   const [currentLog, setCurrentLog] = useState(null);
   const [logText, setLogText] = useState('');
   const [userLogs, setUserLogs] = useState([]);
+  const [permUser, setPermUser] = useState('');
 
   const fetchStudents = async () => {
     try {
@@ -72,10 +73,10 @@ export default function Admin({ onLogout }) {
     }
   };
 
-  const handlePermButton = async (currentUser, fileName) => {
+  const handlePermButton = async (student, fileName) => {
     let perm = '';
     try {
-      const response = await fetch(`/api/perm/${currentUser}/${fileName}`, {
+      const response = await fetch(`/api/perm/${student}/${fileName}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -85,13 +86,58 @@ export default function Admin({ onLogout }) {
       const data = await response.json();
       perm = data.permLog;
 
-      console.log(`Loaded code perm for user: ${currentUser}`);
+      setPermUser(student);
+
+      console.log(`Loaded code perm for user: ${student}`);
     }
     catch(err) {
       alert(`Error: Could not load code log`);
-      console.error(`Could not load code perm for user: ${currentUser} -> Error: ${err}`);
+      console.error(`Could not load code perm for user: ${student} -> Error: ${err}`);
     }
     return perm;
+  };
+
+  const handleClearPerms = async function(event, student) {
+    try {
+      if (event) {
+        event.preventDefault();
+      }
+
+      const check = confirm(`WARNING: You are about to delete all perm logs for the selected student. Are you sure you want to continue?`);
+      if (check) {
+        try {
+            const response = await fetch(`/api/perm/${student}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        
+          if (response.ok) {
+            setUserLogs(await loadLogs(student, true));
+            console.log(`Perms successfully cleared for User: ${student}`);
+          }
+          else {
+            throw new Error(`Error with clearing perms`);
+          }
+
+          if (student === permUser) {
+            setCurrentLog(null);
+            setLogText('');
+            setPermUser(null);
+          }
+
+        }
+        catch (err) {
+          alert(`ERROR: Failed to clear perms`);
+          console.error(`Could not clear logs for user: ${student} -> Error: ${err}`);
+          return;
+        }
+      }
+    }
+    catch (err) {
+      console.error(`Failed to clear logs (perms) for student: ${student}`);
+    }
   };
 
   return (
@@ -163,6 +209,9 @@ export default function Admin({ onLogout }) {
             </div>
           ))}
         </div>
+
+        <button onClick={(event) => handleClearPerms(event, currentStudent)} className="btn-delete"> Clear Logs </button>
+
       </div>
 
       {/* 3. FAR RIGHT COLUMN: Entirely separate text terminal frame canvas */}

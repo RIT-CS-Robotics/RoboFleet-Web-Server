@@ -56,7 +56,7 @@ Checks the code for any illegal imports or calls.
 def validate_illegal(tree):
     ### NOTE: ADD ALLOWED MODULES HERE ###
     allowed_modules = {
-    'robot', 'time', 'math'
+    'robot', 'time', 'math', 'random'
     }
 
     ### NOTE: ADD BANNED BUILTINS HERE ###

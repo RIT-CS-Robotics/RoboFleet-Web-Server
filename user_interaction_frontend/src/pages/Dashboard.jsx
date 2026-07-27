@@ -112,7 +112,6 @@ export default function Dashboard({ onLogout, currentUser }) {
 
       setUserLogs(await loadLogs(currentUser, false));
       
-      // Fixed: Only opens the status page after a successful database post
       window.open('status', 'new_status');
 
     } catch (err) {

@@ -238,6 +238,40 @@ async function loadPerm(user, title) {
     return file_content;
 }
 
+/**
+ * Removes all the users perms from their log directory.
+ * 
+ * @param user: The user to remove the perms for in their log directory.
+ * @return: Was the clearing successfull?
+ */
+async function removeAllPerms(user) {
+    let success = true;
+    try {
+        const perm_path = path.join(dir_path, user, 'perm');
+
+        const perm_files = await fs.readdir(perm_path).catch(() => []);
+
+        const promises_arr = [];
+        for (const file of perm_files) {
+            promises_arr.push(fs.unlink(path.join(perm_path, file)));
+        }
+
+        const results = await Promise.allSettled(promises_arr);
+        for (const result of results) {
+            if (result.status === 'rejected' && result.reason.code !== 'ENOENT') {
+                throw new Error(`Failed to clear perms`);
+            }
+        }
+
+        console.log(`Perms successfully cleared for User: ${user}`);
+    }
+    catch (err) {
+        success = false;
+        console.error(`Perms could not be deleted for user: ${user} -> Error: ${err.message}`);
+    }
+    return success;
+}
+
 module.exports = {
     createUserLog,
     removeUserLog,
@@ -247,5 +281,6 @@ module.exports = {
     getLogs,
     removeAllCode,
     getPerms,
-    loadPerm
+    loadPerm,
+    removeAllPerms
 };
