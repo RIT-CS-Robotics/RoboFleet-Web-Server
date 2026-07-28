@@ -267,7 +267,7 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 
 ---
 
-## 🐳 Step 7: Docker Sandbox Engine Configuration
+## 🐳 Step 7: Docker Sandbox Engine Configuration Instructions
 Instructions for provisioning the restricted runtime code execution engine container image.
 
 ### Building the Runner Image
@@ -275,22 +275,46 @@ Instructions for provisioning the restricted runtime code execution engine conta
 cd /home/ars4041/RoboFleet_WebServer/backend
 docker build -t my-robot-runner .
 ```
+
 ---
 
 ## 📦 Critical Package Manifest & Dependencies
 Below is an index of core installation modules and libraries critical to the initialization of the stack.
 
 ### Backend Dependencies (`backend/package.json`)
-*   **`express`** — API routing framework.
-*   **`cors`** — Cross-Origin Resource Sharing handling network mappings to RIT domains.
-*   **`roslib`** — ROSbridge WebSocket interface connector.
-*   **`@node-saml/passport-saml`** — Shibboleth authentication layer interface.
-*   **`dotenv`** — Key-value environment variable load automation tool.
-*   **`tmp`** — Absolute file-path safe host scratchfile engine.
+* **`express`** — API routing framework.
+* **`cors`** — Cross-Origin Resource Sharing handling network mappings to RIT domains.
+* **`roslib`** — ROSbridge WebSocket interface connector.
+* **`@node-saml/passport-saml`** — Shibboleth authentication layer interface.
+* **`dotenv`** — Key-value environment variable load automation tool.
+* **`tmp`** — Absolute file-path safe host scratchfile engine.
+* **`passport`** — Core modular authentication middleware for Node.js.
+* **`ws`** — Implements full-duplex WebSocket server and client connections.
+* **`nodemon`** *(Dev)* — Restarts the backend service automatically during local changes.
+* **`patch-package`** *(Dev)* — Modifies and fixes broken external module code instantly.
 
-### System Utilities
-*   **`python3`** & **`ast`** — Static evaluation script analyzers.
-*   **`default-jdk-headless`** — Container sandbox decoupled Java execution library.
+### Local Java Archives (`backend/`)
+* **`javaparser-core-3.25.10.jar`** — Local Java dependency used to parse, analyze, and manipulate Java Abstract Syntax Trees (AST) programmatically.
+
+### User Interaction Frontend Dependencies (`user_interaction_frontend/package.json`) (EDIT LATER)
+* **`react`** — UI library for components and reactive application state management.
+* **`react-dom`** — Renders components directly into the browser DOM ecosystem.
+* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Next-generation bundler and local hot-reloading development server.
+* **`eslint` & plugins** *(Dev)* — Static analysis system designed to enforce style rules and catch syntax issues.
+
+### Status Frontend Dependencies (`status_frontend/package.json`) (EDIT LATER)
+* **`react`** — UI library for components and reactive application state management.
+* **`react-dom`** — Renders components directly into the browser DOM ecosystem.
+* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Next-generation bundler and local hot-reloading development server.
+* **`eslint` & plugins** *(Dev)* — Static analysis system designed to enforce style rules and catch syntax issues.
+
+### System Utilities & Compilers
+* **`python3`** & **`ast`** — Static evaluation script analyzers.
+* **`default-jdk-headless`** — Decoupled Java Development Kit (JDK) execution library and compiler (`javac`) utilized inside the container sandbox.
+
+---
+
+## 🔒 Step 9: Nginx setup for encrypted video streaming from ros2: (EDIT LATER)
 
 ---
 
