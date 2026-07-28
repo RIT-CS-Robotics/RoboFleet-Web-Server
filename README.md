@@ -10,21 +10,21 @@ The complete backend and frontend architecture for the RoboFleet Project, hosted
 RoboFleet_WebServer/
 ├── backend/                      # Node.js Express Backend Service
 │   ├── certificates/             # Service SSL/IdP SAML Certs (Root Ignored)
-│   ├── code_files/               # Temporary runtime storage & core assets
+│   ├── code_files/               # Temporary runtime storage & core assets for running student code for the robots
 │   ├── user_logs/                # Dynamic log directories per student
-│   ├── src/                      # Source Code Matrix
+│   ├── src/                      # Source Code
 │   │   ├── app.js                # Core API Hub & Routing Gateway
 │   │   ├── destinations.js       # Coordinate-to-Room Mapping Engine
-│   │   ├── logs.js               # File stream controllers
-│   │   ├── robocom.js            # Docker process spawning controller
-│   │   └── samlConfig.js         # Shibboleth Authentication Layer
-│   ├── Dockerfile                # Student container sandbox builder
+│   │   ├── logs.js               # File logging for student code
+│   │   ├── robocom.js            # Docker process spawning controller to run the robots from student code
+│   │   └── samlConfig.js         # Shibboleth Authentication Layer (saml2)
+│   ├── Dockerfile                # Student code container sandbox builder
 │   ├── package.json              # Backend isolated configuration
 │   └── users.json                # User credentials database
-├── status_frontend/              # Vite + React Robot Monitoring Dashboard
+├── status_frontend/              # Vite + React Robot Monitoring Dashboard (root app)
 │   ├── src/                      # App views & dashboard grids
 │   └── package.json              # Status isolated configuration
-└── user_interaction_frontend/    # Vite + React Control Console (Root App)
+└── user_interaction_frontend/    # Vite + React User Control Console
     ├── src/                      # User inputs & code submission deck
     └── package.json              # Interface isolated configuration
 ```
@@ -60,8 +60,14 @@ sudo apt update && sudo apt install nodejs npm -y
 # Install isolated local node dependencies
 npm install
 
-# Firewall configuration: Explicitly open API listener port to RIT traffic
-sudo ufw allow from 129.21.0.0/16 to any port 3000 proto tcp
+# Firewall configuration: Explicitly open API listener port to RIT traffic (only through apache)
+sudo ufw allow from 129.21.0.0/16 to any port 443 proto tcp
+sudo ufw allow from 129.21.0.0/16 to any port 80 proto tcp
+sudo ufw allow from 10.0.0.0/8 to any port 443 proto tcp
+sudo ufw allow from 10.0.0.0/8 to any port 80 proto tcp
+sudo ufw deny 3000/tcp
+sudo ufw deny 5173/tcp
+sudo ufw deny 5174/tcp
 ```
 
 ---
@@ -98,18 +104,108 @@ Replace the virtual configuration block with the tracking maps below:
 ```apache
 <VirtualHost *:80>
     ServerName robotics-project.gccis.rit.edu
+    # Automatically send all standard HTTP traffic to the secure HTTPS version
+    RewriteEngine On
+    RewriteCond %{SERVER_NAME} =robotics-project.gccis.rit.edu
+    RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+</VirtualHost>
 
-    # Express Backend API Gateway Proxy
+# ====================================================
+# HTTPS (PORT 443) - SECURE REVERSE PROXY
+# ====================================================
+<VirtualHost *:443>
+    ServerName robotics-project.gccis.rit.edu
+
+    # TLS/Encryption Configuration
+    SSLEngine on
+
+    # Modern Security: Force TLS 1.2 and 1.3 only (Disables vulnerable SSL)
+    SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1
+
+    # Global Proxy settings to pass headers correctly to Node/Vite backends
+    ProxyRequests Off
+    ProxyPreserveHost On
+
+    # ─── SSL PROXY ENGINE FOR ROBOT TUNNELS ───────────────────
+    # Allows Apache to connect securely to the self-signed Nginx on laptops
+    SSLProxyEngine on
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerName off
+    SSLProxyCheckPeerExpire off
+    # ─────────────────────────────────────────────────────────
+
+    <Proxy *>
+        Require all granted
+    </Proxy>
+
+    # Crucial for React/Vite/Express to know the request came over HTTPS
+    RequestHeader set X-Forwarded-Proto "https"
+
+    # ====================================================
+    # ANTI-CURL/DIRECT ACCESS FIREWALL BLOCK
+    # ====================================================
+    <Location /api>
+        # Allow the server itself to communicate internally
+        Require local
+
+        # Only allow connections if they come from our official site URLs
+        SetEnvIf Referer "^https://robotics-project\.gccis\.rit\.edu" local_frontend
+        Require env local_frontend
+
+        # EXCEPTION: allow developer machines to access backend directly
+        Require ip 129.21.34.84
+    </Location>
+
+    # ====================================================
+    # VITE DEVELOPMENT HMR WEBSOCKET TUNNELS
+    # ====================================================
+    RewriteEngine On
+
+    # 1. Route /dashboard WebSocket connections to Vite Frontend 1 (Port 5173)
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/dashboard/(.*) ws://localhost:5173/dashboard/$1 [P,L]
+
+    # 2. Route root layout WebSocket connections to Vite Frontend 2 (Port 5174)
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/(.*) ws://localhost:5174/$1 [P,L]
+
+    # ====================================================
+    # STANDARD REVERSE PROXY PASSES (ORDERED SPECIFIC -> GENERAL)
+    # ====================================================
+
+    # 1. RIT SAML Integration Routes (Mapped to Node/Express on Port 3000)
+    ProxyPass /saml2/acs http://localhost:3000/saml2/acs
+    ProxyPassReverse /saml2/acs http://localhost:3000/saml2/acs
+
+    ProxyPass /saml2/metadata http://localhost:3000/saml2/metadata
+    ProxyPassReverse /saml2/metadata http://localhost:3000/saml2/metadata
+
+    ProxyPass /login http://localhost:3000/login
+    ProxyPassReverse /login http://localhost:3000/login
+
+    # 2. Express Backend Proxy (Port 3000)
     ProxyPass /api http://localhost:3000/api
     ProxyPassReverse /api http://localhost:3000/api
 
-    # Status Monitor Portal Gateway Proxy
-    ProxyPass /status http://localhost:5174/status
-    ProxyPassReverse /status http://localhost:5174/status
+    # 3. Main Dashboard Frontend (Port 5173)
+    ProxyPass /dashboard http://localhost:5173/dashboard
+    ProxyPassReverse /dashboard http://localhost:5173/dashboard
 
-    # User Interface Portal Gateway Proxy (Root Layout)
-    ProxyPass / http://localhost:5173/
-    ProxyPassReverse / http://localhost:5173/
+    # 4. ROBOT VIDEO STREAMING PROXY MATCH
+    # Dynamically targets any robot IP over HTTPS port 8443
+    ProxyPassMatch "^/robot-stream/([^/]+)/(.*)$" "https://$1:8443/$2"
+    ProxyPassReverse "^/robot-stream/([^/]+)/(.*)$" "https://$1:8443/$2"
+
+    # 5. Status Page Catch-All (Port 5174 - MUST BE THE LAST RULE IN THE FILE)
+    ProxyPass / http://localhost:5174/
+    ProxyPassReverse / http://localhost:5174/
+
+    # Generated Let's Encrypt SSL Certificates
+    SSLCertificateFile /etc/letsencrypt/live/robotics-project.gccis.rit.edu/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/robotics-project.gccis.rit.edu/privkey.pem
+    Include /etc/letsencrypt/options-ssl-apache.conf
 </VirtualHost>
 ```
 
@@ -155,7 +251,7 @@ pm2 stop all      # Halt all background running processes
 ---
 
 ## 🤖 Step 6: Establish ROS2 Communication Framework
-To subscribe to telemetry streams (`/robot_pos`, `/nav_destination`, `/laptop_battery`), you must run the server gateway layer.
+To subscribe to and publish to telemetry streams (`/robot_pos`, `/nav_destination`, `/laptop_battery`, `/robot_status`), you must run the server gateway layer.
 
 ### Robot Setup Tasks (Run on each Physical Robot Laptop)
 ```bash
@@ -179,10 +275,6 @@ Instructions for provisioning the restricted runtime code execution engine conta
 cd /home/ars4041/RoboFleet_WebServer/backend
 docker build -t my-robot-runner .
 ```
-
-### [Docker Optimization Notes - To Be Expanded]
-*Placeholder: Detail container memory fencing, container pruning cycles, and access control profiles.*
-
 ---
 
 ## 📦 Critical Package Manifest & Dependencies
