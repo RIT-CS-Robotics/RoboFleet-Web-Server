@@ -296,17 +296,17 @@ Below is an index of core installation modules and libraries critical to the ini
 ### Local Java Archives (`backend/`)
 * **`javaparser-core-3.25.10.jar`** — Local Java dependency used to parse, analyze, and manipulate Java Abstract Syntax Trees (AST) programmatically.
 
-### User Interaction Frontend Dependencies (`user_interaction_frontend/package.json`) (EDIT LATER)
+### User Interaction Frontend Dependencies (`user_interaction_frontend/package.json`)
 * **`react`** — UI library for components and reactive application state management.
 * **`react-dom`** — Renders components directly into the browser DOM ecosystem.
-* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Next-generation bundler and local hot-reloading development server.
-* **`eslint` & plugins** *(Dev)* — Static analysis system designed to enforce style rules and catch syntax issues.
+* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Fast build tool and local development server supporting hot module replacement (HMR).
+* **`eslint`, `globals` & plugins** *(Dev)* — Static analysis system designed to catch code bugs, safely identify global variables, and optimize React hooks.
 
-### Status Frontend Dependencies (`status_frontend/package.json`) (EDIT LATER)
+### Status Frontend Dependencies (`status_frontend/package.json`)
 * **`react`** — UI library for components and reactive application state management.
 * **`react-dom`** — Renders components directly into the browser DOM ecosystem.
-* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Next-generation bundler and local hot-reloading development server.
-* **`eslint` & plugins** *(Dev)* — Static analysis system designed to enforce style rules and catch syntax issues.
+* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Fast build tool and local development server supporting hot module replacement (HMR).
+* **`eslint`, `globals` & plugins** *(Dev)* — Static analysis system designed to catch code bugs, safely identify global variables, and optimize React hooks.
 
 ### System Utilities & Compilers
 * **`python3`** & **`ast`** — Static evaluation script analyzers.
@@ -314,7 +314,77 @@ Below is an index of core installation modules and libraries critical to the ini
 
 ---
 
-## 🔒 Step 9: Nginx setup for encrypted video streaming from ros2: (EDIT LATER)
+## 🔒 Step 9: Nginx Reverse Proxy for Encrypted ROS2 Video Streaming
+
+To comply with modern browser security policies, a website served over **HTTPS** cannot load unencrypted **HTTP** video streams. This security measure is known as blocking **Mixed Content**. 
+
+This step configures Nginx as a lightweight **TLS/SSL middleware proxy** running directly on the robot's laptop. It intercepts the local, unencrypted ROS2 HTTP video stream on port `8080` and securely exposes it over HTTPS on port `8443`. This architecture satisfies browser security requirements and prevents backend server overhead during real-time video playback.
+
+### REMINDER: This is configured on the robots laptop, not the device running the website!
+
+### 1. Install Nginx
+Update your package repository lists and install the Nginx web server:
+```bash
+sudo apt update
+sudo apt install nginx -y
+```
+
+### 2. Generate a Self-Signed SSL Certificate
+Create a long-term (100-year) self-signed SSL certificate to encrypt the streaming traffic. 
+
+> 💡 **Tip:** You can safely press **ENTER** to leave all requested details (such as Country, State, and Organization Name) at their blank default values.
+
+```bash
+sudo openssl req -x509 -nodes -days 36500 -newkey rsa:2048 \
+  -keyout /etc/ssl/private/robot.key \
+  -out /etc/ssl/certs/robot.crt
+```
+
+### 3. Configure the Nginx Server Block
+Open the default Nginx configuration file using the nano text editor:
+```bash
+sudo nano /etc/nginx/sites-available/default
+```
+
+Completely clear the file and replace its entire contents with the following configuration block:
+```nginx
+server {
+    listen 8443 ssl;
+    server_name localhost;
+
+    # SSL Certificates
+    ssl_certificate /etc/ssl/certs/robot.crt;
+    ssl_certificate_key /etc/ssl/private/robot.key;
+
+    location / {
+        # Proxy traffic to the local unencrypted ROS2 HTTP server
+        proxy_pass http://127.0.0.1:8080;
+        
+        # Real-time streaming optimizations
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        
+        # Prevent streaming timeouts during low-activity periods
+        proxy_set_header Host \$host;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+}
+```
+*To exit nano: Press `Ctrl + O` then `Enter` to save the file, followed by `Ctrl + X` to close the editor.*
+
+### 4. Verify and Restart Nginx
+Always test your Nginx configuration syntax for mistakes before restarting the active daemon:
+```bash
+sudo nginx -t
+```
+
+If the test reports that the configuration syntax is okay, restart the Nginx system service to apply your changes:
+```bash
+sudo systemctl restart nginx
+```
 
 ---
 
