@@ -190,7 +190,31 @@ async function removeAllCode(user) {
 }
 
 /**
- * gets all of the file names for the users code files stored in their log directory.
+ * Sorts the array of logs/perms by when they were created (newest -> oldest).
+ * 
+ * @param arr: The array of code logs/perms
+ * @return: The sorted array of code logs/perms as file names
+ */
+async function sortByCreation(arr, userPath) {
+    // Build the file objects and collect the needed metaData
+    const arrPromises = arr.map(async (filename) => {
+        const fullPath = path.join(userPath, filename);
+        const metaData = await fs.stat(fullPath);
+        return {
+            name: filename,
+            creationTime: metaData.birthtimeMs
+        };
+    });
+    const fileObjects = await Promise.all(arrPromises);
+
+    // Sort the objects by time they were created (newest to oldest) and then return the paths of the files
+    fileObjects.sort((a, b) => b.creationTime - a.creationTime);
+    return fileObjects.map(file => file.name);
+
+}
+
+/**
+ * gets all of the file names for the users code files stored in their log (code) directory.
  * 
  * @param user: The user to get the code file names for from their log directory.
  */
@@ -200,6 +224,7 @@ async function getLogs(user) {
     try {
         const userPath = path.join(dirPath, user, 'code');
         logs = await fs.readdir(userPath);
+        logs = await sortByCreation(logs, userPath); // sorts the logs from newest to oldest
         console.log(`Successfully retrieved logs for user: ${user}`);
     }
     catch (err) {
@@ -210,7 +235,7 @@ async function getLogs(user) {
 }
 
 /**
- * Gets all of the perm files for a given user.
+ * Gets all of the perm file names for a given user.
  * 
  * @param user: The user to get the array of perms for.
  * @returns The array of perm files for the user.
@@ -221,6 +246,7 @@ async function getPerms(user) {
     try {
         const userPath = path.join(dirPath, user, 'perm');
         perms = await fs.readdir(userPath);
+        perms = await sortByCreation(perms, userPath); // sorts the perms from newest to oldest
         console.log(`Successfully retrieved perms for user: ${user}`);
     }
     catch (err) {
