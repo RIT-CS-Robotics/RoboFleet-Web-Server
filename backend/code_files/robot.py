@@ -6,7 +6,9 @@ from pathlib import Path
 from ultralytics import YOLO
 
 METRE_MAX = 3.0
-BANNED_WORDS = "banned.txt"
+#BANNED_WORDS = "banned.txt"
+IMG_HEIGHT = 480
+IMG_WIDTH = 640
 
 class Robot(AbstractContextManager):
 	def __init__(self):
@@ -28,12 +30,6 @@ class Robot(AbstractContextManager):
 		self.playlist = queue.Queue()
 		self.music_playing = False
 		self.current_song = "N/A"
-
-		# banned words
-		self.banned_words = set()
-		with open(BANNED_WORDS) as file:
-			for line in file:
-				self.banned_words.add(line.strip())
 
 		# connect socket
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -161,10 +157,6 @@ class Robot(AbstractContextManager):
 		if len(message) > CHAR_LIMIT:
 			message = message[:CHAR_LIMIT]
 			print(f"Warning: only the first {CHAR_LIMIT} characters will be said.")
-
-		for word in self.banned_words:
-			if word in message:
-				return "[ERROR] Message contained banned word. Denied."
 
 		# replace commas
 		message = message.replace(",", ".")
@@ -464,8 +456,11 @@ class Robot(AbstractContextManager):
 				# update dest
 				cmd_arr = command.split(":")
 				loc = cmd_arr[1]
-				self.dest_name = loc
-				print(cmd_arr[1])
+				dest = loc.split(",")
+				if len(dest) == 1:
+					self.dest_name = loc[0]
+				elif len(dest) == 2:
+					self.dest_pos = loc
 
 				# send command to Nav2
 				print("Sending command to Nav2: ", command)
@@ -553,6 +548,21 @@ class Photo:
 		self.data = data
 		self.photo_objects_seen = robot_obj.photo_objects_seen
 		self.photo_whos_there = robot_obj.photo_whos_there
+		self.height = IMG_HEIGHT
+		self.width = IMG_WIDTH
+
+		# process once
+		frame = np.array(data, dtype=np.uint8)
+		self.pixels = frame.reshape(IMG_HEIGHT, IMG_WIDTH, 3).tolist()
+
+	def get_height(self):
+		return self.height
+
+	def get_width(self): 
+		return self.width
+
+	def get_pixels(self):
+		return self.pixels
 
 	def objects_seen(self):
 		objects = self.photo_objects_seen(self.data)

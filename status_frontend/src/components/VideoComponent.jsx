@@ -33,7 +33,7 @@ return (
                 {!videoDown ? (
                     <>
                         <img 
-                            src={`/robot-stream/${host}/stream?topic=/image_raw`} 
+                            src={`/robot-stream/${host}/stream?topic=/image_raw&quality=30&width=640&height=480`} 
                             alt={`Live Feed for ${robotId}`} 
                             className="robot-stream-feed"
                             onError={() => setVideoDown(true)} 

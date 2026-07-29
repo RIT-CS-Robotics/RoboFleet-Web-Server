@@ -16,5 +16,24 @@ yarn-error.log*
 backend/user_logs/
 backend/users.json
 
-# other
-Research Notes
+# Ignore certificates
+certificates/
+
+# Ignore Java Files
+javaparser-core-3.25.10.jar
+Validator.class
+Validator$1.class
+Validator$Check.class
+Validator$ValidationException.class
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
