@@ -1,4 +1,11 @@
-// src/App.jsx
+/**
+ * Functionality:The general dashboard (admin, student dashboard, login) page.
+ * (robotics-project.gccis.rit.edu/dashboard). Acts as a wrapper for those pages.
+ *
+ * @file user_interaction_frontend/src/pages/App.jsx
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ */
 import { useState } from 'react';
 import './App.css';
 import Login from './pages/Login';

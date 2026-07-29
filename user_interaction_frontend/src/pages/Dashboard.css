@@ -1,4 +1,12 @@
-/* src/components/Dashboard.css */ 
+/**
+ * Functionality: Styling for the student dashboard page (robotics-project.gccis.rit.edu/dashboard)
+ *
+ * @file user_interaction_frontend/src/pages/Dashboard.css
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ *
+ * @disclosure: Base styling generated with AI (Google Gemini)
+ */
 
 /* ========================================================================== GLOBAL CANVAS LAYOUT RESET - Unlocks entire widescreen real estate ========================================================================== */ 
 html, body, #root { 

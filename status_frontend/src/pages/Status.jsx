@@ -1,10 +1,9 @@
 /**
+ * Functionality: Status page for RoboFleet (robotics-project.gccis.rit.edu)
+ * 
  * @file status_frontend/src/pages/Status.jsx
- * 
- * @fileoverview Status page for RoboFleet (robotics-project.gccis.rit.edu/status)
- * 
- * @date 7/8/2026
  * @author Aidan Sanderson
+ * @date 7/8/2026
  */
 
 import { useState, useEffect } from 'react';

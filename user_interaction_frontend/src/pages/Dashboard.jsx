@@ -1,4 +1,10 @@
-// src/components/Dashboard.jsx
+/**
+ * Functionality: The student dashboard page (robotics-project.gccis.rit.edu/dashboard)
+ *
+ * @file user_interaction_frontend/src/pages/Dashboard.jsx
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ */
 import { useEffect, useState } from 'react';
 import './Dashboard.css';
 import {loadLogs} from '../Utilities';

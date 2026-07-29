@@ -1,4 +1,13 @@
-/* src/App.css */
+/**
+ * Functionality: Styling for the general dashboard (admin, student dashboard, login) page 
+ * (robotics-project.gccis.rit.edu/dashboard). Acts as a wrapper for those pages.
+ *
+ * @file user_interaction_frontend/src/pages/App.css
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ *
+ * @disclosure: Base styling generated with AI (Google Gemini)
+ */
 
 /* 1. GLOBAL DESIGN TOKENS */
 :root {

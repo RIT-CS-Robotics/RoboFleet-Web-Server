@@ -1,4 +1,12 @@
-/* src/components/Login.css */
+/**
+ * Functionality: Styling for the dashboard login page (robotics-project.gccis.rit.edu/dashboard)
+ *
+ * @file user_interaction_frontend/src/pages/Login.css
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ *
+ * @disclosure: Base styling generated with AI (Google Gemini)
+ */
 
 .login-container {
   padding: 50px 30px; /* Increased internal container depth spacing */

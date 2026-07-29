@@ -1,9 +1,9 @@
 /**
  * Functionality: The main backend architecture for the RoboFleet webserver.
  * 
- * @file: app.js
+ * @file app.js
  * @author Aidan Sanderson
- * @date: 6/9/2026
+ * @date 6/9/2026
  */
 
 require('dotenv').config(); // Version: dotenv@17.4.2

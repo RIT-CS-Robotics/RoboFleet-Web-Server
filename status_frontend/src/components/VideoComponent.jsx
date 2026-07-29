@@ -1,10 +1,9 @@
 /**
+ * Functionality: Robot video streaming component for the status page (robotics-project.gccis.rit.edu)
+ * 
  * @file status_frontend/src/components/VideoComponent.jsx
- * 
- * @fileoverview Robot video streaming component for the status page (robotics-project.gccis.rit.edu/status)
- * 
- * @date 7/8/2026
  * @author Aidan Sanderson
+ * @date 7/8/2026
  */
 
 import { useState, useEffect } from 'react'; 

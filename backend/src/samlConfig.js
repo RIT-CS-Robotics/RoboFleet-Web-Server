@@ -1,10 +1,10 @@
 /**
  * Functionality: The saml config for highly secure RIT login authentification.
  * 
- * @file: samlConfig.js
- * @author: RIT saml authentification setup tutorial
- * @author: Aidan Sanderson
- * @date: 7/29/2026
+ * @file samlConfig.js
+ * @author RIT saml authentification setup tutorial
+ * @author Aidan Sanderson
+ * @date 7/29/2026
  */
 
 const fs = require('fs');

@@ -1,4 +1,10 @@
-// src/components/Login.jsx
+/**
+ * Functionality: The dashboard login page (robotics-project.gccis.rit.edu/dashboard)
+ *
+ * @file user_interaction_frontend/src/pages/Login.jsx
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ */
 import { useState } from 'react';
 import './Login.css'; // Imported stylesheet here
 

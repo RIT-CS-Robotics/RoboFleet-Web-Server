@@ -2,9 +2,9 @@
 Functionality: Validates RoboFleet Python code to check for syntax errors and illegal actions and 
 returns the validation result as success or failure to decide to run the code or not.
 
-@file: validator.py
-@author: Aidan Sanderson
-@date: 7/1/2026
+@file validator.py
+@author Aidan Sanderson
+@date 7/1/2026
 """
 
 import sys

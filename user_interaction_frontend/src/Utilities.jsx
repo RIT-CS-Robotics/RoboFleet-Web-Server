@@ -1,10 +1,9 @@
 /**
+ * Functionality: Utility functions for user interaction frontend for RoboFleet (robotics-project.gccis.rit.edu/dashboard)
+ * 
  * @file status_frontend/src/Utilities.jsx
- * 
- * @fileoverview Utility functions for user interaction frontend for RoboFleet (robotics-project.gccis.rit.edu)
- * 
- * @date 7/10/2026
  * @author Aidan Sanderson
+ * @date 7/10/2026
  */
 
 /**

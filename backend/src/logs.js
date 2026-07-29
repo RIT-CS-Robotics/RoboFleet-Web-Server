@@ -1,9 +1,9 @@
 /**
  * Functionality: The functionality behind the user code logging system for the RoboFleet backend server.
  * 
- * @file: logs.js
+ * @file logs.js
  * @author Aidan Sanderson
- * @date: 6/15/2026
+ * @date 6/15/2026
  */
 const { promises } = require('node:dns');
 const fs = require('node:fs/promises'); // Version: node@24.16.0

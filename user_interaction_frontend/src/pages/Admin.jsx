@@ -1,4 +1,10 @@
-// src/components/Admin.jsx
+/**
+ * Functionality: The admin dashboard page (robotics-project.gccis.rit.edu/dashboard)
+ *
+ * @file user_interaction_frontend/src/pages/Admin.jsx
+ * @author Aidan Sanderson
+ * @date 7/29/2026
+ */
 import { useState, useEffect } from 'react';
 import './Admin.css'; // Imported stylesheet here
 import { loadLogs } from '../Utilities';

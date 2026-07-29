@@ -1,9 +1,9 @@
 /**
  * Functionality: The functionality behind the backend web server commanding the robot.
  * 
- * @file: robocom.js
+ * @file robocom.js
  * @author Aidan Sanderson
- * @date: 6/12/2026
+ * @date 6/12/2026
  */
 
 require('dotenv').config(); // Version: dotenv@17.4.2

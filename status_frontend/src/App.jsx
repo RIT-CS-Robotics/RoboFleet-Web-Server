@@ -1,10 +1,9 @@
 /**
+ * Functionality: Main component for Status and About pages for RoboFleet (robotics-project.gccis.rit.edu). Acts as a wrapper for those pages.
+ * 
  * @file status_frontend/src/App.jsx
- * 
- * @fileoverview Main component for Status and About pages for RoboFleet (robotics-project.gccis.rit.edu/status). Acts as a wrapper for those pages.
- * 
- * @date 7/8/2026
  * @author Aidan Sanderson
+ * @date 7/8/2026
  */
 
 import { useState, useEffect } from 'react';
