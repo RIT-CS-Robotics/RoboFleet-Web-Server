@@ -2,7 +2,7 @@
  * Functionality: Creates a system for mapping x and y coordinates to location names in the RIT Golisano building 
  * and allows for O(1) retreival of location names when the x and y coordinates are used to search for them.
  * 
- * @file destinations.js
+ * @file backend/src/destinations.js
  * @author Aidan Sanderson
  * @date 6/9/2026
  */

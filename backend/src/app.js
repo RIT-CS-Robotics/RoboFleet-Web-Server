@@ -1,7 +1,7 @@
 /**
  * Functionality: The main backend architecture for the RoboFleet webserver.
  * 
- * @file app.js
+ * @file backend/src/app.js
  * @author Aidan Sanderson
  * @date 6/9/2026
  */

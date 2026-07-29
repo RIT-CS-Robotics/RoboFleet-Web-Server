@@ -1,7 +1,7 @@
 /**
  * Functionality: The saml config for highly secure RIT login authentification.
  * 
- * @file samlConfig.js
+ * @file backend/src/samlConfig.js
  * @author RIT saml authentification setup tutorial
  * @author Aidan Sanderson
  * @date 7/29/2026

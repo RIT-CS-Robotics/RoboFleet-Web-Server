@@ -49,7 +49,7 @@ export default function About() {
               Zachary Butler, Aidan Sanderson, Anusha Ghosh, Mayank Rawat
             </p>
 
-            <code className="build-version">Build Version: 0.9.0 // BETA</code>
+            <code className="build-version">Build Version: 0.9 // BETA</code>
 
           </section>
         </main>

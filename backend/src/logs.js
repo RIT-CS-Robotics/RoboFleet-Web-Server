@@ -1,7 +1,7 @@
 /**
  * Functionality: The functionality behind the user code logging system for the RoboFleet backend server.
  * 
- * @file logs.js
+ * @file backend/src/logs.js
  * @author Aidan Sanderson
  * @date 6/15/2026
  */
