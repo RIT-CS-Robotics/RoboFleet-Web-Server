@@ -1,10 +1,10 @@
 """
-File: validator.py
-Date: 7/1/2026
-Author: Aidan Sanderson
-
-Functionality: Validates code to check for syntax errors and illegal actions and 
+Functionality: Validates RoboFleet Python code to check for syntax errors and illegal actions and 
 returns the validation result as success or failure to decide to run the code or not.
+
+@file: validator.py
+@author: Aidan Sanderson
+@date: 7/1/2026
 """
 
 import sys
@@ -23,9 +23,10 @@ class check(Enum):
 Constructs the ast tree for validation.
 
 @param: file_path - The file path for the code to validate.
+@return: The ast tree of the code from the code file.
+
 @except: SyntaxError - The code has a syntax error (returns None for failed validation).
 @except: Exception - The code has a file reading error (returns None for failed validation).
-@return: The ast tree of the code from the code file.
 """
 def get_tree(file_path):
     try:

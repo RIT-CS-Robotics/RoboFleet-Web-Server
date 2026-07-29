@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install the default headless Java Development Kit available for this Debian release
+# Install the default headless Java Development Kit available for the used Debian release
 RUN apt-get update && apt-get install -y --no-install-recommends \
     default-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
@@ -11,13 +11,13 @@ RUN useradd -m studentuser
 # Set working directory to the framework root
 WORKDIR /app
 
-# 1. FIXED: Put your files back into the root /app folder for Python tracking
+# 1. Put the files back into the root /app folder for Python tracking
 COPY ./code_files/robot.py /app/robot.py
 
-# 2. FIXED: Place Robot.java inside an explicit /app/robot folder to satisfy Java's package constraint
+# 2. Place Robot.java inside an explicit /app/robot folder to satisfy Java's package constraint
 COPY ./code_files/Robot.java /app/robot/Robot.java
 
-# 3. FIXED: Compile Robot.java from within /app so it generates the package class accurately
+# 3. Compile Robot.java from within /app so it generates the package class accurately
 RUN javac /app/robot/Robot.java
 
 # Switch context to the workspace directory where the host folder will mount

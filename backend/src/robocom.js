@@ -1,9 +1,9 @@
 /**
- * File: robocom.js
- * @author Aidan Sanderson
- * Date: 6/12/2026
- * 
  * Functionality: The functionality behind the backend web server commanding the robot.
+ * 
+ * @file: robocom.js
+ * @author Aidan Sanderson
+ * @date: 6/12/2026
  */
 
 require('dotenv').config(); // Version: dotenv@17.4.2
@@ -11,18 +11,13 @@ const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
 const { spawn, spawnSync } = require('child_process');
 const tmp = require('tmp'); // Version: tmp@0.2.7
-const { resolve } = require('dns');
-const { tmpdir } = require('os');
-const { dir } = require('console');
+
 
 tmp.setGracefulCleanup(); // cleanup on server exit
 
-const logsPath = path.join(__dirname, '../user_logs');
+const logsPath = path.join(__dirname, '../user_logs'); // root logs directory
 
-const codeDir = path.join(__dirname, '../code_files');
-if (!fs.existsSync(codeDir)) {
-    fs.mkdirSync(codeDir, { recursive: true});
-}
+const codeDir = path.join(__dirname, '../code_files'); // root code files directory
 
 const temps = {
     keep: false,
@@ -127,14 +122,14 @@ async function validate(code, logStream, permStream, codeType) {
             validator = spawn('python3', ['-u', validatorPath, code]); // Python validation version
         }
         else if (codeType === 'Java') {
-            // 1. Target the compiled .jar package inside your backend root folder
+            // Targets the compiled .jar package inside the backend root folder
             const jarPath = path.join(codeDir, '..', 'javaparser-core-3.25.10.jar');
             
-            // 2. Build the classpath: include codeDir so Java can look inside it to locate "Validator.class"
+            // Build the classpath: include codeDir so Java can look inside it to locate "Validator.class"
             const classpathStr = `.:${codeDir}:${jarPath}`;
             console.log(`[Validator Config] Linking JAR path -> ${jarPath}`);
             
-            // 3. Spawns Java: executes the 'Validator' binary and hands it the 'code' file path argument
+            // Spawns Java: executes the 'Validator' binary and hands it the 'code' file path argument
             validator = spawn('java', [
                 '-cp', classpathStr, 
                 'Validator', 
@@ -189,7 +184,7 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
     let dockerArgs;
      fs.chmodSync(scriptDir, 0o755); // Explicit temp directory permisions for docker
      fs.chmodSync(scriptPath, 0o644); // Explicit code file permisions for docker
-    // Map the temporary Python script safely inside the container's working directory (/app) as read-only (:ro)
+    // Map the temporary Python script safely inside the container's working directory (/app) as read-only
     if (codeType === 'Python') {
         dockerArgs = [
             'run', '--rm', '--read-only',
@@ -200,7 +195,7 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
             'robot-runner'
         ];
     }
-    // Map the temporary Java script safely inside the container's working directory (/app) as read-only (:ro)
+    // Map the temporary Java script safely inside the container's working directory (/app) as read-only
     else if (codeType === 'Java') {
         dockerArgs = [
             'run', '--rm', '--read-only',
@@ -227,6 +222,7 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
  * @param scriptPath: The path to the temp code file object
  * @param logStream: Writable stream to the code log file
  * @param permStream: Writable stream to the code perm file
+ * @param topicPub: The topic to publish the stdour and stderr to
  * @param callBack: The callback function to activate once the code is finished running
  */
 function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, topicPub, callBack) {
@@ -282,6 +278,7 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
  * @param robotId: The robot to run the code on
  * @param host: The robot IP to run the code on
  * @param codeType: 'Python' or 'Java'
+ * @param topicPub: The topic to publish the stdour and stderr to
  * @param callBack: The callback function to activate once the code is finished running
  */
 async function robotRun(code, title, user, robotId, host, codeType, topicPub, callBack) {
@@ -302,10 +299,10 @@ async function robotRun(code, title, user, robotId, host, codeType, topicPub, ca
     }
 
     // Establishes writable streams for logging student code output
-    const output_path_log = path.join(logsPath, user, 'log', (title + '.log') );
-    const output_path_perm = path.join(logsPath, user, 'perm', (title + '.perm') );
-    const logStream = fs.createWriteStream(output_path_log, { flags: 'a', encoding: 'utf-8' });
-    const permStream = fs.createWriteStream(output_path_perm, { flags: 'a', encoding: 'utf-8' });
+    const outputPathLog = path.join(logsPath, user, 'log', (title + '.log') );
+    const outputPathPerm = path.join(logsPath, user, 'perm', (title + '.perm') );
+    const logStream = fs.createWriteStream(outputPathLog, { flags: 'a', encoding: 'utf-8' });
+    const permStream = fs.createWriteStream(outputPathPerm, { flags: 'a', encoding: 'utf-8' });
     logStream.on('error', (err) => console.error(`System logStream write error: ${err}`));
     permStream.on('error', (err) => console.error(`System permStream write error: ${err}`));
 

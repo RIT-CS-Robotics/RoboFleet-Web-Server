@@ -1,3 +1,12 @@
+/**
+ * Functionality: Validates RoboFleet Java code to check for syntax errors and illegal actions and
+ * returns the validation result as success or failure to decide to run the code or not.
+ * 
+ * @file: Validator.java
+ * @author: Aidan Sanderson
+ * @date: 7/1/2026
+ */
+
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.Problem;
@@ -12,15 +21,11 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * File: Validator.java
- * Date: 7/1/2026
- * Author: Aidan Sanderson
- *
- * Functionality: Validates code to check for syntax errors and illegal actions and
- * returns the validation result as success or failure to decide to run the code or not.
+ * The Validator Object
  */
 public class Validator {
 
+    // Enum for valid or invalid numerical exit values
     private enum Check {
         VALID(0), INVALID(1);
 
@@ -35,12 +40,19 @@ public class Validator {
         }
     }
 
+    // Exception while validating object
     private static class ValidationException extends RuntimeException {
         public ValidationException(String message) {
             super(message);
         }
     }
 
+    /**
+     * Gets the compilation tree for the Java code to be able to validate it for RoboFleet standards.
+     * 
+     * @param filePath: The file path for the file containing the code to validate.
+     * @return: The compilation tree of the code.
+     */
     private static CompilationUnit getTree(String filePath) {
         try {
             File file = new File(filePath);
@@ -63,24 +75,23 @@ public class Validator {
     /**
      * Checks the code for any illegal imports or calls.
      *
-     * @param tree - The ast tree for the code to validate for.
-     * @return Check.INVALID for any illegal imports or calls, Check.VALID otherwise.
+     * @param tree: The ast tree for the code to validate for.
+     * @return: Check.INVALID for any illegal imports or calls, Check.VALID otherwise.
      */
     private static Check validateIllegal(CompilationUnit tree) {
-        /* NOTE: ALLOWED ROOT PACKAGES */
+        /* NOTE: ADD ALLOWED PACKAGES HERE */
         // Added "java" so students can use basic language features (like java.util.List)
         Set<String> allowedModules = Set.of(
             "robot", "java"
         );
 
-        /* NOTE: BANNED PACKAGES AND UTILITIES */
-        // These replace the Python builtins to stop Java server-hijacking attempts
+        /* NOTE: ADD BANNED PACKAGES AND UTILITIES HERE */
         Set<String> bannedBuiltins = Set.of(
             "reflect", "network", "Socket", "URL", "URLConnection", "Net", 
             "io", "nio", "File", "FileReader", "FileWriter", "Path", "Paths"
         );
 
-        /* NOTE: BANNED EXPLOIT OPERATIONS */
+        /* NOTE: ADD BANNED EXPLOIT OPERATIONS HERE */
         // Catches process spawners, thread exploits, and dangerous robot overrides
         Set<String> bannedOperations = Set.of(
             // Process Hijacking / Command Execution
@@ -94,13 +105,11 @@ public class Validator {
         try {
             // Tree scanner to walk through specific nodes sequentially
             tree.accept(new VoidVisitorAdapter<Void>() {
-                // import / import from check
                 @Override
                 public void visit(ImportDeclaration n, Void arg) {
                     super.visit(n, arg);
                     String importName = n.getNameAsString();
                     
-                    // FIXED: Restored the [0] index wrapper so it extracts the root package cleanly
                     String rootPackage = importName.contains(".") ? importName.split("\\.")[0] : importName;
 
                     if (!allowedModules.contains(rootPackage)) {
@@ -171,7 +180,7 @@ public class Validator {
         // code file to validate for
         String filePath = args[0];
 
-        // gets the ast tree
+        // gets the compilation tree to use to validate the code
         CompilationUnit tree = getTree(filePath);
         if (tree == null) {
             System.exit(Check.INVALID.getValue());
@@ -179,7 +188,7 @@ public class Validator {
 
         Check valid = Check.VALID;
 
-        // FIXED: Instantiated the functional reference inside a separate variable first to bypass generic array limitations
+        // Instantiates the functional reference inside a separate variable first to bypass generic array limitations
         Function<CompilationUnit, Check> illegalTest = Validator::validateIllegal;
         Function<CompilationUnit, Check>[] validatorTests = (Function<CompilationUnit, Check>[]) new Function[] { 
             illegalTest 

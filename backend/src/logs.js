@@ -1,16 +1,16 @@
 /**
- * File: logs.js
- * @author Aidan Sanderson
- * Date: 6/15/2026
- * 
  * Functionality: The functionality behind the user code logging system for the RoboFleet backend server.
+ * 
+ * @file: logs.js
+ * @author Aidan Sanderson
+ * @date: 6/15/2026
  */
 const { promises } = require('node:dns');
 const fs = require('node:fs/promises'); // Version: node@24.16.0
 const { promiseHooks } = require('node:v8');
 const path = require('path'); // Version: node@24.16.0
 
-const dir_path = path.join(__dirname, '../user_logs');
+const dirPath = path.join(__dirname, '../user_logs'); // The root log directory
 
 /**
  * Creates a new code log directory for a given user.
@@ -19,17 +19,17 @@ const dir_path = path.join(__dirname, '../user_logs');
  */
 async function createUserLog(user) {
     try {
-        const user_path = path.join(dir_path, user);
-        const code_path = path.join(user_path, 'code');
-        const log_path = path.join(user_path, 'log');
-        const perm_path = path.join(user_path, 'perm');
+        const userPath = path.join(dirPath, user);
+        const codePath = path.join(userPath, 'code');
+        const logPath = path.join(userPath, 'log');
+        const permPath = path.join(userPath, 'perm');
 
-        await fs.mkdir(user_path, { recursive: true }); // recursive used here to prevent crashes if the folder exists
+        await fs.mkdir(userPath, { recursive: true }); // recursive used here to prevent crashes if the folder exists
 
         await Promise.all([
-            fs.mkdir(code_path, { recursive: true }),
-            fs.mkdir(log_path, { recursive: true }),
-            fs.mkdir(perm_path, { recursive: true })
+            fs.mkdir(codePath, { recursive: true }),
+            fs.mkdir(logPath, { recursive: true }),
+            fs.mkdir(permPath, { recursive: true })
         ]);
 
         console.log(`Code log directory created for user: ${user}`);
@@ -46,8 +46,8 @@ async function createUserLog(user) {
  */
 async function removeUserLog(user) {
     try {
-        const user_path = path.join(dir_path, user);
-        await fs.rm(user_path, { recursive: true, force: true }); // recursive removes all files inside and force doesn't error on minor issues
+        const userPath = path.join(dirPath, user);
+        await fs.rm(userPath, { recursive: true, force: true }); // recursive removes all files inside and force doesn't error on minor issues
         console.log(`Code log directory removed for user: ${user}`);
     }
     catch (err) {
@@ -60,22 +60,23 @@ async function removeUserLog(user) {
  * 
  * @param user: The user to store the code for from their log directory.
  * @param title: The name to give the code file.
+ * @param code: The code that the user deploys.
  */
 async function saveCode(user, title, code) {
     let result = true;
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
     try {
-        const code_path = path.join(dir_path, user, 'code', title);
-        const log_path = path.join(dir_path, user, 'log', (title + '.log') );
-        const perm_path = path.join(dir_path, user, 'perm', (title + '.perm') );
+        const codePath = path.join(dirPath, user, 'code', title);
+        const logPath = path.join(dirPath, user, 'log', (title + '.log') );
+        const permPath = path.join(dirPath, user, 'perm', (title + '.perm') );
         
         const seperator = '--------------------';
         const header = `Log: ${title}\nUser: ${user}\n${seperator}\nCode Ran:\n${seperator}\n ${code}\n${seperator}\nLog:\n${seperator}\n`;
 
         await Promise.all([
-            fs.writeFile(code_path, code, 'utf-8'),
-            fs.writeFile(log_path, header, 'utf-8'),
-            fs.writeFile(perm_path, header, 'utf-8')
+            fs.writeFile(codePath, code, 'utf-8'),
+            fs.writeFile(logPath, header, 'utf-8'),
+            fs.writeFile(permPath, header, 'utf-8')
         ]);
         console.log(`Code saved for user: ${user} with title: ${title}`);
     }
@@ -91,27 +92,28 @@ async function saveCode(user, title, code) {
  * 
  * @param user: The user to load the code for from their log directory.
  * @param title: The name of the code file.
+ * @param isLog: Is this for a log file? (if not then for a code file)
  * @returns file_content: The contents of the file (code or log text)
  */
-async function loadCode(user, title, is_log) {
+async function loadCode(user, title, isLog) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
-    let file_content;
-    let file_path;
+    let fileContent;
+    let filePath;
     try {
-        if (is_log) {
-            file_path = path.join(dir_path, user, 'log', (title + '.log') );
+        if (isLog) {
+            filePath = path.join(dirPath, user, 'log', (title + '.log') );
         }
         else {
-            file_path = path.join(dir_path, user, 'code', title);
+            filePath = path.join(dirPath, user, 'code', title);
         }
-        file_content = await fs.readFile(file_path, 'utf-8');
+        fileContent = await fs.readFile(filePath, 'utf-8');
         console.log(`Log loaded for user: ${user} with title: ${title}`);
     }
     catch (err) {
         console.error(`Log could not be loaded for user: ${user} with title: ${title} -> Error: ${err.message}`);
-        file_content = "ERROR";
+        fileContent = "ERROR";
     }
-    return file_content;
+    return fileContent;
 }
 
 /**
@@ -124,17 +126,17 @@ async function loadCode(user, title, is_log) {
 async function removeCode(user, title) {
     let success = true;
     try {
-        const code_path = path.join(dir_path, user, 'code', title);
-        const log_path = path.join(dir_path, user, 'log', (title + '.log') );
-        const [code_res, log_res] = await Promise.allSettled([
-            fs.unlink(code_path),
-            fs.unlink(log_path)
+        const codePath = path.join(dirPath, user, 'code', title);
+        const logPath = path.join(dirPath, user, 'log', (title + '.log') );
+        const [codeRes, logRes] = await Promise.allSettled([
+            fs.unlink(codePath),
+            fs.unlink(logPath)
         ]);
 
-        if (code_res.status === 'rejected' && code_res.reason.code !== 'ENOENT') {
+        if (codeRes.status === 'rejected' && codeRes.reason.code !== 'ENOENT') {
             throw new Error('log failed to delete');
         }
-        if (log_res.status === 'rejected' && log_res.reason.code !== 'ENOENT') {
+        if (logRes.status === 'rejected' && logRes.reason.code !== 'ENOENT') {
             throw new Error('Log failed to delete');
         }
 
@@ -156,22 +158,22 @@ async function removeCode(user, title) {
 async function removeAllCode(user) {
     let success = true;
     try {
-        const code_path = path.join(dir_path, user, 'code');
-        const log_path = path.join(dir_path, user, 'log');
+        const codePath = path.join(dirPath, user, 'code');
+        const logPath = path.join(dirPath, user, 'log');
 
-        const code_files = await fs.readdir(code_path).catch(() => []);
-        const log_files = await fs.readdir(log_path).catch(() => []);
+        const codeFiles = await fs.readdir(codePath).catch(() => []);
+        const logFiles = await fs.readdir(logPath).catch(() => []);
 
-        const promises_arr = [];
-        for (const file of code_files) {
-            promises_arr.push(fs.unlink(path.join(code_path, file)));
+        const promisesArr = [];
+        for (const file of codeFiles) {
+            promisesArr.push(fs.unlink(path.join(codePath, file)));
         }
 
-        for (const file of log_files) {
-            promises_arr.push(fs.unlink(path.join(log_path, file)));
+        for (const file of logFiles) {
+            promisesArr.push(fs.unlink(path.join(logPath, file)));
         }
 
-        const results = await Promise.allSettled(promises_arr);
+        const results = await Promise.allSettled(promisesArr);
         for (const result of results) {
             if (result.status === 'rejected' && result.reason.code !== 'ENOENT') {
                 throw new Error(`Failed to clear logs`);
@@ -196,8 +198,8 @@ async function getLogs(user) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
     let logs;
     try {
-        const user_path = path.join(dir_path, user, 'code');
-        logs = await fs.readdir(user_path);
+        const userPath = path.join(dirPath, user, 'code');
+        logs = await fs.readdir(userPath);
         console.log(`Successfully retrieved logs for user: ${user}`);
     }
     catch (err) {
@@ -207,12 +209,18 @@ async function getLogs(user) {
     return logs;
 }
 
+/**
+ * Gets all of the perm files for a given user.
+ * 
+ * @param user: The user to get the array of perms for.
+ * @returns The array of perm files for the user.
+ */
 async function getPerms(user) {
         await createUserLog(user); // safe guard if the user log doesn't already exist somehow
     let perms;
     try {
-        const user_path = path.join(dir_path, user, 'perm');
-        perms = await fs.readdir(user_path);
+        const userPath = path.join(dirPath, user, 'perm');
+        perms = await fs.readdir(userPath);
         console.log(`Successfully retrieved perms for user: ${user}`);
     }
     catch (err) {
@@ -222,20 +230,27 @@ async function getPerms(user) {
     return perms;
 }
 
+/**
+ * Gets the contents of a given perm file for a given user.
+ * 
+ * @param user: The user for the perm file to load.
+ * @param title: The name of the perm file to load.
+ * @returns The contents of the perm file that has been loaded.
+ */
 async function loadPerm(user, title) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
-    let file_content;
-    let file_path;
+    let fileContent;
+    let filePath;
     try {
-        file_path = path.join(dir_path, user, 'perm', title);
-        file_content = await fs.readFile(file_path, 'utf-8');
+        filePath = path.join(dirPath, user, 'perm', title);
+        fileContent = await fs.readFile(filePath, 'utf-8');
         console.log(`Log loaded for user: ${user} with title: ${title}`);
     }
     catch (err) {
         console.error(`Log could not be loaded for user: ${user} with title: ${title} -> Error: ${err.message}`);
-        file_content = "ERROR";
+        fileContent = "ERROR";
     }
-    return file_content;
+    return fileContent;
 }
 
 /**
@@ -247,16 +262,16 @@ async function loadPerm(user, title) {
 async function removeAllPerms(user) {
     let success = true;
     try {
-        const perm_path = path.join(dir_path, user, 'perm');
+        const permPath = path.join(dirPath, user, 'perm');
 
-        const perm_files = await fs.readdir(perm_path).catch(() => []);
+        const permFiles = await fs.readdir(permPath).catch(() => []);
 
-        const promises_arr = [];
-        for (const file of perm_files) {
-            promises_arr.push(fs.unlink(path.join(perm_path, file)));
+        const promisesArr = [];
+        for (const file of permFiles) {
+            promisesArr.push(fs.unlink(path.join(permPath, file)));
         }
 
-        const results = await Promise.allSettled(promises_arr);
+        const results = await Promise.allSettled(promisesArr);
         for (const result of results) {
             if (result.status === 'rejected' && result.reason.code !== 'ENOENT') {
                 throw new Error(`Failed to clear perms`);

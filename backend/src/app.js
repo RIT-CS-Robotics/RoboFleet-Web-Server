@@ -1,9 +1,9 @@
 /**
- * File: app.js
- * @author Aidan Sanderson
- * Date: 6/9/2026
+ * Functionality: The main backend architecture for the RoboFleet webserver.
  * 
- * Functionality: The backend architecture for the RoboFleet webserver.
+ * @file: app.js
+ * @author Aidan Sanderson
+ * @date: 6/9/2026
  */
 
 require('dotenv').config(); // Version: dotenv@17.4.2
@@ -12,6 +12,7 @@ const cors = require('cors'); // Version: cors@2.8.6
 const ROSLIB = require('roslib'); // Version: roslib@1.4.1
 const fs = require('fs'); // Version: node@24.16.0
 const path = require('path'); // Version: node@24.16.0
+
 const passport = require('passport'); // for saml authentification
 const { defaultSamlStrategy, SP_CERT } = require('./samlConfig.js'); // samlConfig
 
@@ -24,12 +25,12 @@ const app = express();
 const PORT = process.env.PORT;
 const bridge = process.env.ONLY_CONNECT;
 
-// Tells the app to use cors and json
+// Tells the app to use cors and REST endpoints
 app.use(cors({
   origin: 'https://robotics-project.gccis.rit.edu',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
-})); // Note: May be able to remove later if apache can do 100% of everything under the hood.
+}));
 
 app.use(express.json());
 
@@ -44,7 +45,10 @@ passport.use('saml', defaultSamlStrategy);
 
 const USERS_FILE = path.join(__dirname, '../users.json');
 
-// Helper function to read the user file safely
+/**
+ * 
+ * @returns 
+ */
 function loadUsers() {
   try {
     if (!fs.existsSync(USERS_FILE)) {
@@ -58,7 +62,10 @@ function loadUsers() {
   }
 }
 
-// Helper function to write to the user file safely
+/**
+ * 
+ * @param usersObj: 
+ */
 function saveUsers(usersObj) {
   try {
     fs.writeFileSync(USERS_FILE, JSON.stringify(usersObj, null, 2), 'utf8');
@@ -83,8 +90,7 @@ const robotConnections = {}; // each robot is saved here
  * @param ipAddress: The IP/Hostname of the robot
  */
 function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
-  //console.log(`Initializing connection loop for ${robotId} at ${ipAddress}...`);
-  // Ensure we have a placeholder state object in our tracker if it doesn't exist
+  // Ensures a placeholder state object in our tracker if it doesn't exist
   if (!robotConnections[robotId]) {
     robotConnections[robotId] = {
       host: ipAddress,
@@ -104,7 +110,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
   const wsUrl = `ws://${ipAddress}:9090`; // rosbridge websocket url
   const rosInstance = new ROSLIB.Ros({ url: wsUrl,  encoding: 'ascii'}); // rosbridge websocket connection
 
-  // Track if a connection retry timer is already pending for this cycle
+  // Sets the retry trigger off
   let retryTriggered = false;
 
   /**
@@ -148,26 +154,28 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
     // TOPIC INITIALIZATION
     // ----------------------------------------------------
 
-
+    // current position topic
     const posTopic = new ROSLIB.Topic({
       ros: rosInstance,
       name: "/robot_pos",
       messageType: "geometry_msgs/msg/PoseStamped",
     });
 
-
+    // destination goal topic
     const destinationTopic = new ROSLIB.Topic({
       ros: rosInstance,
       name: '/nav_destination',
       messageType: 'geometry_msgs/msg/PoseStamped',
     });
 
+    // laptop battery topic
     const batteryTopic = new ROSLIB.Topic({
       ros: rosInstance,
       name: '/laptop_battery',
       messageType: 'std_msgs/msg/Int32',
     });
 
+    // robot status messages topic
     const statusTopic = new ROSLIB.Topic({
       ros: rosInstance,
       name: '/robot_status',
@@ -233,7 +241,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
 
 
     /**
-     * Subscribes to a topic /laptop_battery that continuously gets the robot laptops current battery charge value from 0 to 100
+     * Subscribes to a topic /laptop_battery that continuously gets the robot laptops current battery charge value from 0 to 100.
      * 
      * @param message: The message being received from the topic publisher.
      */
@@ -246,9 +254,14 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
       }
     });
 
-    robotConnections[robotId].topic = (msg) => {
+    /**
+     * Publishes to /robot_status topic to send output messages from the robot run scripts.
+     * 
+     * @param message: The output message to publish to the /robot_status topic
+     */
+    robotConnections[robotId].topic = (message) => {
       const rosMessage = new ROSLIB.Message({
-        data: msg
+        data: message
       });
       statusTopic.publish(rosMessage);
     };
@@ -267,7 +280,6 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
    * Note: roslib always fires 'close' right after 'error', but this trigger retry safely as an extra safeguard.
    */
   rosInstance.on('error', (error) => {
-    //console.log(`ROSLIB Status: ${robotId} at ${ipAddress} is offline or unreachable.`);
     triggerRetry();
   });
 
@@ -287,7 +299,7 @@ passport.serializeUser(function (user, done) {
   done(null, user);
 });
 
-// Same as the above, we could just have an id and need to hydrate
+// Same as the above, could just have an id and need to hydrate
 // that into a full user object. In this example we just store the
 // full attribute array in the session and retrieve it every time.
 passport.deserializeUser(function (user, done) {
@@ -296,7 +308,7 @@ passport.deserializeUser(function (user, done) {
 
 
 // ====================================================
-// AUTHENTICATION & STUDENT REGISTRATION ROUTES
+// AUTHENTICATION & STUDENT REGISTRATION ENDPOINTS
 // ====================================================
 
 // Passes the SAML login function handler to passport.
@@ -363,7 +375,11 @@ app.get('/api/userSession', (req, res) => {
   return res.status(401).json({ message: "Unauthorized" });
 });
 
+// ==================================================== //
+// Classic Login Endpoint
+// ==================================================== //
 
+// Login endpoint for original method (not saml2)
 app.post('/api/loginOld', (req, res) => {
   const { username, password } = req.body;
 
@@ -383,6 +399,11 @@ app.post('/api/loginOld', (req, res) => {
   return res.status(401).json({ message: "Invalid username or password. Access denied." });
 });
 
+// ==================================================== //
+// SYSTEM ACCOUNTS ENDPOINTS
+// ==================================================== //
+
+// Registar a new login account endpoint
 app.post('/api/register', (req, res) => {
   const { username, password } = req.body;
 
@@ -405,7 +426,7 @@ app.post('/api/register', (req, res) => {
   return res.status(201).json({ message: "Student account created successfully." });
 });
 
-// 3. GET ALL USERS (Excludes sensitive passwords from being exposed to frontend)
+// Get all users in the system endpoint (Excludes sensitive passwords from being exposed to frontend)
 app.get('/api/users', (req, res) => {
   const users = loadUsers();
   // Get an array of just the usernames
@@ -413,7 +434,7 @@ app.get('/api/users', (req, res) => {
   return res.json(usernames);
 });
 
-// 4. DELETE USER ENDPOINT
+// Delete a user endpoint
 app.delete('/api/users/:username', (req, res) => {
   const userToDelete = req.params.username.trim();
   const users = loadUsers();
@@ -438,10 +459,10 @@ app.delete('/api/users/:username', (req, res) => {
 });
 
 // ====================================================
-// Code Logging Routes
+// CODE LOGGING ENDPOINTS
 // ====================================================
 
- // gets the text from the specified log file for code and log versions
+ // Endpoint that gets the text from the specified log file for code and log versions
 app.get('/api/log/:userName/:fileName', async (req,res) => {
   const user = req.params.userName;
   const title = req.params.fileName;
@@ -450,7 +471,7 @@ app.get('/api/log/:userName/:fileName', async (req,res) => {
   res.json({ userLog: log, userCode: code });
 });
 
- // gets the text from the specified log file for code and log versions
+ // Endpoint that gets the text from the specified log file for code and log versions
 app.get('/api/perm/:userName/:fileName', async (req,res) => {
   const user = req.params.userName;
   const title = req.params.fileName;
@@ -458,7 +479,7 @@ app.get('/api/perm/:userName/:fileName', async (req,res) => {
   res.json({ permLog: perm });
 });
 
-// gets all logs
+// Gets all logs endpoint
 app.get('/api/log/:userName', async (req, res) => {
 const user = req.params.userName;
 console.log(`Backend received data for log filename request for user: ${user}`);
@@ -466,7 +487,7 @@ const logs = await getLogs(user);
 res.json({userLogs: logs});
 });
 
-// gets all logs
+// Gets all perms endpoint
 app.get('/api/perm/:userName', async (req, res) => {
 const user = req.params.userName;
 console.log(`Backend received data for perm filename request for user: ${user}`);
@@ -474,7 +495,7 @@ const perms = await getPerms(user);
 res.json({userPerms: perms});
 });
 
-// removes specified log file
+// Endpoint that removes specified log file
 app.delete('/api/log/:userName/:logTitle', async (req, res) => {
   const user = path.basename(req.params.userName);
   const title = path.basename(req.params.logTitle);
@@ -487,7 +508,7 @@ app.delete('/api/log/:userName/:logTitle', async (req, res) => {
   }
 });
 
-// removes all log files for user
+// Endpoint that removes all log files for user
 app.delete('/api/log/:userName', async (req, res) => {
   const user = path.basename(req.params.userName);
   const success = await removeAllCode(user);
@@ -499,7 +520,7 @@ app.delete('/api/log/:userName', async (req, res) => {
   }
 });
 
-// removes all perm files for user
+// Endpoint that removes all perm files for user
 app.delete('/api/perm/:userName', async (req, res) => {
   const user = path.basename(req.params.userName);
   const success = await removeAllPerms(user);
@@ -513,11 +534,11 @@ app.delete('/api/perm/:userName', async (req, res) => {
 
 
 // ====================================================
-// ROBOT DATA COMMUNICATION ROUTES
+// ROBOT DATA COMMUNICATION ENDPOINTS
 // ====================================================
 
 /**
- * REST get command used to retrieve robot information and broadcast message information from the backend.
+ * Endpoint used to retrieve robot information and broadcast message information from the backend.
  */
 app.get('/api', (req, res) => {
   const statusReport = {};
@@ -539,7 +560,7 @@ app.get('/api', (req, res) => {
 });
 
 /**
- * REST get command used to retrieve robot information and broadcast message information from the backend.
+ * Endpoint used to retrieve robot information and broadcast message information from the backend.
  */
 app.get('/api/robots', (req, res) => {
   const robotIDs = []
@@ -551,14 +572,16 @@ app.get('/api/robots', (req, res) => {
   res.json({ robots: robotIDs });
 });
 
-/**
- * REST post command that saves the broadcast message in the backend and forwards it to the robot.
- */
+// ====================================================
+// MAIN ROBOT DEPLOYMENT ENDPOINT
+// ====================================================
+
+// Endpoint that gets the student code and uses it to deploy a robot.
 app.post('/api/deploy', (req, res) => {
-    const robotId = req.body.robotId || 'robot_default';  // robot_default is for unconfigured robots
-    const code = req.body.text; // broadcast message
+    const robotId = req.body.robotId || 'robot_default';  // robot_default is for unconfigured robots as a system backup
+    const code = req.body.text; // student script code
     const title = req.body.codeTitle; // code/log title
-    const user = req.body.user; // current user
+    const user = req.body.user; // user deploying the robot
 
     const fileType = title.split('$')[0]; // The raw file name without log info
 
@@ -567,49 +590,71 @@ app.post('/api/deploy', (req, res) => {
     // selects the correct robot
     const trackingData = robotConnections[robotId];
 
+    // Ensures the robot is configured
     if (!trackingData) {
-        return res.status(404).json({ message: `Robot ID "${robotId}" is not configured.` });
+        return res.status(404).json({ message: `Robot ID is not configured` });
     }
 
+    // Makes sure the robot is not already active
     if (trackingData.isActive) {
-        return res.status(409).json({ message: `Robot ID "${robotId}" is already active.` });
+        return res.status(409).json({ message: `Robot ID "${robotId}" is already active` });
     }
 
+    // Makes sure the code is titled with a valid .py or .java title
     if (!fileType.endsWith('.py') && !fileType.endsWith('.java')) {
       console.error(`Error: Invalid file type`);
       return res.status(503).json( {message: `Invalid file type`});
     }
 
+    // The target robot
     const hostName = trackingData.host;
 
-    // If the selected robot is online and connected to rosbridge then it creates a new topic /frontend_commands and publishes to it.
-    // Note: this will need to be updated and optimized eventually for multiple robots getting signals at once.
+    // Makes sure the selected robot is online and can recieve its signal via rosbridge before trying to deploy it
     if (trackingData.isConnected && trackingData.instance) {
 
-      const topicPub = robotConnections[robotId].topic;
+      const topicPub = robotConnections[robotId].topic; // The /robot_status topic for the specific robot.
+
+      // Sets the robot to being active
       robotConnections[robotId].isActive = true;
 
-      saveCode(user, title, code); // writes student code in log file
+      // writes student code in log file
+      saveCode(user, title, code);
 
+      // Deploys the robot for the python version
       if (fileType.endsWith('.py')) {
         console.log(`Attempting to deploy Robot: ${robotId} -> (PYTHON VERSION)`);
-        robotRun(code, title, user, robotId, hostName, 'Python', topicPub, (active) => { // runs the robot
+
+        robotRun(code, title, user, robotId, hostName, 'Python', topicPub, (active) => {
           codeCallback(active, robotId);
         });
+
         return res.json({ message: `Attempted to deploy ${robotId} with Python code` });
       }
+      // Deploys the robot for the java version
       else if (fileType.endsWith('.java')) {
         console.log(`Attempting to deploy Robot: ${robotId} -> (JAVA VERSION)`);
-        robotRun(code, title, user, robotId, hostName, 'Java', topicPub, (active) => { // runs the robot
+
+        robotRun(code, title, user, robotId, hostName, 'Java', topicPub, (active) => {
           codeCallback(active, robotId);
         });
+
         return res.json({ message: `Attempted to deploy ${robotId} with Java code` });
       }
-  } else {
+  } 
+  // Robot failed to deploy python or java version
+  else {
+      codeCallback(false, robotId)
+
       return res.status(503).json( {message: `Error running code on ${robotId}`});
   }
 });
 
+/**
+ * A callback function that is used to turn off the robots active status once the script deploying the robot finishes
+ * 
+ * @param active: The active status of the robot
+ * @param robotId: The specific robot to target
+ */
 function codeCallback(active, robotId) {
   robotConnections[robotId].isActive = active;
 }
@@ -617,6 +662,8 @@ function codeCallback(active, robotId) {
 // ----------------------------------------------------
 // ROBOFLEET REGISTRATION: add or edit robots here!
 // ----------------------------------------------------
+
+// Optional color coding (Recommended to make the colors here the same as the ones that display for the specific robot on the robots GUI)
 initializeRobotConnection('Robot 1', process.env.ROBOT_1_ADDRESS, '#307D7E'); 
 initializeRobotConnection('Robot 2', process.env.ROBOT_2_ADDRESS, 'pink'); 
 initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS, '#38bdf8'); 
