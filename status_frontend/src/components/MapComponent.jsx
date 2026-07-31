@@ -33,6 +33,11 @@ export function robotPlacement(metersX, metersY) {
   };
 }
 
+/**
+ * The Map component with the robots displaying on the map with direction facing.
+ * 
+ * @param {Robot Objects} fleetData: The robts and the robot data they hold.
+ */
 export default function MapComponent({ fleetData }) {
   return (
     <div className="map-container">

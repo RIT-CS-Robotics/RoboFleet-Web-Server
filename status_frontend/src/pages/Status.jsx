@@ -11,6 +11,9 @@ import './Status.css';
 import GolisanoMap from '../components/MapComponent';
 import VideoStream from '../components/VideoComponent';
 
+/**
+ * Status page
+ */
 export default function Status() {
   const [fleetData, setFleetData] = useState({}); // Robotics fleet data
   const [loading, setLoading] = useState(true); // Is the page loading?
@@ -108,7 +111,7 @@ return (
                   {/* MERGED POSITION & DESTINATION PANEL */}
                   <div className="robot-dropdown-content telemetry-merged-row">
                     
-                    {/* 1. POSITION PANEL (LEFT) */}
+                    {/* POSITION PANEL (LEFT) */}
                     <div className="telemetry-sub-panel">
                       <strong className="telemetry-block-title">POSITION INFO</strong>
                       <p>Current X: {info?.position?.x ?? '0'}</p>
@@ -121,7 +124,7 @@ return (
                     {/* VERTICAL DIVIDER */}
                     <div className="telemetry-vertical-divider" />
 
-                    {/* 2. DESTINATION PANEL (RIGHT) */}
+                    {/* DESTINATION PANEL (RIGHT) */}
                     <div className="telemetry-sub-panel">
                       <strong className="telemetry-block-title">DESTINATION INFO</strong>
                       <p>Target: {info?.destinationName || 'N/A'}</p>
@@ -132,7 +135,7 @@ return (
                     </div>
                   </div>
 
-                  {/* 3. LIVE CAMERA STREAMING */}
+                  {/* LIVE CAMERA STREAMING */}
                   <div className="camera-dropdown-content">
                     <VideoStream host={info.host} isOnline={info.online} robotId={robotId} />
                   </div>

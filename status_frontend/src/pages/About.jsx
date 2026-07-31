@@ -9,6 +9,9 @@ import React from 'react';
 import './About.css';
 import robotImage from '../assets/robot.png';
 
+/**
+ * About page
+ */
 export default function About() {
   return (
     <div className="about-container">

@@ -6,21 +6,31 @@
  * @date 7/29/2026
  */
 import { useState } from 'react';
-import './Login.css'; // Imported stylesheet here
+import './Login.css';
 
+/**
+ * Login page
+ * 
+ * @param {function} onLoginSuccess: The handle login success function.
+ */
 export default function Login({ onLoginSuccess }) {
   document.title = "RoboFleet Login";
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState(''); // Username
+  const [password, setPassword] = useState(''); // Password
+  const [error, setError] = useState(''); // Login error message
 
+  /**
+   * Handles the login attempt after the login button has been pressed using the currently set username and password useState variables.
+   * 
+   * @param {event} e: Login button event
+   */
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     
     try {
-      // Send credentials directly to your backend server
+      // Send credentials directly to the backend server login endpoint
       const response = await fetch('/api/loginOld', {
         method: 'POST',
         headers: { 
@@ -29,13 +39,15 @@ export default function Login({ onLoginSuccess }) {
         body: JSON.stringify({ username: username.trim(), password })
       });
 
+      // Login error
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || 'Invalid username or password.');
       }
 
+      // Login success
       const data = await response.json();
-      // Pass the username returned from backend up to App
+      // Pass the username returned from backend up to App.jsx to switch the page to the correct dashboard
       onLoginSuccess(data.username);
     } catch (err) {
       setError(err.message);

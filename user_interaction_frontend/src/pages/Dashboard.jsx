@@ -9,6 +9,12 @@ import { useEffect, useState } from 'react';
 import './Dashboard.css';
 import {loadLogs} from '../Utilities';
 
+/**
+ * Student Dashboard
+ * 
+ * @param {function} onLogout: Handles student logout.
+ * @param {string} currentUser: The username of the current student signed in.
+ */
 export default function Dashboard({ onLogout, currentUser }) {
   document.title = "RoboFleet Dashboard";
 
@@ -27,9 +33,14 @@ export default function Dashboard({ onLogout, currentUser }) {
   const [logName, setLogName] = useState(''); // The name of the current code to be logged
   const [userLogs, setUserLogs] = useState([]); // All of the users logs
 
-  const [robots, setRobots] = useState([]);
+  const [robots, setRobots] = useState([]); // All of the connected robots
 
 
+  /**
+   * Contructs the log title with the file name and log time info.
+   * 
+   * @returns The log title.
+   */
   async function constructTitle() {
     let title = logName;
           if (title.trim() === '') {
@@ -46,10 +57,15 @@ export default function Dashboard({ onLogout, currentUser }) {
       return title;
   }
 
-    // Gets the list of robots
+  /**
+   * Gets the list of robots and their data when online.
+   * 
+   * @returns The id's of the robots.
+   */
   const initRobots = async function () {
     if (currentUser) {
       try {
+        // Fetches the online and inactive robots from the backend.
         const response = await fetch('api/robots', {
           method: 'GET',
           headers: {
@@ -58,7 +74,7 @@ export default function Dashboard({ onLogout, currentUser }) {
        });
         const data = await response.json();
         const robotIDs = data.robots;
-        setRobots(robotIDs);
+        setRobots(robotIDs); // Sets the current online and inactive robots
         console.log(`init robot dropdown success`);
         return robotIDs;
       }
@@ -68,7 +84,7 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
-  // Loads the new set of logs when a new user logs in
+  // Loads the new set of logs when a new user logs in and initiates the robot list
   useEffect(() => {
     async function initLogs() {
       if (currentUser) {
@@ -81,6 +97,13 @@ export default function Dashboard({ onLogout, currentUser }) {
     initRobots();
   }, [currentUser]); 
 
+  /**
+   * Chooses a random robot for deploying.
+   * 
+   * @returns The selected robot.
+   * 
+   * @pre The target robot selection must be clicked on "Any".
+   */
   async function chooseAny() {
     const loadedRobots = await initRobots();
     let selection = 'default'
@@ -92,15 +115,21 @@ export default function Dashboard({ onLogout, currentUser }) {
     return selection;
   }
 
-  // Handles API transmission and safely opens status window on success
+  /**
+   * The robot deployment function. Sends the code and robot selection to the backend to create a script and deploy the selected robot.
+   * 
+   * @param {event} e: Deploy button event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     let selection = selectedRobot
+    // Choose a random robot if a specific one is not selected
     if (selection === 'any') {
       selection = await chooseAny();
     }
     try {
       const title = await constructTitle();
+      // Calls backend endpoint to deploy the selected robot with the written code
       const response = await fetch('/api/deploy', {
         method: 'POST',
         headers: {
@@ -109,30 +138,36 @@ export default function Dashboard({ onLogout, currentUser }) {
         body: JSON.stringify({ text: codeText, codeTitle: title, user: currentUser, robotId: selection }),
       });
 
+      // Deployment status message
       const data = await response.json();
       setStatusMessage(data.message);
 
+      // Deployment error
       if (!response.ok) {
         throw new Error(response.status);
       }
 
-      setUserLogs(await loadLogs(currentUser, false));
+      setUserLogs(await loadLogs(currentUser, false)); // Loads logs because of new deployment log
       
-      window.open('status', 'new_status');
+      window.open('status', 'new_status'); // Opens status page (not a new one every time)
 
     } catch (err) {
       console.error(`Error deploying Robot: ${selection} -> Error: ${err}`);
     }
   };
 
-  // Makes Tab key press inside the textarea do an indent
+  /**
+   * When the text editor is selected and tab is pressed, skipps the html tab navigation and instead does a large indentation on the text editor text.
+   * 
+   * @param {event} event: Tab is pressed event
+   */
   const handleTabPress = (event) => {
     if ( (event.key === 'Tab') && (!logMode) ) {
-      event.preventDefault();
+      event.preventDefault(); // Does not do tab navigating
       const textarea = event.target;
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
-      const indent = '    ';
+      const indent = '    '; // EDIT INDENTATION HERE IF DESIRED
       const newText = codeText.substring(0, start) + indent + codeText.substring(end);
       setCodeText(newText);
       setTimeout(() => {
@@ -141,6 +176,11 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   };
 
+  /**
+   * Blocks '$' and '/' from being used in the file name to prevent log title conflictions.
+   * 
+   * @param {event} event: The key press event.
+   */
   const handleUnderscorePress = (event) => {
     if ( (event.key === '$') || (event.key === '/') ) {
       event.preventDefault();
@@ -150,7 +190,9 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   };
 
-  // Gets the filename for exporting and chooses the correct version (for modern or older browsers)
+  /**
+   * Handles exporting code to local machine directories. Has a modern and older version to call for outdated browsers.
+   */
   async function handleExport() {
     let fileName = logName;
     if (fileName.trim() === '') {
@@ -166,9 +208,14 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
-  // Modern Export system
+  /**
+   * Modern exporting system for directory choosing and directory GUI.
+   * 
+   * @param {string} fileName: What to name the saved file.
+   */
   async function handleExportModern(fileName) {
     try {
+      // Local machine directory chooser
       const fileHandler = await window.showSaveFilePicker({
         suggestedName: fileName,
         types: [{
@@ -177,6 +224,7 @@ export default function Dashboard({ onLogout, currentUser }) {
         }]
       });
 
+      // Writes to file and saves
       const writable = await fileHandler.createWritable();
       await writable.write(codeText);
       await writable.close();
@@ -190,7 +238,11 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
-  // Older Export system for users on an older browser
+  /**
+   * Outdated exporting system for older browsers that do not work with the modern version. No directory GUI or selecting where to save the file.
+   * 
+   * @param {string} fileName: What to name the saved file.
+   */
   function handleExportOld(fileName) {
     // create a raw data object containing the code
     const mimeType = fileName.endsWith('.java') ? 'text/x-java-source' : 'text/x-python'; // file type
@@ -217,6 +269,12 @@ export default function Dashboard({ onLogout, currentUser }) {
     alert('File Downloaded');
   }
 
+  /**
+   * Deleted a selected user code and log file (saves perm file for admin).
+   * 
+   * @param {event} e: Delete log button click event.
+   * @param {string} fileName: The name of the file to delete the code and log file for.
+   */
   const handleLogRemove = async (e, fileName) => {
     // Blocks the click from bubbling up to the log-item-btn underneath
     e.stopPropagation();
@@ -224,6 +282,7 @@ export default function Dashboard({ onLogout, currentUser }) {
     const check = confirm(`Are you sure you want to delete this code log?`);
     if (check) {
       try {
+        // Calls backend enpoint to delete the code and log file.
         const response = await fetch(`/api/log/${currentUser}/${fileName}`, {
           method: 'DELETE',
           headers: {
@@ -231,14 +290,17 @@ export default function Dashboard({ onLogout, currentUser }) {
           },
         });
 
+        // Successfull delete
         if (response.ok) {
           setUserLogs(await loadLogs(currentUser, false));
           console.log(`Log successfully removed for User: ${currentUser}`);
         }
+        // Delete error
         else {
           throw new Error(`Error with removing log`);
         }
 
+        // Clears all selected log contents from the users screen
         if (currentLog === fileName) {
           setCurrentLog(null);
           setLogText('');
@@ -255,6 +317,11 @@ export default function Dashboard({ onLogout, currentUser }) {
     return
   };
 
+  /**
+   * Deletes every code and log file in the students log directory (saves perm files for admin).
+   * 
+   * @param {event} event: Clear Logs button click event.
+   */
   const handleLogClear = async (event) => {
     if (event) {
       event.preventDefault();
@@ -263,6 +330,7 @@ export default function Dashboard({ onLogout, currentUser }) {
     const check = confirm(`WARNING: You are about to delete all code logs. Are you sure you want to continue?`);
     if (check) {
       try {
+        // Calls backend to delete every code and log file in the students log directory.
           const response = await fetch(`/api/log/${currentUser}`, {
           method: 'DELETE',
           headers: {
@@ -270,14 +338,17 @@ export default function Dashboard({ onLogout, currentUser }) {
           },
         });
         
+        // Successfull clearing
         if (response.ok) {
           setUserLogs(await loadLogs(currentUser, false));
           console.log(`Logs successfully cleared for User: ${currentUser}`);
         }
+        // Error while clearing
         else {
           throw new Error(`Error with clearing logs`);
         }
 
+        // Clears all log contents from the users screen
         setCurrentLog(null);
         setLogText('');
         setLoggedCode('');
@@ -292,10 +363,11 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   };
 
-  function handleLogSwitch(logSwitch) {
-    setLogMode(logSwitch);
-  };
-
+  /**
+   * Pulls the code from the selected log and writes it to the text editor.
+   * 
+   * Note: This overwrites the code currently in the text editor.
+   */
   function handlePull() {
     const check = confirm(`WARNING: Pulling code will make you lose the current code in the code editor. Are you sure you want to continue?`);
     if (check) {
@@ -311,6 +383,12 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
+  /**
+   * When a log button is clicked, takes the log associated with that button, and returns the file contents of that log to display in the log section of the text editor.
+   * 
+   * @param {string} fileName: The file name of the log to display.
+   * @returns The log file contents, code file contents, and main filename of the code/log
+   */
   const handleLogButton = async (fileName) => {
     const info = ['', '', ''];
     try {
@@ -340,6 +418,9 @@ export default function Dashboard({ onLogout, currentUser }) {
     return info;
   };
 
+  /**
+   * Switch from normal view to split screen or the other way around depending on the current mode when called (for code text editor and log screen display).
+   */
   function handleSplitScreen() {
     if (splitScreenMode) {
       setSplitScreenMode(false);
@@ -350,7 +431,11 @@ export default function Dashboard({ onLogout, currentUser }) {
     }
   }
 
-    // NEW MOUSE DRAG CALCULATOR FUNCTION
+  /**
+   * Handles code text editor/log display resizing by dragging the mouse on the middle bar between them.
+   * 
+   * @param {event} e: Mouse drag event.
+   */
   const handleMouseDown = (e) => {
     e.preventDefault();
     
@@ -360,6 +445,7 @@ export default function Dashboard({ onLogout, currentUser }) {
     const logPanel = container.querySelector('.log-panel');
     const containerWidth = container.clientWidth;
 
+    // Mouse movement
     const handleMouseMove = (moveEvent) => {
       const containerRect = container.getBoundingClientRect();
       let newWidthX = moveEvent.clientX - containerRect.left;
@@ -390,17 +476,16 @@ export default function Dashboard({ onLogout, currentUser }) {
 
 return ( 
   <div className="dashboard-container"> 
-    {/* LEFT SIDE COLUMN (SIDEBAR) */} 
+    {/* Left side column */} 
     <div className="dashboard-sidebar"> 
-      {/* Centered Account Info Header Block */} 
       <div className="dashboard-account-header-block"> 
         <h2 className="dashboard-account-title">RoboFleet Account:</h2> 
         <p className="dashboard-username">{currentUser}</p> 
       </div> 
 
-      {/* INNER SPLIT ROW: Side-by-side layout columns */} 
+      {/* Side-by-side layout columns */} 
       <div className="sidebar-split-layout-row"> 
-        {/* SUBCOLUMN A (LEFT SIDE): Shortened Instructions & Dropdown */} 
+        {/* SUBCOLUMN LEFT: Shortened Instructions & Dropdown */} 
         <div className="sidebar-left-subcolumn"> 
           <div className="instructions-section"> 
             <h3 className="instructions-title">Instructions:</h3> 
@@ -429,7 +514,7 @@ return (
           </div> 
         </div> 
 
-        {/* SUBCOLUMN B (RIGHT SIDE): Elevated Logs Box & Future Button Slot */} 
+        {/* SUBCOLUMN RIGHT: Logs Box */} 
         <div className="sidebar-right-subcolumn"> 
           {/* Logs section floats up to the top level */} 
           <div className="scroll-panel-section elevated-log-track"> 
@@ -444,7 +529,7 @@ return (
                       setLogText(log); 
                       setLoggedCode(code); 
                       setLoggedCodeTitle(title); 
-                      handleLogSwitch(true); 
+                      setLogMode(true); 
                       setCurrentLog(fileName); 
                     }} 
                     className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`} 
@@ -453,7 +538,7 @@ return (
                     {fileName} 
                   </button> 
                   
-                  {/* Updated Button containing the SVG Trash Can Icon */} 
+                  {/* Button containing the SVG Trash Can Icon */} 
                   <button type="button" onClick={(e) => handleLogRemove(e, fileName)} className="log-remove-btn" title="Delete log"> 
                     <svg className="trash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"> 
                       <polyline points="3 6 5 6 21 6"></polyline> 
@@ -467,7 +552,7 @@ return (
             </div> 
           </div> 
 
-          {/* PLACEMENT SWAP: Import and Export buttons are now in the sidebar */} 
+          {/* Import and Export buttons */} 
           <div className="switch-buttons"> 
             {/* Clear Log Button */} 
             <button type="button" onClick={(event) => handleLogClear(event)} className="log-clear-btn" title="Clear log"> 
@@ -494,7 +579,7 @@ return (
                 setCodeText(readEvent.target.result); 
               }; 
               reader.readAsText(selectedFile); 
-              handleLogSwitch(false); 
+              setLogMode(false); 
             }} /> 
 
             {/* Export Button */} 
@@ -508,24 +593,24 @@ return (
               <span>Export Code</span> 
             </button> 
           </div> 
-        </div> {/* Closes .sidebar-right-subcolumn */}
-      </div> {/* Closes .sidebar-split-layout-row */} 
+        </div> 
+      </div> 
 
       {/* Logout button spanning beneath both layout lanes */} 
       <button type="button" onClick={onLogout} className="btn-logout"> 
         Logout 
       </button> 
-    </div> {/* Closes .dashboard-sidebar */} 
+    </div> 
 
-    {/* RIGHT SIDE MAIN COLUMN */} 
+    {/* Right side main area */} 
     <form onSubmit={handleSubmit} className="dashboard-main-form"> 
       <div className="controls-row-wrapper"> 
         <div className="file-loader-group"> 
-          {/* PLACEMENT SWAP: Code and Log workspace toggle switch buttons */} 
-          <button type="button" onClick={() => handleLogSwitch(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode || splitScreenMode) ? 'var(--bg-secondary)' : 'var(--accent)', color: (logMode || splitScreenMode) ? 'var(--text-main)' : '#030712' }} > 
+          {/* Code and Log workspace toggle switch buttons */} 
+          <button type="button" onClick={() => setLogMode(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode || splitScreenMode) ? 'var(--bg-secondary)' : 'var(--accent)', color: (logMode || splitScreenMode) ? 'var(--text-main)' : '#030712' }} > 
             Code 
           </button> 
-          <button type="button" onClick={() => handleLogSwitch(true)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode && !splitScreenMode) ? '#34d399' : 'var(--bg-secondary)', color: (logMode && !splitScreenMode) ? '#030712' : 'var(--text-main)' }} > 
+          <button type="button" onClick={() => setLogMode(true)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode && !splitScreenMode) ? '#34d399' : 'var(--bg-secondary)', color: (logMode && !splitScreenMode) ? '#030712' : 'var(--text-main)' }} > 
             Log 
           </button> 
 
@@ -539,9 +624,9 @@ return (
         </div> 
       </div> 
 
-      {/* Code Textarea Main Canvas Frame */} 
+      {/* Code Textarea main canvas (text editor) */} 
       <div className={`code-box-container ${splitScreenMode ? 'split-active' : ''}`}> 
-        {/* PANEL A: Code Workspace wrapper */} 
+        {/* Code Workspace wrapper */} 
         <div className="editor-workspace-panel code-panel"> 
           <textarea value={splitScreenMode ? codeText : (logMode ? logText : codeText)} onChange={(e) => setCodeText(e.target.value)} onKeyDown={handleTabPress} placeholder={logMode && !splitScreenMode ? '' : 'Enter Code Here...'} className={`code-editor-textarea ${(!splitScreenMode && logMode) ? 'editor-mode-green' : 'editor-mode-blue'}`} readOnly={!splitScreenMode && logMode} /> </div> 
 
@@ -550,7 +635,7 @@ return (
           <div className="workspace-resizer-bar" onMouseDown={handleMouseDown} /> 
         )} 
 
-        {/* PANEL B: Log Workspace wrapper */} 
+        {/* Log Workspace wrapper */} 
         {splitScreenMode && ( 
           <div className="editor-workspace-panel log-panel"> 
             <textarea value={logText} placeholder="" className="code-editor-textarea editor-mode-green" readOnly /> 
@@ -565,7 +650,7 @@ return (
         )} 
       </div> 
 
-      {/* Bottom Control Bar Row */} 
+      {/* Bottom control bar row */} 
       <div className="action-row"> 
         <button type="submit" className="btn-deploy"> 
           Deploy 
@@ -575,7 +660,7 @@ return (
         </div> 
       </div> 
     </form> 
-  </div> /* Closes .dashboard-container */
+  </div>
 );
 
 

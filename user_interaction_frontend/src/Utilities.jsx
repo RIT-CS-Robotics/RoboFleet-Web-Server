@@ -10,7 +10,7 @@
  * Loads the logs for the given user. Uses the perm log fies for sending to the admin account so it shows the logs that have been deleted by the user.
  * 
  * @param {string} user: The user to load the logs for.
- * @param {string} forAdmin: Is the log loading for the admin account?
+ * @param {boolean} forAdmin: Is the log loading for the admin account?
  * @returns: The log file paths for the given user (perm paths for giving to admin).
  */
   export async function loadLogs(user, forAdmin) {

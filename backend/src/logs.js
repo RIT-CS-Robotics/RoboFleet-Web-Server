@@ -31,8 +31,6 @@ async function createUserLog(user) {
             fs.mkdir(logPath, { recursive: true }),
             fs.mkdir(permPath, { recursive: true })
         ]);
-
-        console.log(`Code log directory created for user: ${user}`);
     }
     catch (err) {
         console.error(`Error creating code log directory for user: ${user} -> Error: ${err.message}`);

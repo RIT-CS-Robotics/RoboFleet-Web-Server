@@ -9,12 +9,18 @@
 import { useState, useEffect } from 'react'; 
 import './VideoComponent.css';
 
+/**
+ * The video component for a robots live camera feed display.
+ * 
+ * @param {Number} host: The robot IP.
+ * @param {bollean} isOnline: Is the robot online right now?
+ * @param {string} robotId: The id of the robot.
+ */
 export default function VideoComponent({host, isOnline, robotId}) {
     const [hostAddress, setHostAddress] = useState(''); // host IP for streaming video from ROS2 camera server
     const [videoDown, setVideoDown] = useState(false); // is the video services from ROS2 down?
-    //const delay = timer => new Promise(resolve => setTimeout(resolve, timer));
 
-        // gets the host IP when the component is loaded or when the online status of the robot changes.
+    // gets the host IP when the component is loaded or when the online status of the robot changes.
     useEffect(() => {
         if (isOnline) {
             setVideoDown(false);

@@ -12,6 +12,9 @@ import Status from './pages/Status';
 import About from './pages/About';
 import logo from './assets/logo.png';
 
+/**
+ * Status and About page main.
+ */
 export default function App() {
   const [activePage, setActivePage] = useState('status'); // The current page (Status page or About page)
 
