@@ -179,7 +179,7 @@ html, body, #root {
   gap: 20px; 
   margin-bottom: 15px; 
 } 
-.file-loader-group { 
+.switch-buttons { 
   display: flex; 
   flex-direction: row; 
   align-items: center; 
@@ -327,7 +327,7 @@ html, body, #root {
 
 /* ========================================================================== NEW CUSTOM SWITCH BUTTONS ========================================================================== */ 
 /* Spacing and layout rule for your new button wrapper block */ 
-.switch-buttons { 
+.file-loader-group { 
   width: 100%; 
   height: auto; 
   display: flex; 
@@ -376,11 +376,42 @@ html, body, #root {
   position: relative; 
   width: 100%; 
 } 
-/* 2. Push text to the left so it never runs underneath the overlayed X */ 
+
+/* 2. Base style for the main log buttons container */ 
 .log-item-btn { 
-  padding-right: 45px !important; /* Forces whitespace padding on the right edge */ 
+  display: flex;
+  align-items: center;
+  padding: 10px; 
+  padding-right: 45px !important; /* Establishes protective dead-zone for trash icon */ 
+  font-size: 18px; 
+  font-weight: bold; 
+  cursor: pointer; 
+  border-radius: var(--radius); 
+  border: 1px solid var(--border); 
+  background-color: var(--bg-primary); 
+  color: var(--text-main); 
+  text-align: left; 
+  width: 100%; 
+  box-sizing: border-box; 
+  transition: background-color 0.2s, border-color 0.2s; 
 } 
-/* 3. Absolute layer formatting locks the button precisely inside the right boundary */ 
+
+/* 3. NEW CRITICAL TRUNCATION CORE LAYER */
+.log-btn-text {
+  display: inline-block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-item-btn:hover { 
+  background-color: var(--border); 
+  border-color: var(--accent); 
+  color: var(--accent); 
+} 
+
+/* 4. Absolute layer formatting locks the button precisely inside the right boundary */ 
 .log-remove-btn { 
   position: absolute; 
   right: 12px; 
@@ -394,48 +425,55 @@ html, body, #root {
   color: var(--text-muted); 
   border: none; 
   cursor: pointer; 
-  padding: 6px; /* Adjusted padding to create a balanced circle around the icon */ 
+  padding: 6px; 
   border-radius: var(--radius); 
   transition: color 0.2s ease, background-color 0.2s ease; 
 } 
+
 /* Controls the strict visual scaling size of the SVG graphic path */ 
 .trash-icon { 
   width: 18px; 
   height: 18px; 
 } 
+
 /* Hover feedback states for the delete target */ 
 .log-remove-btn:hover { 
-  color: var(--danger); /* Automatically flips the SVG path lines to your theme's red */ 
-  background-color: rgba(239, 68, 68, 0.1); /* Subtle glowing red footprint */ 
+  color: var(--danger); 
+  background-color: rgba(239, 68, 68, 0.1); 
 } 
 
 /* ========================================================================== ACTIVE LOG HIGHLIGHT SYSTEM (DYNAMICS & OVERRIDES) ========================================================================== */ 
 /* Active highlighted item rule styling */ 
 .log-item-btn.active-log-highlight { 
-  background-color: var(--border) !important; /* Subtle backdrop tracking shift */ 
-  border-color: var(--accent) !important; /* Highlights with your glowing cyan */ 
-  color: var(--accent) !important; /* Forces text to glow match */ 
+  background-color: var(--border) !important; 
+  border-color: var(--accent) !important; 
+  color: var(--accent) !important; 
   font-weight: bold; 
-  box-shadow: inset 4px 0 0 var(--accent); /* Adds a sharp color indicator block on the left edge */ 
+  box-shadow: inset 4px 0 0 var(--accent); 
 } 
+
 /* Keeps the target delete icon visible and active inside a highlighted row */ 
 .active-log-highlight ~ .log-remove-btn { 
   color: var(--text-main); 
 } 
+
 .scroll-panel-section { 
   display: flex; 
   flex-direction: column; 
   gap: 10px; 
 } 
+
 /* Elevated Log Track layout boundaries configuration */ 
 .scroll-panel-section.elevated-log-track { 
   height: calc(100% - 110px); 
 } 
+
 .scroll-panel-title { 
   color: var(--text-main); 
   font-size: 22px; 
   margin: 0; 
 } 
+
 /* Shorter, custom webkit log container scroll screen window */ 
 .scroll-button-container.restricted-height-scroll { 
   background-color: var(--bg-secondary); 
@@ -444,33 +482,13 @@ html, body, #root {
   padding: 10px; 
   height: 100%; 
   overflow-y: auto; 
-  overflow-x: hidden; /* FIXED: Completely eliminates horizontal scrollbar tracking */ 
+  overflow-x: hidden; 
   display: flex; 
   flex-direction: column; 
   gap: 8px; 
-} 
-.log-item-btn { 
-  padding: 10px; 
-  font-size: 18px; 
-  font-weight: bold; 
-  cursor: pointer; 
-  border-radius: var(--radius); 
-  border: 1px solid var(--border); 
-  background-color: var(--bg-primary); 
-  color: var(--text-main); 
-  text-align: left; 
-  width: 100%; 
-  box-sizing: border-box; 
-  transition: background-color 0.2s, border-color 0.2s; /* FIXED TEXT WRAPPING: Forces text containment inside the width boundaries */ 
-  white-space: normal; 
-  word-break: break-word; 
-  overflow-wrap: break-word; 
-} 
-.log-item-btn:hover { 
-  background-color: var(--border); 
-  border-color: var(--accent); 
-  color: var(--accent); 
-} 
+}
+
+
 
 /* ==========================================================================
    CODE BOX OVERLAY LAYOUT (SINGLE & SPLIT-SCREEN REALMS)

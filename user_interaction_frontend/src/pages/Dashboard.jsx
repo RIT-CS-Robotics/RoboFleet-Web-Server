@@ -491,8 +491,10 @@ return (
             <h3 className="instructions-title">Instructions:</h3> 
             <div className="instructions-box shortened-box"> 
               <p>1. Select a target robot dropdown menu.</p> 
-              <p>2. Load or write code in the editor workspace.</p> 
-              <p>3. Click "Deploy" to transmit your commands.</p> 
+              <p>2. Write code, import code from your device, or pull code from a past log into the text editor workspace.</p> 
+              <p>3. Make sure you have a valid .py or .java title. Note: for Java the title must be the same as the class name.</p> 
+              <p>4. Click "Deploy" to have your code control the selected robot.</p>
+              <p>5. Once the robot finishes, click the new log created to view the output.</p>
             </div> 
           </div> 
 
@@ -535,7 +537,7 @@ return (
                     className={`log-item-btn ${currentLog === fileName ? 'active-log-highlight' : ''}`} 
                     title={fileName} 
                   > 
-                    {fileName} 
+                    <span className="log-btn-text">{fileName}</span>
                   </button> 
                   
                   {/* Button containing the SVG Trash Can Icon */} 
@@ -553,7 +555,7 @@ return (
           </div> 
 
           {/* Import and Export buttons */} 
-          <div className="switch-buttons"> 
+          <div className="file-loader-group"> 
             {/* Clear Log Button */} 
             <button type="button" onClick={(event) => handleLogClear(event)} className="log-clear-btn" title="Clear log"> 
               Clear Logs 
@@ -605,7 +607,7 @@ return (
     {/* Right side main area */} 
     <form onSubmit={handleSubmit} className="dashboard-main-form"> 
       <div className="controls-row-wrapper"> 
-        <div className="file-loader-group"> 
+        <div className="switch-buttons"> 
           {/* Code and Log workspace toggle switch buttons */} 
           <button type="button" onClick={() => setLogMode(false)} className="btn-file-loader" style={{ minWidth: '120px', backgroundColor: (logMode || splitScreenMode) ? 'var(--bg-secondary)' : 'var(--accent)', color: (logMode || splitScreenMode) ? 'var(--text-main)' : '#030712' }} > 
             Code 
