@@ -15,7 +15,7 @@ const dirPath = path.join(__dirname, '../user_logs'); // The root log directory
 /**
  * Creates a new code log directory for a given user.
  * 
- * @param user: The user to create the code log directory for 
+ * @param {string} user: The user to create the code log directory for 
  */
 async function createUserLog(user) {
     try {
@@ -40,7 +40,7 @@ async function createUserLog(user) {
 /**
  * Removes the code log directory associated with the user given.
  * 
- * @param user: The user to remove the code log directory for
+ * @param {string} user: The user to remove the code log directory for
  */
 async function removeUserLog(user) {
     try {
@@ -56,9 +56,9 @@ async function removeUserLog(user) {
 /**
  * Stores the users code into their log directory.
  * 
- * @param user: The user to store the code for from their log directory.
- * @param title: The name to give the code file.
- * @param code: The code that the user deploys.
+ * @param {string} user: The user to store the code for from their log directory.
+ * @param {string} title: The name to give the code file.
+ * @param {string} code: The code that the user deploys.
  */
 async function saveCode(user, title, code) {
     let result = true;
@@ -88,10 +88,10 @@ async function saveCode(user, title, code) {
 /**
  * Loads the users code from their log directory.
  * 
- * @param user: The user to load the code for from their log directory.
- * @param title: The name of the code file.
- * @param isLog: Is this for a log file? (if not then for a code file)
- * @returns file_content: The contents of the file (code or log text)
+ * @param {string} user: The user to load the code for from their log directory.
+ * @param {string} title: The name of the code file.
+ * @param {boolean} isLog: Is this for a log file? (if not then for a code file)
+ * @returns The contents of the file (code or log text)
  */
 async function loadCode(user, title, isLog) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
@@ -117,9 +117,9 @@ async function loadCode(user, title, isLog) {
 /**
  * Removes the users specific code and log from their log directory.
  * 
- * @param user: The user to remove the code for in their log directory.
- * @param title: The name of the code file.
- * @return: Was the deletion successfull?
+ * @param {string} user: The user to remove the code for in their log directory.
+ * @param {string} title: The name of the code file.
+ * @returns Was the deletion successfull?
  */
 async function removeCode(user, title) {
     let success = true;
@@ -150,8 +150,8 @@ async function removeCode(user, title) {
 /**
  * Removes all the users code and logs from their log directory.
  * 
- * @param user: The user to remove the code for in their log directory.
- * @return: Was the clearing successfull?
+ * @param {string} user: The user to remove the code for in their log directory.
+ * @returns Was the clearing successfull?
  */
 async function removeAllCode(user) {
     let success = true;
@@ -190,8 +190,8 @@ async function removeAllCode(user) {
 /**
  * Sorts the array of logs/perms by when they were created (newest -> oldest).
  * 
- * @param arr: The array of code logs/perms
- * @return: The sorted array of code logs/perms as file names
+ * @param {Array} arr: The array of code logs/perms
+ * @returns The sorted array of code logs/perms as file names
  */
 async function sortByCreation(arr, userPath) {
     // Build the file objects and collect the needed metaData
@@ -214,7 +214,7 @@ async function sortByCreation(arr, userPath) {
 /**
  * gets all of the file names for the users code files stored in their log (code) directory.
  * 
- * @param user: The user to get the code file names for from their log directory.
+ * @param {string} user: The user to get the code file names for from their log directory.
  */
 async function getLogs(user) {
     await createUserLog(user); // safe guard if the user log doesn't already exist somehow
@@ -235,7 +235,7 @@ async function getLogs(user) {
 /**
  * Gets all of the perm file names for a given user.
  * 
- * @param user: The user to get the array of perms for.
+ * @param {string} user: The user to get the array of perms for.
  * @returns The array of perm files for the user.
  */
 async function getPerms(user) {
@@ -257,8 +257,8 @@ async function getPerms(user) {
 /**
  * Gets the contents of a given perm file for a given user.
  * 
- * @param user: The user for the perm file to load.
- * @param title: The name of the perm file to load.
+ * @param {string} user: The user for the perm file to load.
+ * @param {string} title: The name of the perm file to load.
  * @returns The contents of the perm file that has been loaded.
  */
 async function loadPerm(user, title) {
@@ -280,8 +280,8 @@ async function loadPerm(user, title) {
 /**
  * Removes all the users perms from their log directory.
  * 
- * @param user: The user to remove the perms for in their log directory.
- * @return: Was the clearing successfull?
+ * @param {string} user: The user to remove the perms for in their log directory.
+ * @returns Was the clearing successfull?
  */
 async function removeAllPerms(user) {
     let success = true;

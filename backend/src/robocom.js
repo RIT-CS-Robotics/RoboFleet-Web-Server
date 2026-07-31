@@ -64,7 +64,7 @@ async function refreshOnRestart() {
 /**
  * Deletes a temp directory and script from the backend.
  * 
- * @param scriptDir:
+ * @param {temp dir} scriptDir:
  */
 function cleanupTemp(scriptDir) {
     try {
@@ -82,8 +82,8 @@ function cleanupTemp(scriptDir) {
 /**
  * Writes the student code to a temp file to be able to run as a script.
  * 
- * @param code: The student code to write
- * @param title: The title the student gave their code
+ * @param {string} code: The student code to write
+ * @param {string} title: The title the student gave their code
  * 
  * @returns The temp code directory and path to the script file in it -> {scriptDir, scriptPath}
  */
@@ -107,12 +107,12 @@ async function getTempDir(code, title) {
 /**
  * Checks the users code for syntax errors and illigal calls to validate if it should run and connect to the robot.
  * 
- * @param code: The students code
- * @param logStream: Stream to write validation output to for log files
- * @param permStream: Stream to write validation output to for perm files
- * @param codeType: 'Python' or 'Java'
+ * @param {string} code: The students code
+ * @param {WritableStream} logStream: Stream to write validation output to for log files
+ * @param {WritableStream} permStream: Stream to write validation output to for perm files
+ * @param {string} codeType: 'Python' or 'Java'
  * 
- * @returns: true if code should run, false otherwise
+ * @returns true if code should run, false otherwise
  */
 async function validate(code, logStream, permStream, codeType) {
     return new Promise( (resolve) => {
@@ -173,10 +173,10 @@ async function validate(code, logStream, permStream, codeType) {
 /**
  * Gets the specific docker arguments for running robot code with Python or Java.
  * 
- * @param codeType: 'Python' or 'Java'
- * @param host: The IP of the robot to inject into the script
- * @param scriptDir: The directory that the script is in
- * @param scriptPath: The path to the temp code file to run as a script
+ * @param {string} codeType: 'Python' or 'Java'
+ * @param {string} host: The IP of the robot to inject into the script
+ * @param {temp dir} scriptDir: The directory that the script is in
+ * @param {string} scriptPath: The path to the temp code file to run as a script
  * 
  * @returns The docker arguments for the specific type of script to run robot code on (Python or Java).
  */
@@ -216,14 +216,14 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
 
 /**
  * Takes the students code, writes it as a temp file, validates it, and runs the students code to control a robot.
- * @param dockerArgs:
- * @param robotId: The robot to run the code on
- * @param scriptDir: Temp directory for student code
- * @param scriptPath: The path to the temp code file object
- * @param logStream: Writable stream to the code log file
- * @param permStream: Writable stream to the code perm file
- * @param topicPub: The topic to publish the stdour and stderr to
- * @param callBack: The callback function to activate once the code is finished running
+ * @param {Array} dockerArgs:
+ * @param {string} robotId: The robot to run the code on
+ * @param {temp dir} scriptDir: Temp directory for student code
+ * @param {string} scriptPath: The path to the temp code file object
+ * @param {WritableStream} logStream: Writable stream to the code log file
+ * @param {WritableStream} permStream: Writable stream to the code perm file
+ * @param {Ros2 Topic} topicPub: The topic to publish the stdour and stderr to
+ * @param {function} callBack: The callback function to activate once the code is finished running
  */
 function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, topicPub, callBack) {
     const script = spawn('docker', dockerArgs);
@@ -272,14 +272,14 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
 /**
  * Takes the students code, writes it as a temp file, validates it, and runs the students code to control a robot.
  * 
- * @param code: The students code
- * @param title: The title of the code file
- * @param user: The user running the code
- * @param robotId: The robot to run the code on
- * @param host: The robot IP to run the code on
- * @param codeType: 'Python' or 'Java'
- * @param topicPub: The topic to publish the stdour and stderr to
- * @param callBack: The callback function to activate once the code is finished running
+ * @param {string} code: The students code
+ * @param {string} title: The title of the code file
+ * @param {string} user: The user running the code
+ * @param {string} robotId: The robot to run the code on
+ * @param {string} host: The robot IP to run the code on
+ * @param {string} codeType: 'Python' or 'Java'
+ * @param {Ros2 Topic} topicPub: The topic to publish the stdour and stderr to
+ * @param {function} callBack: The callback function to activate once the code is finished running
  */
 async function robotRun(code, title, user, robotId, host, codeType, topicPub, callBack) {
     // Makes sure a robot IP is given

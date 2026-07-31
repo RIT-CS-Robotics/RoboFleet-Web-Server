@@ -46,8 +46,9 @@ passport.use('saml', defaultSamlStrategy);
 const USERS_FILE = path.join(__dirname, '../users.json');
 
 /**
+ * Loads all users from the users json file.
  * 
- * @returns 
+ * @returns The json set of users in the system.
  */
 function loadUsers() {
   try {
@@ -63,8 +64,9 @@ function loadUsers() {
 }
 
 /**
+ * Writes a user to the users json file.
  * 
- * @param usersObj: 
+ * @param {user object} usersObj: 
  */
 function saveUsers(usersObj) {
   try {
@@ -86,8 +88,9 @@ const robotConnections = {}; // each robot is saved here
  * Helper function to dynamically manage connection to a robot and track its online/offline status. 
  * Also sets the information for each robot that the frontend will need, and manages ros2 topics.
  * 
- * @param robotId: The id number to give the robot
- * @param ipAddress: The IP/Hostname of the robot
+ * @param {string} robotId: The id number to give the robot
+ * @param {string} ipAddress: The IP/Hostname of the robot
+ * @param {string} optionalColor: The color of the robot dot for the frontend. Defaults to grey if the parameter is not used.
  */
 function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
   // Ensures a placeholder state object in our tracker if it doesn't exist
@@ -196,7 +199,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
      * Subscribes to a topic /robot_pos that continuously gets the robots current position and quaternion (for facing direction) 
      * in the building in x and y coordinates and updates them in the backend.
      * 
-     * @param message: The message being received from the topic publisher.
+     * @param {pose} message: The message being received from the topic publisher.
      */
     posTopic.subscribe((message) => {
       const now = Date.now();
@@ -220,7 +223,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
      * goal destination and updates them in the backend. Also uses them as a key to look for the actual 
      * location name in a Map() if there is a location name mapped to those coordinates.
      * 
-     * @param message: The message being received from the topic publisher.
+     * @param {pose} message: The message being received from the topic publisher.
      */
     destinationTopic.subscribe((message) => {
       const now = Date.now();
@@ -243,7 +246,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
     /**
      * Subscribes to a topic /laptop_battery that continuously gets the robot laptops current battery charge value from 0 to 100.
      * 
-     * @param message: The message being received from the topic publisher.
+     * @param {Number} message: The message being received from the topic publisher.
      */
     batteryTopic.subscribe((message) => {
       const now = Date.now();
@@ -257,7 +260,7 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
     /**
      * Publishes to /robot_status topic to send output messages from the robot run scripts.
      * 
-     * @param message: The output message to publish to the /robot_status topic
+     * @param {string} message: The output message to publish to the /robot_status topic
      */
     robotConnections[robotId].topic = (message) => {
       const rosMessage = new ROSLIB.Message({
@@ -652,8 +655,8 @@ app.post('/api/deploy', (req, res) => {
 /**
  * A callback function that is used to turn off the robots active status once the script deploying the robot finishes
  * 
- * @param active: The active status of the robot
- * @param robotId: The specific robot to target
+ * @param {boolean} active: The active status of the robot
+ * @param {string} robotId: The specific robot to target
  */
 function codeCallback(active, robotId) {
   robotConnections[robotId].isActive = active;
@@ -663,7 +666,7 @@ function codeCallback(active, robotId) {
 // ROBOFLEET REGISTRATION: add or edit robots here!
 // ----------------------------------------------------
 
-// Optional color coding (Recommended to make the colors here the same as the ones that display for the specific robot on the robots GUI)
+// Optional color coding (Recommended to make the colors on the website frontends the same as the ones that display for the specific robot on the robots GUI)
 initializeRobotConnection('Robot 1', process.env.ROBOT_1_ADDRESS, '#307D7E'); 
 initializeRobotConnection('Robot 2', process.env.ROBOT_2_ADDRESS, 'pink'); 
 initializeRobotConnection('Robot 3', process.env.ROBOT_3_ADDRESS, '#38bdf8'); 

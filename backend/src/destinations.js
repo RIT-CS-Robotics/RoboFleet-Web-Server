@@ -17,8 +17,8 @@ const destinationData = fs.readFileSync(destinationData_path, 'utf-8'); // reads
 /**
  * Calculates all pairings to create keys for a specific locations pixel coordinates to include a 1 pixel margin of error
  * 
- * @param xPxl: The x pixel coordinate
- * @param yPxl: The y pixel coordinate
+ * @param {Number} xPxl: The x pixel coordinate
+ * @param {Number} yPxl: The y pixel coordinate
  * @returns All combinations of x and y coordinate pairings with a 1 pixel margin of error (both x and y, - and +)
  */
 function pixelError(xPxl, yPxl) {
@@ -38,7 +38,7 @@ function pixelError(xPxl, yPxl) {
 /**
  * Converts the destination coordinate from meters to pixels
  * 
- * @param coord: The coordinate in meters to convert to pixels
+ * @param {Number} coord: The coordinate in meters to convert to pixels
  * @returns the destination coordinate in pixels
  */
 function pixelConverter(coord) {
@@ -54,8 +54,8 @@ const destinationMap = new Map();
  * Constructs a key using the x and y coordinates in the RIT Golisano building. 
  * Valid keys will map to a location name in the building.
  * 
- * @param xCoord: The x coordinate of the location in the RIT Golisano building.
- * @param yCoord: The y coordinate of the location in the RIT Golisano building.
+ * @param {Number} xCoord: The x coordinate of the location in the RIT Golisano building.
+ * @param {Number} yCoord: The y coordinate of the location in the RIT Golisano building.
  * @returns A key combining the x and y coordinate for its location name in the Map().
  */
 function createKey(xCoord, yCoord) {
@@ -69,8 +69,8 @@ function createKey(xCoord, yCoord) {
  * Constructs a key using the x and y coordinates in the RIT Golisano building 
  * and uses it to return a location that its mapped to in the destination Map().
  * 
- * @param xCoord: The x coordinate of the location in the RIT Golisano building.
- * @param yCoord: The y coordinate of the location in the RIT Golisano building.
+ * @param {Number} xCoord: The x coordinate of the location in the RIT Golisano building.
+ * @param {Number} yCoord: The y coordinate of the location in the RIT Golisano building.
  * @returns A location name mapped to the x and y coordinates, or undefined if the key has no mapping.
  */
 function getDestination(xCoord, yCoord) {

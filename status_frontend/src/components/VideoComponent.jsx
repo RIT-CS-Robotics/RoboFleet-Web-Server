@@ -12,7 +12,7 @@ import './VideoComponent.css';
 /**
  * The video component for a robots live camera feed display.
  * 
- * @param {Number} host: The robot IP.
+ * @param {string} host: The robot IP/Hostname.
  * @param {bollean} isOnline: Is the robot online right now?
  * @param {string} robotId: The id of the robot.
  */
