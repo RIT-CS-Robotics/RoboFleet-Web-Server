@@ -35,7 +35,7 @@ RoboFleet_WebServer/
 
 ## 🌐 RoboFleet Website Communication
 
-![RoboFleet Website Communication Architecture](RoboFleet-Website-Communication-Architecture.png)
+<img src="RoboFleet-Website-Communication-Architecture.png" alt="RoboFleet Website Communication Architecture" width="700">
 
 ---
 
