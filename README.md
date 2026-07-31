@@ -4,7 +4,7 @@ The complete backend and frontend architecture for the RoboFleet Project, hosted
 
 ---
 
-## 📂 Project Architecture
+## 📂 Website Architecture
 
 ```text
 RoboFleet_WebServer/
@@ -28,6 +28,14 @@ RoboFleet_WebServer/
     ├── src/                      # User inputs & code submission deck
     └── package.json              # Interface isolated configuration
 ```
+
+---
+
+---
+
+## 🌐 RoboFleet Website Communication
+
+![RoboFleet Website Communication Architecture](RoboFleet-Website-Communication-Architecture.png)
 
 ---
 
