@@ -8,25 +8,28 @@ The complete backend and frontend architecture for the RoboFleet Project, hosted
 
 ```text
 RoboFleet_WebServer/
-├── backend/                      # Node.js Express Backend Service
-│   ├── certificates/             # Service SSL/IdP SAML Certs (Root Ignored)
-│   ├── code_files/               # Temporary runtime storage & core assets for running student code for the robots
-│   ├── user_logs/                # Dynamic log directories per student
-│   ├── src/                      # Source Code
-│   │   ├── app.js                # Core API Hub & Routing Gateway
-│   │   ├── destinations.js       # Coordinate-to-Room Mapping Engine
-│   │   ├── logs.js               # File logging for student code
-│   │   ├── robocom.js            # Docker process spawning controller to run the robots from student code
-│   │   └── samlConfig.js         # Shibboleth Authentication Layer (saml2)
-│   ├── Dockerfile                # Student code container sandbox builder
-│   ├── package.json              # Backend isolated configuration
-│   └── users.json                # User credentials database
-├── status_frontend/              # Vite + React Robot Monitoring Dashboard (root app)
-│   ├── src/                      # App views & dashboard grids
-│   └── package.json              # Status isolated configuration
-└── user_interaction_frontend/    # Vite + React User Control Console
-    ├── src/                      # User inputs & code submission deck
-    └── package.json              # Interface isolated configuration
+├── backend/                         # Node.js Express Backend Service
+│   ├── certificates/                # Service SSL/IdP SAML Certs (Root Ignored)
+│   ├── code_files/                  # Temporary runtime storage & core assets for running student code for the robots
+│   ├── docker/                      # Multi-language sandbox isolation container assets
+│   │   ├── Dockerfile               # Base dependencies installer (Python, Headless Java JVM)
+│   │   └── entrypoint.sh            # Smart internal routing script (detects language and builds RAM sandbox)
+│   ├── user_logs/                   # Dynamic log directories per student
+│   ├── src/                         # Source Code
+│   │   ├── app.js                   # Core API Hub & Routing Gateway
+│   │   ├── destinations.js          # Coordinate-to-Room Mapping Engine
+│   │   ├── logs.js                  # File logging for student code
+│   │   ├── robocom.js               # Docker process spawning controller to run the robots from student code
+│   │   └── samlConfig.js            # Shibboleth Authentication Layer (saml2)
+│   ├── package.json                 # Backend isolated configuration
+│   └── users.json                   # User credentials database
+├── status_frontend/                 # Vite + React Robot Monitoring Dashboard (root app)
+│   ├── src/                         # App views & dashboard grids
+│   └── package.json                 # Status isolated configuration
+└── user_interaction_frontend/       # Vite + React User Control Console
+    ├── src/                         # User inputs & code submission deck
+    └── package.json                 # Interface isolated configuration
+
 ```
 
 ---
@@ -64,7 +67,7 @@ hostname -I
 Navigate into your `backend/` directory to configure dependencies and establish security paths.
 
 ```bash
-cd /home/ars4041/RoboFleet_WebServer/backend
+cd RoboFleet_WebServer/backend
 
 # Update packages and install Node core runtimes
 sudo apt update && sudo apt install nodejs npm -y
@@ -89,13 +92,13 @@ Both user portals operate as self-contained Vite apps. You must initialize depen
 
 ### Setup User Interaction Portal (Port 5173)
 ```bash
-cd /home/ars4041/RoboFleet_WebServer/user_interaction_frontend
+cd RoboFleet_WebServer/user_interaction_frontend
 npm install
 ```
 
 ### Setup Status Monitoring Portal (Port 5174)
 ```bash
-cd /home/ars4041/RoboFleet_WebServer/status_frontend
+cd RoboFleet_WebServer/status_frontend
 npm install
 ```
 
@@ -237,15 +240,15 @@ Use PM2 to manage processes persistently so they automatically survive server re
 sudo npm install pm2 -g
 
 # Start the Backend Hub (Execute from the backend folder context)
-cd /home/ars4041/RoboFleet_WebServer/backend
+cd RoboFleet_WebServer/backend
 pm2 start src/app.js --name "robotics-api"
 
 # Start the Interactive Web Console
-cd /home/ars4041/RoboFleet_WebServer/user_interaction_frontend
+cd RoboFleet_WebServer/user_interaction_frontend
 pm2 start "npm run dev -- --port 5173" --name "robotics-main"
 
 # Start the Status Dashboard Deck
-cd /home/ars4041/RoboFleet_WebServer/status_frontend
+cd RoboFleet_WebServer/status_frontend
 pm2 start "npm run dev -- --port 5174" --name "robotics-status"
 
 # Snapshot state lists to survive host hardware reboots
@@ -284,8 +287,8 @@ Instructions for provisioning the restricted runtime code execution engine conta
 
 ### Building the Runner Image
 ```bash
-cd /home/ars4041/RoboFleet_WebServer/backend
-docker build -t my-robot-runner .
+cd RoboFleet_WebServer/backend
+docker build -f docker/Dockerfile -t robot-runner .
 ```
 
 ---
