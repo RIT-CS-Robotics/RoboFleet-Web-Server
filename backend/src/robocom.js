@@ -226,17 +226,21 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
  * @param {string} scriptPath: The path to the temp code file object
  * @param {WritableStream} logStream: Writable stream to the code log file
  * @param {WritableStream} permStream: Writable stream to the code perm file
+ * @param {string} user: The user running the code
+ * @param {string} title: The title of the code file
  * @param {Ros2 Topic} topicPub: The topic to publish the stdour and stderr to
  * @param {function} callBack: The callback function to activate once the code is finished running
  */
-function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, topicPub, callBack) {
+function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, user, title, topicPub, callBack) {
     const script = spawn('docker', dockerArgs);
+
+    const cleanTitle = title.split('$')[0]; // no log info
+    topicPub(`Running student (${user}) code: ${cleanTitle}`);
 
     script.stdout.on('data', (data) => {
         const msg = data.toString()
         if (logStream) {logStream.write(msg);}
         if (permStream) {permStream.write(msg);}
-        topicPub(msg);
 
         console.log(`Robot standard output with ID: ${robotId} -> ${data.toString().trim()}`);
     });
@@ -245,7 +249,6 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
         const msg = data.toString();
         if (logStream) {logStream.write(msg);}
         if (permStream) {permStream.write(msg);}
-        topicPub(msg);
 
         console.error(`Robot standard error with ID: ${robotId} -> ${data.toString().trim()}`);
     });
@@ -273,6 +276,7 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
         scriptDir = cleanupTemp(scriptDir);
         const closeTime = new Date();
         console.log(`Time of script close: ${closeTime}`);
+        topicPub(`Finishing student (${user}) code: ${cleanTitle}`);
         callBack(false);
      });
 }
@@ -333,7 +337,7 @@ async function robotRun(code, title, user, robotId, host, codeType, topicPub, ca
     }
 
     // Runs the student code to control the robot.
-    runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, topicPub, callBack);
+    runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permStream, user, title, topicPub, callBack);
 }
 
 // Use as an import in app.js

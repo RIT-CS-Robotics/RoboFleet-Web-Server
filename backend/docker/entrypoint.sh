@@ -7,13 +7,11 @@ PY_FILE=$(ls *.py 2>/dev/null | head -n 1)
 JAVA_FILE=$(ls *.java 2>/dev/null | head -n 1)
 
 if [ -n "$PY_FILE" ]; then
-    echo "Python code detected. Launching framework environment..."
     export PYTHONPATH=/app:$PYTHONPATH
     export PYTHONPYCACHEPREFIX=/tmp/pycache
     exec python3 -u "$PY_FILE"
 
 elif [ -n "$JAVA_FILE" ]; then
-    echo "Java code detected. Initializing RAM sandbox compilation layer..."
     CLASS_NAME=$(basename "$JAVA_FILE" .java)
     
     # Replicate your exact compiler and execution sandboxing rules
