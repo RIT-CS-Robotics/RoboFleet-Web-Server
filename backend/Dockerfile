@@ -1,24 +1,21 @@
 FROM python:3.11-slim
 
-# Install the default headless Java Development Kit available for the used Debian release
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    default-jdk-headless \
-    && rm -rf /var/lib/apt/lists/*
+# Silence the interactive frontend warnings completely
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Create a restricted user
-RUN useradd -m studentuser
+# Install only OpenCV Headless (automatically includes necessary networking for sockets)
+RUN pip install --no-cache-dir opencv-python-headless numpy
+
+# Create a restricted user and ensure they have a writable home directory structure
+RUN useradd -m studentuser && \
+    mkdir -p /home/studentuser/classes && \
+    chown -R nobody:nogroup /home/studentuser
 
 # Set working directory to the framework root
 WORKDIR /app
 
-# 1. Put the files back into the root /app folder for Python tracking
+# Copy only the necessary python robot script
 COPY ./code_files/robot.py /app/robot.py
-
-# 2. Place Robot.java inside an explicit /app/robot folder to satisfy Java's package constraint
-COPY ./code_files/Robot.java /app/robot/Robot.java
-
-# 3. Compile Robot.java from within /app so it generates the package class accurately
-RUN javac /app/robot/Robot.java
 
 # Switch context to the workspace directory where the host folder will mount
 WORKDIR /app/workspace
@@ -29,5 +26,5 @@ USER nobody:nogroup
 # Clear legacy entrypoints caching from previous builds
 ENTRYPOINT []
 
-# SMART LAYER: Scans /app/workspace, compiles out of RAM, and retains access to the /app framework classpath
-CMD ["sh", "-c", "PY_FILE=$(ls *.py 2>/dev/null | head -n 1); JAVA_FILE=$(ls *.java 2>/dev/null | head -n 1); if [ -n \"$PY_FILE\" ]; then export PYTHONPATH=/app:$PYTHONPATH; exec python3 -u \"$PY_FILE\"; elif [ -n \"$JAVA_FILE\" ]; then CLASS_NAME=$(basename \"$JAVA_FILE\" .java); mkdir -p /tmp/classes && javac -d /tmp/classes -cp /app:. \"$JAVA_FILE\" && exec java -cp /app:/app/workspace:/tmp/classes \"$CLASS_NAME\"; else echo \"Execution Error: No valid student code found inside the container.\" >&2; exit 1; fi"]
+# Streamlined Execution Layer for Python
+CMD ["sh", "-c", "PY_FILE=$(ls *.py 2>/dev/null | head -n 1); if [ -n \"$PY_FILE\" ]; then export PYTHONPATH=/app:$PYTHONPATH; export PYTHONPYCACHEPREFIX=/tmp/pycache; exec python3 -u \"$PY_FILE\"; else echo \"Execution Error: No valid student code found inside the container.\" >&2; exit 1; fi"]

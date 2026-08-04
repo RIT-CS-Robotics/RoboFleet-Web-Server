@@ -187,24 +187,28 @@ async function getDockerArgs(codeType, host, scriptDir, scriptPath) {
     // Map the temporary Python script safely inside the container's working directory (/app) as read-only
     if (codeType === 'Python') {
         dockerArgs = [
-            'run', '--rm', '--read-only',
+            'run', '--rm', 
+            '--read-only',                        // Keeps root system secure
+            '--network=host',                    // Essential: Prevents network sockets from dropping after command 1
+            '--tmpfs', '/tmp:rw,noexec,nosuid',  // Allocated RAM bucket for Python's bytecode cache redirection
             '--memory=256m', '--cpus=0.5',
             '-e', `ROBOT_HOST=${host}`,
-            // Mount ONLY this single student's temp folder directly to the container workspace
             '-v', `${scriptDir}:/app/workspace:ro`, 
-            'robot-runner'
+            'robot-runner'                       // Executes your newly built unified image
         ];
     }
-    // Map the temporary Java script safely inside the container's working directory (/app) as read-only
+    
+    // JAVA EXECUTION BRANCH
     else if (codeType === 'Java') {
         dockerArgs = [
-            'run', '--rm', '--read-only',
-            '--tmpfs', '/tmp:rw,noexec,nosuid', 
+            'run', '--rm', 
+            '--read-only',                        // Keeps root system secure
+            '--network=host',                    // Keeps network layer identical to Python
+            '--tmpfs', '/tmp:rw,noexec,nosuid',  // Allocated RAM bucket for Java initialization strings
             '--memory=256m', '--cpus=0.5',
             '-e', `ROBOT_HOST=${host}`,
-            // Mount ONLY this single student's temp folder directly to the container workspace
             '-v', `${scriptDir}:/app/workspace:ro`, 
-            'robot-runner'
+            'robot-runner'                       // Executes your newly built unified image
         ];
     } 
     else {
@@ -257,6 +261,8 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
         if (logStream) {logStream.end();}
         if (permStream) {permStream.end();}
         scriptDir = cleanupTemp(scriptDir);
+        const errorTime = new Date();
+        console.error(`Time of script error: ${errorTime}`);
         callBack(false);
     });
     script.on('close', () => {
@@ -265,6 +271,8 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
         if (logStream) {logStream.end();}
         if (permStream) {permStream.end();}
         scriptDir = cleanupTemp(scriptDir);
+        const closeTime = new Date();
+        console.log(`Time of script close: ${closeTime}`);
         callBack(false);
      });
 }

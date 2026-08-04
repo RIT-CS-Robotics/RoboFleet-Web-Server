@@ -1,9 +1,9 @@
-import socket, sys, ast, os, queue, threading, time
+import socket, sys, ast, os, queue, threading, time, logging
 import cv2 as cv
 import numpy as np
 from contextlib import AbstractContextManager
 from pathlib import Path
-from ultralytics import YOLO
+#from ultralytics import YOLO
 
 METRE_MAX = 3.0
 #BANNED_WORDS = "banned.txt"
@@ -16,10 +16,7 @@ class Robot(AbstractContextManager):
 		Create a new Robot object and connect to the robot.
 		"""
 
-#		self.robot_ip = os.environ.get("ROBOT_IP")
-		self.robot_ip = "129.21.65.243" # laptop 2
-#		self.robot_ip = "129.21.118.12" # laptop 3
-#		self.robot_ip =  "129.21.136.147"
+		self.robot_ip = os.environ.get("ROBOT_HOST")
 		self.port = 10001
 
 		# create task queues
