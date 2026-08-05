@@ -283,9 +283,24 @@ ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 ---
 
 ## 🐳 Step 7: Docker Sandbox Engine Configuration Instructions
-Instructions for provisioning the restricted runtime code execution engine container image.
 
-### Building the Runner Image
+### Understanding why Docker is used: 
+
+Running student code directly on the backend of the web-server can be dangerous. If any security flaws are somehow breached, they can manipulate the web-server. Preventing this is very manageable with Docker. Docker is used to isolate the student's code in a Docker Sandbox Container as read-only, which ensures that the code can never touch anything on the web-server. 
+
+### How it works: 
+
+The student writes code on the website and once they click deploy it is sent to a temp directory in /backend/code_files. Docker then copies the code, copies all necessary robot import files, and installs all the needed code dependencies in its Sandbox Container. It also receives additional arguments for running the student code from the sub-process that spawns it in /backend/src/robocom.js in a function getDockerArgs(); these are used to modify small changes depending on what coding language the student code is using. It then establishes an entrypoint to run the specific student code file with the respective run commands for the student code file's specific coding language. 
+
+### There are 2 main components to the RoboFleet Docker setup: 
+
+* **`Dockerfile`** — The file that creates the Docker container, copies over all the necessary student code and robot files, and installs all the necessary dependencies to run the student robot code. 
+* **`entrypoint.sh`** — The file that reads through the temp directory, finds the student code, analyzes what type of code file it is (Python or Java), and runs that code file with the respective method for that coding language. 
+
+### Building the Runner Image 
+
+Every time Dockerfile or entrypoint.sh is edited in the website code, the Docker Sandbox Container must be re-built by entering the following terminal commands:
+
 ```bash
 cd RoboFleet_WebServer/backend
 docker build -f docker/Dockerfile -t robot-runner .
@@ -293,43 +308,8 @@ docker build -f docker/Dockerfile -t robot-runner .
 
 ---
 
-## 📦 Critical Package Manifest & Dependencies
-Below is an index of core installation modules and libraries critical to the initialization of the stack.
 
-### Backend Dependencies (`backend/package.json`)
-* **`express`** — API routing framework.
-* **`cors`** — Cross-Origin Resource Sharing handling network mappings to RIT domains.
-* **`roslib`** — ROSbridge WebSocket interface connector.
-* **`@node-saml/passport-saml`** — Shibboleth authentication layer interface.
-* **`dotenv`** — Key-value environment variable load automation tool.
-* **`tmp`** — Absolute file-path safe host scratchfile engine.
-* **`passport`** — Core modular authentication middleware for Node.js.
-* **`ws`** — Implements full-duplex WebSocket server and client connections.
-* **`nodemon`** *(Dev)* — Restarts the backend service automatically during local changes.
-* **`patch-package`** *(Dev)* — Modifies and fixes broken external module code instantly.
-
-### Local Java Archives (`backend/`)
-* **`javaparser-core-3.25.10.jar`** — Local Java dependency used to parse, analyze, and manipulate Java Abstract Syntax Trees (AST) programmatically.
-
-### User Interaction Frontend Dependencies (`user_interaction_frontend/package.json`)
-* **`react`** — UI library for components and reactive application state management.
-* **`react-dom`** — Renders components directly into the browser DOM ecosystem.
-* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Fast build tool and local development server supporting hot module replacement (HMR).
-* **`eslint`, `globals` & plugins** *(Dev)* — Static analysis system designed to catch code bugs, safely identify global variables, and optimize React hooks.
-
-### Status Frontend Dependencies (`status_frontend/package.json`)
-* **`react`** — UI library for components and reactive application state management.
-* **`react-dom`** — Renders components directly into the browser DOM ecosystem.
-* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Fast build tool and local development server supporting hot module replacement (HMR).
-* **`eslint`, `globals` & plugins** *(Dev)* — Static analysis system designed to catch code bugs, safely identify global variables, and optimize React hooks.
-
-### System Utilities & Compilers
-* **`python3`** & **`ast`** — Static evaluation script analyzers.
-* **`default-jdk-headless`** — Decoupled Java Development Kit (JDK) execution library and compiler (`javac`) utilized inside the container sandbox.
-
----
-
-## 🔒 Step 9: Nginx Reverse Proxy for Encrypted ROS2 Video Streaming
+## 🔒 Step 8: Nginx Reverse Proxy for Encrypted ROS2 Video Streaming
 
 To comply with modern browser security policies, a website served over **HTTPS** cannot load unencrypted **HTTP** video streams. This security measure is known as blocking **Mixed Content**. 
 
@@ -400,6 +380,55 @@ If the test reports that the configuration syntax is okay, restart the Nginx sys
 ```bash
 sudo systemctl restart nginx
 ```
+
+---
+
+## 🧹 Step 9: Forcing Web-Server Cleanups
+
+* **Scheduled:** 🕒 Every 7 days
+
+To make sure the backend does not get overloaded with cleanup bugs, force a fresh backend restart once pere week.
+
+### In a terminal run the following crontab command and then paste in the following line
+crontab -e
+
+0 0 1,8,15,22 * * /bin/bash -i -c "pm2 flush && pm2 restart robotics-api"
+
+---
+
+## 📦 Critical Package Manifest & Dependencies
+Below is an index of core installation modules and libraries critical to the initialization of the stack.
+
+### Backend Dependencies (`backend/package.json`)
+* **`express`** — API routing framework.
+* **`cors`** — Cross-Origin Resource Sharing handling network mappings to RIT domains.
+* **`roslib`** — ROSbridge WebSocket interface connector.
+* **`@node-saml/passport-saml`** — Shibboleth authentication layer interface.
+* **`dotenv`** — Key-value environment variable load automation tool.
+* **`tmp`** — Absolute file-path safe host scratchfile engine.
+* **`passport`** — Core modular authentication middleware for Node.js.
+* **`ws`** — Implements full-duplex WebSocket server and client connections.
+* **`nodemon`** *(Dev)* — Restarts the backend service automatically during local changes.
+* **`patch-package`** *(Dev)* — Modifies and fixes broken external module code instantly.
+
+### Local Java Archives (`backend/`)
+* **`javaparser-core-3.25.10.jar`** — Local Java dependency used to parse, analyze, and manipulate Java Abstract Syntax Trees (AST) programmatically.
+
+### User Interaction Frontend Dependencies (`user_interaction_frontend/package.json`)
+* **`react`** — UI library for components and reactive application state management.
+* **`react-dom`** — Renders components directly into the browser DOM ecosystem.
+* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Fast build tool and local development server supporting hot module replacement (HMR).
+* **`eslint`, `globals` & plugins** *(Dev)* — Static analysis system designed to catch code bugs, safely identify global variables, and optimize React hooks.
+
+### Status Frontend Dependencies (`status_frontend/package.json`)
+* **`react`** — UI library for components and reactive application state management.
+* **`react-dom`** — Renders components directly into the browser DOM ecosystem.
+* **`vite` & `@vitejs/plugin-react`** *(Dev)* — Fast build tool and local development server supporting hot module replacement (HMR).
+* **`eslint`, `globals` & plugins** *(Dev)* — Static analysis system designed to catch code bugs, safely identify global variables, and optimize React hooks.
+
+### System Utilities & Compilers
+* **`python3`** & **`ast`** — Static evaluation script analyzers.
+* **`default-jdk-headless`** — Decoupled Java Development Kit (JDK) execution library and compiler (`javac`) utilized inside the container sandbox.
 
 ---
 

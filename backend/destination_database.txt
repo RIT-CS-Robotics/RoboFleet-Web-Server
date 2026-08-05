@@ -122,3 +122,4 @@ Office3709 515 2820
 Office3711 475 2820
 Copier 870 2765
 Conference 700 2765
+InsideRNDLab 1228.04 820.55

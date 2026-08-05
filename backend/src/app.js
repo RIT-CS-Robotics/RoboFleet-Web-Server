@@ -20,7 +20,7 @@ const {getDestination} = require('./destinations.js'); // coordinate-destination
 const {robotRun, refreshOnRestart} = require('./robocom.js'); // running student code
 const {createUserLog, removeUserLog, saveCode, getLogs, loadCode, removeCode, removeAllCode, getPerms, loadPerm, removeAllPerms} = require('./logs.js'); // create and remove code log directories for users
 
-// Initializes the app as an express app and sets the port for it to 3000
+// Initializes the app as an express app and sets the port
 const app = express();
 const PORT = process.env.PORT;
 const bridge = process.env.ONLY_CONNECT;
