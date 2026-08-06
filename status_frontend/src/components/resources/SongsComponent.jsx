@@ -1,17 +1,17 @@
 /**
- * Functionality: Song list page for RoboFleet (robotics-project.gccis.rit.edu)
+ * Functionality: Song List component for Resources page for RoboFleet (robotics-project.gccis.rit.edu)
  * 
- * @file status_frontend/src/pages/Songs.jsx
+ * @file status_frontend/src/components/resources/SongsComponent.jsx
  * @author Aidan Sanderson
  * @date 8/6/2026
  */
 import React from 'react';
-import './Songs.css';
+import './SongsComponent.css';
 
 /**
- * Song list page
+ * Song List component for Resource page
  */
-export default function Songs() {
+export default function SongsComponent() {
 
   const songs = [
     { title: "Song 1", id: "1" },

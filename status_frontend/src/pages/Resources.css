@@ -1,0 +1,110 @@
+/**
+ * Functionality: Component-specific styling for the Resources page layout.
+ * Integrates directly with the existing global dark tokens without changing App.css.
+ * 
+ * @file status_frontend/src/pages/Resources.css
+ * @date 8/6/2026
+ * @author Aidan Sanderson
+ */
+
+/* Main wrapper - forced to scale within the .app-viewport-stage */
+.resources-container {
+  display: flex !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: var(--bg-primary);
+  color: var(--text-main) !important; /* Forces all text nodes to become visible */
+}
+
+/* Left Sidebar Panel Layout */
+.sidebar {
+  width: 280px;
+  background-color: var(--bg-secondary); /* Dark Onyx block color */
+  border-right: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex-shrink: 0; /* Prevents the sidebar layout from squishing horizontally */
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--accent); /* Terminal Cyan accent headers */
+  letter-spacing: -0.025em;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Action button vertical stack */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Individual list layout buttons matching navbar formatting styles */
+.menu-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted) !important; /* Explicitly visible gray text */
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  transition: all 0.15s ease-in-out;
+  width: 100%;
+}
+
+/* Hover glow states matching global conventions */
+.menu-btn:hover {
+  color: var(--text-main) !important;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: var(--border);
+}
+
+/* Selected layout states */
+.menu-btn.active {
+  color: var(--accent) !important; /* Bright Terminal Cyan highlight text */
+  background-color: var(--bg-primary); /* Drops down back to darker primary tone */
+  border: 1px solid var(--border);
+  box-shadow: inset 3px 0 0 0 var(--accent); /* Left indicator bar accent */
+}
+
+/* Right Content viewport section wrapper */
+.content-area {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto; /* Internal fallback safe scroll path separate from your global rules */
+  background-color: var(--bg-primary);
+  color: var(--text-main) !important;
+}
+
+/* Individual rendered info frames */
+.content-section {
+  animation: fadeInResources 0.2s ease-in-out;
+}
+
+.content-section h1 {
+  font-size: 28px;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.content-section p {
+  color: var(--text-muted) !important;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+/* Fluid UI viewport transition animation */
+@keyframes fadeInResources {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

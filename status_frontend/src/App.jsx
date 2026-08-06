@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import Status from './pages/Status';
 import About from './pages/About';
-import Songs from './pages/Songs';
+import Resources from './pages/Resources';
 import logo from './assets/logo.png';
 
 /**
@@ -25,8 +25,8 @@ export default function App() {
       document.title = "RoboFleet Status";
     } else if (activePage === 'about') {
       document.title = "About RoboFleet";
-    } else if (activePage === 'songs') {
-      document.title = "RoboFleet Song List";
+    } else if (activePage === 'resources') {
+      document.title = "RoboFleet Resources";
     }
   }, [activePage]);
 
@@ -58,10 +58,10 @@ export default function App() {
             ℹ️ About
           </button>
           <button 
-            onClick={() => setActivePage('songs')} 
-            className={`nav-item-btn ${activePage === 'songs' ? 'active-tab' : ''}`}
+            onClick={() => setActivePage('resources')} 
+            className={`nav-item-btn ${activePage === 'resources' ? 'active-tab' : ''}`}
           >
-           🎵 Song List
+           📚 Resources
           </button>
         </div>
 
@@ -71,7 +71,7 @@ export default function App() {
       <div className="app-viewport-stage">
         {activePage === 'status' && <Status />}
         {activePage === 'about' && <About />}
-        {activePage === 'songs' && <Songs />}
+        {activePage === 'resources' && <Resources />}
       </div>
 
     </div>
