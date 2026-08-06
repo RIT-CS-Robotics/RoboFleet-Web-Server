@@ -38,7 +38,9 @@ export default function SongsComponent() {
   ];
 
     /**
-    * Copies a clicken song id to the users clipboard
+    * Copies a clicken song id to the users clipboard.
+    * 
+    * @param {Number} song_id: The ID of the song to copy.
     */
     const handleCopyId = async (song_id) => {
         try {

@@ -7,3 +7,137 @@
  *
  * @disclosure Base styling generated with AI (Google Gemini)
  */
+
+/* Main Layout Wrapper - Hybrid resolution rules for all screen sizes */ 
+.example-container { 
+  padding: 16px 24px; 
+  width: 100%; /* Fluid percentage scales smoothly on laptops/small screens */ 
+  max-width: 1750px; /* ENLARGED: Expanded horizontal boundaries to fit massive panels side-by-side */ 
+  margin: 0 auto; /* Centers the workspace container on larger viewports */ 
+  height: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; /* Flows content downwards from the header */ 
+  overflow: hidden; /* FORCED OVERFLOW RESCUE: Prevents structural layout tracks from leaking */
+} 
+
+/* Page Header Element - CLEAN MINIMALIST DESIGN */ 
+.example-header h2 { 
+  font-size: 32px; 
+  font-weight: 700; /* Crisp bold text weight */ 
+  color: var(--text-main); 
+  letter-spacing: -0.025em; /* Sharp tracking alignment */ 
+  font-family: var(--font-sans); /* Modern clean border treatment */ 
+  display: inline-block; 
+  padding-bottom: 8px; 
+  border-bottom: 2px solid var(--accent); /* Thin cyan line beneath the title */ 
+  margin-bottom: 28px; /* Breathing room before the content begins */ 
+} 
+
+/* Container that manages the side-by-side split flow */ 
+.split-view-container { 
+  display: flex; 
+  gap: 40px; /* Uniform gutter spacing between the two columns */ 
+  width: 100%; 
+  align-items: stretch; /* FORCES EQUAL HEIGHTS: Keeps both boxes identical vertically */ 
+  height: 60vh; /* FORCED ZERO SCROLLING: Locks a responsive ceiling so panels fit on screen */
+} 
+
+/* Reusable Background Panel Component matching your dark cyber design system */ 
+.split-view-container .panel-box { 
+  flex: 1; /* FORCES EQUAL WIDTHS: Divides horizontal space 50/50 down the middle */ 
+  max-width: 820px; /* ENLARGED MAX CEILING: Drastically widened to provide maximum text track space */
+  min-width: 0; /* Prevents horizontal code overflow from stretching panels asymmetric */ 
+  background-color: var(--bg-secondary); /* Dark Onyx base workspace color */ 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius); 
+  padding: 44px; /* Spacious internal padding layout boundaries */ 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; /* Pushes the copy action button firmly to the bottom */ 
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65); 
+} 
+
+/* High-Contrast Section Headers inside columns */ 
+.split-view-container .panel-box h3 { 
+  font-size: 28px; 
+  font-weight: 700; 
+  color: var(--accent); /* Terminal Cyan headers */ 
+  font-family: var(--font-sans); 
+  margin-bottom: 20px; 
+  flex-shrink: 0;
+} 
+
+/* SPECIFICITY OVERRIDE: Targets text inside this view to bypass parent page grey styles */ 
+.content-section .split-view-container .panel-box p { 
+  color: var(--text-main); /* Restores clean, readable off-white font colors */ 
+  font-size: 18px; 
+  line-height: 1.6; 
+  margin-bottom: 24px; 
+} 
+
+/* Custom Terminal View blocks for code strings - PRESERVES NEW LINES */
+.split-view-container .panel-box .code-display-block {
+  font-family: var(--font-mono); /* Switches system to clean monospace design tokens */
+  font-size: 18px;               /* Boosted font scale sizing for crisp code tracking */ 
+  color: #ffffff;                /* PURE WHITE: Overrides cascading text styles completely */
+  background-color: #020617;     /* Deep midnight black backdrop panel block for distinction */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 32px;            /* Generous internal terminal padding space */
+  margin: 0 0 32px 0;
+  text-align: left;              /* Natively left-aligns the code blocks */
+  white-space: pre;              /* Instructs the browser engine to respect manual spaces and \n lines */
+  overflow-x: auto;              /* Adds smooth horizontal scroll track bars if text runs long */
+  overflow-y: auto;              /* Localizes internal scrolling for very large incoming text lines */
+  width: 100%;
+  line-height: 1.6;
+  flex: 1;                       /* FORCES BOX FILLING: Stretches the block to occupy identical internal heights */
+  min-height: 0;                 /* Allows box container elements to resize downward instead of bursting */
+}
+
+/* Modern terminal action button layout - SLEEK BUT FULL WIDTH */ 
+.split-view-container .panel-box button { 
+  background-color: var(--bg-primary); /* Drops button face into darker primary tone */ 
+  border: 1px solid var(--border); 
+  color: var(--text-main); 
+  border-radius: var(--radius); 
+  padding: 10px 20px; /* COMPACT PADDING: Smaller vertical footprint profile */ 
+  cursor: pointer; 
+  font-weight: 600; 
+  font-size: 15px; /* COMPACT FONT: Scaled down text label size */
+  width: 100%; /* FULL WIDTH: Stretches completely to align with the code block boxes */
+  transition: all 0.15s ease-in-out; 
+  flex-shrink: 0;
+} 
+
+/* Hover glowing accents matching global dashboard frameworks */ 
+.split-view-container .panel-box button:hover { 
+  border-color: var(--accent); 
+  background-color: rgba(56, 189, 248, 0.02); 
+  color: var(--accent); 
+}
+
+/* ==========================================================================
+   FOOTER SECTION LAYOUT STYLES
+   ========================================================================== */
+.example-footer {
+  border-top: 1px solid var(--border); /* MATCHED SUB-SYSTEM DIVIDER: Fits your song-list panel look */
+  padding: 16px 0 8px 0;               /* Balanced interior breathing box space padding metrics */
+  background-color: var(--bg-primary); 
+  flex-shrink: 0;                      /* Guarantees system layout wrappers don't squash footer space */
+  text-align: center;
+  width: 100%;
+  margin-top: 24px;
+}
+
+/* High-specificity path to defeat grey paragraph cascades from parent pages */
+.content-section .example-footer p.example-footer-section,
+.example-footer p.example-footer-section {
+  font-family: var(--font-mono); /* Clean high-tech monospace format feedback look */
+  font-size: 18px; 
+  color: var(--text-muted); /* Keeps it as elegant system context subtext */
+  letter-spacing: 0.02em;
+  margin: 0;
+  padding: 0;
+}
