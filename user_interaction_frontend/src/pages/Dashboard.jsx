@@ -487,17 +487,6 @@ return (
       <div className="sidebar-split-layout-row"> 
         {/* SUBCOLUMN LEFT: Shortened Instructions & Dropdown */} 
         <div className="sidebar-left-subcolumn"> 
-          <div className="instructions-section"> 
-            <h3 className="instructions-title">Instructions:</h3> 
-            <div className="instructions-box shortened-box"> 
-              <p>1. Select a target robot dropdown menu.</p> 
-              <p>2. Write code, import code from your device, or pull code from a past log into the text editor workspace.</p> 
-              <p>3. Make sure you have a valid .py or .java title. Note: for Java the title must be the same as the class name.</p> 
-              <p>4. Click "Deploy" to have your code control the selected robot.</p>
-              <p>5. Once the robot finishes, click the new log created to view the output.</p>
-            </div> 
-          </div> 
-
           {/* Robot Selection Dropdown - Positioned directly under instructions */} 
           <div className="robot-selector-group"> 
             <label className="robot-selector-label">Target Robot:</label> 

@@ -35,7 +35,7 @@
 }
 
 /* ==========================================================================
-   2. GLOBAL RESET, SCROLLBARS & BASE RULES
+   2. GLOBAL RESET, SCROLLBARS & BASE RULES (UPDATED FOR FIREFOX CONTRAST)
    ========================================================================== */
 * {
   box-sizing: border-box;
@@ -56,13 +56,18 @@ html, body, #root {
   font-family: var(--font-sans);
   line-height: 1.5;
   overflow: hidden; /* Erases dual window scrolling tracks */
+  
+  /* CRITICAL FIREFOX & CHROME TEXT BRIGHTNESS SYNCHRONIZATION */
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; /* Stops Firefox from thinning/darkening fonts on dark canvases */
+  text-rendering: optimizeLegibility;
 }
 
 /* High-tech navigation menu action triggers */
 button {
   font-family: inherit;
   font-size: 14px;
+  color: var(--text-main); /* FIX: Forces unstyled buttons to inherit bright white instead of default browser gray */
   transition: color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
 }
 
@@ -178,7 +183,8 @@ ul, ol {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px; /* LOCKED: Preserves original vertical header size */
+  padding: 16px 24px;
+  /* LOCKED: Preserves original vertical header size */
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   z-index: 100;
@@ -221,10 +227,8 @@ ul, ol {
   border: none;
   font-weight: 700;
   cursor: pointer;
-  
-  font-size: 20px;      /* SYNCED: Large high-contrast text layout */
-  padding: 6px 24px;    /* SYNCED: Flat, wider button targets */
-  
+  font-size: 20px; /* SYNCED: Large high-contrast text layout */
+  padding: 6px 24px; /* SYNCED: Flat, wider button targets */
   border-radius: calc(var(--radius) - 2px);
   display: inline-flex;
   align-items: center;
@@ -250,10 +254,8 @@ ul, ol {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  
-  font-size: 20px;      /* SYNCED: Perfectly matches navigation text size */
-  padding: 6px 24px;    /* SYNCED: Perfectly matches navigation padding dimensions */
-  
+  font-size: 20px; /* SYNCED: Perfectly matches navigation text size */
+  padding: 6px 24px; /* SYNCED: Perfectly matches navigation padding dimensions */
   font-weight: 700;
   text-decoration: none;
   font-family: var(--font-sans);

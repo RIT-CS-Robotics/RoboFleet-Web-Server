@@ -9,63 +9,73 @@
  * @disclosure: Base styling generated with AI (Google Gemini)
  */
 
-/* 1. GLOBAL DESIGN TOKENS */
-:root {
-  /* Almost Black Canvas Tones */
-  --bg-primary: #030712;      /* Midnight Core Page Canvas */
-  --bg-secondary: #0b1329;    /* Dark Onyx Workspace Blocks */
-  --text-main: #f8fafc;       /* Off-White Text */
-  --text-muted: #64748b;      /* Slate Gray Subtext */
-  --border: #1e293b;          /* Dark Faded Outlines */
+/* 1. GLOBAL DESIGN TOKENS */ 
+:root { 
+  /* Almost Black Canvas Tones */ 
+  --bg-primary: #030712; /* Midnight Core Page Canvas */ 
+  --bg-secondary: #0b1329; /* Dark Onyx Workspace Blocks */ 
+  --text-main: #f8fafc; /* Off-White Text */ 
+  --text-muted: #64748b; /* Slate Gray Subtext */ 
+  --border: #1e293b; /* Dark Faded Outlines */ 
   
-  /* High-Contrast Cyber Accents */
-  --accent: #38bdf8;          /* Bright Terminal Cyan */
-  --accent-hover: #0ea5e9;
-  --danger: #ef4444;          /* Crimson Red */
-  --danger-hover: #dc2626;
-  --success-bg: #022c22;      /* Deep Emerald Status Log (Dark Room Friendly) */
+  /* High-Contrast Cyber Accents */ 
+  --accent: #38bdf8; /* Bright Terminal Cyan */ 
+  --accent-hover: #0ea5e9; 
+  --danger: #ef4444; /* Crimson Red */ 
+  --danger-hover: #dc2626; 
+  --success-bg: #022c22; /* Deep Emerald Status Log (Dark Room Friendly) */ 
+  
+  /* Global Layout Tokens */ 
+  --radius: 6px; 
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; 
+} 
 
-  /* Global Layout Tokens */
-  --radius: 6px;
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-}
-
-/* 2. GLOBAL RESET & BASE RULES */
-* {
+/* 2. GLOBAL RESET & BASE RULES */ 
+* { 
   box-sizing: border-box; 
-  margin: 0;
-  padding: 0;
-}
+  margin: 0; 
+  padding: 0; 
+} 
 
-body {
-  font-family: var(--font-sans);
+body { 
+  font-family: var(--font-sans); 
   background-color: var(--bg-primary); 
-  color: var(--text-main);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
+  color: var(--text-main); 
+  line-height: 1.5; 
+  
+  /* CRITICAL FIREFOX CONTRAST MATCHING */
+  -webkit-font-smoothing: antialiased; 
+  -moz-osx-font-smoothing: grayscale; /* Prevents text bleeding out in Firefox */
+  text-rendering: optimizeLegibility;
+} 
 
-button {
-  font-family: inherit;
-  font-size: 14px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
+button { 
+  font-family: inherit; 
+  font-size: 14px; 
+  color: var(--text-main); /* FIX: Forces unstyled buttons to stay bright white on Firefox */
+  transition: background-color 0.2s ease, transform 0.1s ease; 
+} 
 
-button:active {
+button:active { 
   transform: scale(0.98); 
-}
+} 
 
-/* ==========================================================================
-   FULL SCREEN EXPANSION RESET
-   ========================================================================== */
-html, body, #root {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  min-height: 0 !important;
-  background-color: var(--bg-primary);
-  overflow: hidden; /* Prevents double scrolling wheels across the interface */
+/* ========================================================================== 
+   FULL SCREEN EXPANSION RESET 
+   ========================================================================== */ 
+html, body, #root { 
+  margin: 0 !important; 
+  padding: 0 !important; 
+  width: 100vw !important; 
+  height: 100vh !important; 
+  max-width: none !important; 
+  min-height: 0 !important; 
+  background-color: var(--bg-primary); 
+  overflow: hidden; /* Prevents double scrolling wheels across the interface */ 
+  
+  /* CRITICAL FIREFOX CONTRAST MATCHING FOR ROOT LEVEL VIEWS */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }

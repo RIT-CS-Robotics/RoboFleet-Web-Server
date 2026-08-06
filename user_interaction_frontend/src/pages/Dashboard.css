@@ -90,34 +90,7 @@ html, body, #root {
 } 
 
 /* -------------------------------------------------------------------------- SUBCOLUMN A (LEFT SIDE): Balanced Instructions & Lower Dropdown -------------------------------------------------------------------------- */ 
-.instructions-section { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 10px; 
-  height: calc(100% - 75px); 
-} 
-.instructions-title { 
-  color: var(--text-main); 
-  font-size: 22px; 
-  margin: 0; 
-} 
-/* Frame layout for the instructions box */ 
-.instructions-box.shortened-box { 
-  background-color: var(--bg-secondary); 
-  border: 1px solid var(--border); 
-  border-radius: var(--radius); 
-  padding: 14px; 
-  color: var(--text-muted); 
-  line-height: 1.5; 
-  font-size: 18px; 
-  height: 100%; 
-} 
-.instructions-box p { 
-  margin-bottom: 10px; 
-} 
-.instructions-box p:last-child { 
-  margin-bottom: 0; 
-} 
+
 
 /* Target Robot Dropdown Section Styles */ 
 .robot-selector-group { 
