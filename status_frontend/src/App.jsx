@@ -10,17 +10,24 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import Status from './pages/Status';
 import About from './pages/About';
+import Songs from './pages/Songs';
 import logo from './assets/logo.png';
 
 /**
- * Status and About page main.
+ * Status, About, and Songs page main.
  */
 export default function App() {
   const [activePage, setActivePage] = useState('status'); // The current page (Status page or About page)
 
   // Used to load the selected page.
   useEffect(() => {
-    document.title = activePage === 'status' ? "RoboFleet Status" : "About RoboFleet";
+    if (activePage === 'status') {
+      document.title = "RoboFleet Status";
+    } else if (activePage === 'about') {
+      document.title = "About RoboFleet";
+    } else if (activePage === 'songs') {
+      document.title = "RoboFleet Song List";
+    }
   }, [activePage]);
 
   return (
@@ -50,13 +57,21 @@ export default function App() {
           >
             ℹ️ About
           </button>
+          <button 
+            onClick={() => setActivePage('songs')} 
+            className={`nav-item-btn ${activePage === 'songs' ? 'active-tab' : ''}`}
+          >
+           🎵 Song List
+          </button>
         </div>
 
       </nav>
 
       {/* RENDER PAGE SWITCHER COMPONENT */}
       <div className="app-viewport-stage">
-        {activePage === 'status' ? <Status /> : <About />}
+        {activePage === 'status' && <Status />}
+        {activePage === 'about' && <About />}
+        {activePage === 'songs' && <Songs />}
       </div>
 
     </div>
