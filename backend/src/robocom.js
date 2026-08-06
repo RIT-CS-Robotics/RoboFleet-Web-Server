@@ -76,7 +76,6 @@ function cleanupTemp(scriptDir) {
     catch (err) {
         console.warn(`Could not remove temp script directory and script -> Error: ${err}`);
     }
-    return null;
 }
 
 /**
@@ -263,7 +262,7 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
         console.error(`Error: ${err}`)
         if (logStream) {logStream.end();}
         if (permStream) {permStream.end();}
-        scriptDir = cleanupTemp(scriptDir);
+        cleanupTemp(scriptDir);
         const errorTime = new Date();
         console.error(`Time of script error: ${errorTime}`);
         callBack(false);
@@ -273,7 +272,7 @@ function runScript(dockerArgs, robotId, scriptDir, scriptPath, logStream, permSt
         console.log(`Disconnecting robot with ID: ${robotId}`);
         if (logStream) {logStream.end();}
         if (permStream) {permStream.end();}
-        scriptDir = cleanupTemp(scriptDir);
+        cleanupTemp(scriptDir);
         const closeTime = new Date();
         console.log(`Time of script close: ${closeTime}`);
         topicPub(`Finishing student (${user}) code: ${cleanTitle}`);
@@ -322,7 +321,7 @@ async function robotRun(code, title, user, robotId, host, codeType, topicPub, ca
     const shouldRun = await validate(scriptPath, logStream, permStream, codeType);
     if (!shouldRun) {
         console.error(`Code validation failed for User: ${user}`);
-        scriptDir = cleanupTemp(scriptDir);
+        cleanupTemp(scriptDir);
         callBack(false);
         return;
     }
@@ -331,7 +330,7 @@ async function robotRun(code, title, user, robotId, host, codeType, topicPub, ca
     // Gets the specific Docker arguments for the type of code being ran (Python or Java)
     const dockerArgs = await getDockerArgs(codeType, host, scriptDir.name, scriptPath);
     if (!dockerArgs) {
-        scriptDir = cleanupTemp(scriptDir);
+        cleanupTemp(scriptDir);
         callBack(false);
         return;
     }

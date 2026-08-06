@@ -295,6 +295,16 @@ function initializeRobotConnection(robotId, ipAddress, optionalColor = 'grey') {
   });
 }
 
+/**
+ * A callback function that is used to turn off the robots active status once the script deploying the robot finishes
+ * 
+ * @param {boolean} active: The active status of the robot
+ * @param {string} robotId: The specific robot to target
+ */
+function codeCallback(active, robotId) {
+  robotConnections[robotId].isActive = active;
+}
+
 // Necessary to tell passport how to serialize the user
 // In a production environment we may just serialize the
 // user.id and then read from the database when deserializing
@@ -651,16 +661,6 @@ app.post('/api/deploy', (req, res) => {
       return res.status(503).json( {message: `Error running code on ${robotId}`});
   }
 });
-
-/**
- * A callback function that is used to turn off the robots active status once the script deploying the robot finishes
- * 
- * @param {boolean} active: The active status of the robot
- * @param {string} robotId: The specific robot to target
- */
-function codeCallback(active, robotId) {
-  robotConnections[robotId].isActive = active;
-}
 
 // ----------------------------------------------------
 // ROBOFLEET REGISTRATION: add or edit robots here!
