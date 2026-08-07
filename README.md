@@ -396,6 +396,32 @@ crontab -e
 
 ---
 
+## 📄 Step 10: Generating the Robot API docs
+
+### Python
+
+* Comment out any imports that cause problems while doing this step, then un-comment them once finished.
+* Run the following commands
+
+cd ./RoboFleet_WebServer/backend/code_files
+
+python3 -m pydoc robot | python3 -c "
+import sys, re
+
+for line in sys.stdin:
+    # Clean up hidden terminal text-bolding artifacts
+    clean_line = re.sub(r'.\x08', '', line)
+    
+    # Matches lines having optional spaces, a pipe, exactly two spaces, and a valid Python function signature
+    if re.search(r'^\s*\|\s{2}[a-zA-Z_][a-zA-Z0-9_]*\(', clean_line):
+        print('###')
+        
+    sys.stdout.write(clean_line)
+" > ../../status_frontend/src/components/resources/api_docs/python_docs.txt
+
+
+### Java
+
 ## 📦 Critical Package Manifest & Dependencies
 Below is an index of core installation modules and libraries critical to the initialization of the stack.
 

@@ -7,3 +7,100 @@
  *
  * @disclosure Base styling generated with AI (Google Gemini)
  */
+
+/* Main Layout Wrapper - Fluid percentage layout */
+.python-api-container {
+  padding: 16px 24px;
+  width: 100%;
+  max-width: 1750px; /* Matched boundary ceiling */
+  margin: 0 auto;    /* Centers workspace on large screens */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;   /* Prevents structural layout leaks */
+}
+
+/* Page Header Element - CLEAN MINIMALIST DESIGN */
+.python-api-header h2 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.025em;
+  font-family: var(--font-sans);
+  display: inline-block;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent); /* Thin cyan accent line */
+  margin-bottom: 28px;
+}
+
+/* Vertical Scrolling Track Layout */
+.scroll-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;              /* Uniform gutter spacing between function panels */
+  width: 100%;
+  max-height: 70vh;       /* Responsive height ceiling for long scroll tracks */
+  overflow-y: auto;       /* Smooth vertical scrolling track */
+  padding-right: 8px;     /* Breathing space for the scrollbar element */
+}
+
+/* Custom Scrollbar styling to match cyber aesthetic */
+.scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-container::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+  border-radius: var(--radius);
+}
+.scroll-container::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius);
+}
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Outer Box Layer: The Darker Background container card */
+.scroll-container .function-box {
+  width: 100%;
+  background-color: var(--bg-secondary); /* Dark Onyx base color */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 36px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Spaces out the blue title and the lighter box below */
+  text-align: left;
+}
+
+/* The Function Name Header appearing in Blue */
+.function-title-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: #38bdf8; /* Vibrant Sky Blue color */
+}
+
+/* Inner Box Layer: The Lighter Box holding the entire funcText string */
+.scroll-container .doc-box {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.03); /* Translucent layer to tint it lighter */
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.6;
+  color: #ffffff; /* Entire text string stays pure white */
+  
+  white-space: pre-wrap; /* Preserves formatting and text file line breaks */
+  word-break: break-word;
+}
+
+/* Hover highlighting effect for interactive list feel */
+.scroll-container .function-box:hover {
+  border-color: rgba(56, 189, 248, 0.3); /* Subtle cyan glow on frame hover */
+}

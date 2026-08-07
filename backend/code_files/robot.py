@@ -1,5 +1,4 @@
 import socket, sys, ast, os, queue, threading, time, logging
-import cv2 as cv
 import numpy as np
 from contextlib import AbstractContextManager
 from pathlib import Path

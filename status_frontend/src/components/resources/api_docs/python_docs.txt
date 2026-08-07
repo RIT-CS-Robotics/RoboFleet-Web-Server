@@ -1,0 +1,227 @@
+Help on module robot:
+
+NAME
+    robot
+
+CLASSES
+    builtins.object
+        Photo
+    contextlib.AbstractContextManager(abc.ABC)
+        Robot
+    
+    class Photo(builtins.object)
+###
+     |  Photo(robot_obj, data)
+     |  
+     |  Methods defined here:
+     |  
+###
+     |  __init__(self, robot_obj, data)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+###
+     |  get_height(self)
+     |  
+###
+     |  get_pixels(self)
+     |  
+###
+     |  get_width(self)
+     |  
+###
+     |  objects_seen(self)
+     |  
+###
+     |  whos_there(self)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+    
+    class Robot(contextlib.AbstractContextManager)
+     |  Method resolution order:
+     |      Robot
+     |      contextlib.AbstractContextManager
+     |      abc.ABC
+     |      builtins.object
+     |  
+     |  Methods defined here:
+     |  
+###
+     |  __exit__(self, exc_type, exc_value, traceback)
+     |      Wait for the non-blocking commands to execute,
+     |      then end the program and close the socket.
+     |  
+###
+     |  __init__(self)
+     |      Create a new Robot object and connect to the robot.
+     |  
+###
+     |  add_to_queue(self, song_link)
+     |  
+###
+     |  get_dest_name(self)
+     |      Return the current destination of the robot, or "N/A"
+     |      if there is None.
+     |  
+###
+     |  get_dest_pos(self)
+     |  
+###
+     |  get_laser_scan(self)
+     |      Get the current laser scan of the robot.
+     |  
+###
+     |  get_legs(self)
+     |      Return the number of "legs" seen.
+     |  
+###
+     |  get_object_scan(self)
+     |      Return a list of tuples in the format (item, x, y) of all
+     |      the items spotted during the scan and their locations.
+     |  
+###
+     |  get_pos(self)
+     |      Get the current position (x, y) of the robot.
+     |  
+###
+     |  get_targets(self)
+     |      Return a list of tuples in the format (item, x, y) of all
+     |      the items spotted during the scan and their locations.
+     |  
+###
+     |  go_to(self, x, y)
+     |      Go to given (x, y) coordinates, if valid.
+     |  
+###
+     |  halt(self)
+     |  
+###
+     |  is_traveling(self)
+     |      Returns whether0 the robot is travelling.
+     |  
+###
+     |  listen(self, listen_timeout=10, phrase_timeout=10)
+     |  
+###
+     |  listen_until(self, lst, listen_timeout=10, phrase_timeout=10)
+     |  
+###
+     |  listener(self)
+     |      Handle communication sent back from the robot (listener)
+     |      and blocking commands.
+     |  
+###
+     |  move(self, metres)
+     |      Move {metres} metres.
+     |  
+###
+     |  move_admin(self, steps)
+     |  
+###
+     |  nav_to(self, location)
+     |      Go to given location string, if in database.
+     |  
+###
+     |  objects_seen(self)
+     |      Return a set of all unique objects detected.
+     |  
+###
+     |  photo_objects_seen(self, val)
+     |  
+###
+     |  photo_whos_there(self, val)
+     |  
+###
+     |  play_music(self, song_link)
+     |  
+###
+     |  queue_executor(self)
+     |      Handle non blocking commands. Each command is put into a
+     |      queue. Once one is done, the next one is sent to Nav2 and
+     |      executes accordingly.
+     |  
+###
+     |  rotate(self, degrees)
+     |      Rotate {degrees} degrees.
+     |  
+###
+     |  scan_for(self, item)
+     |      Return a list of coordinates of all the instances of the item
+     |      detected.
+     |  
+###
+     |  send_command(self, command, cmd_type)
+     |      Handles "command" sending, based on "B" - blocking,
+     |      or non-blocking commands.
+     |  
+###
+     |  show(self, message)
+     |  
+###
+     |  song_player(self)
+     |      Handle playlist. Each command is put into a
+     |      queue. Once one is done, the next one is sent to listener and
+     |      executes accordingly.
+     |  
+###
+     |  speak(self, message, voice_id=1)
+     |  
+###
+     |  take_photo(self)
+     |  
+###
+     |  whos_there(self)
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data and other attributes defined here:
+     |  
+     |  __abstractmethods__ = frozenset()
+     |  
+     |  ----------------------------------------------------------------------
+     |  Methods inherited from contextlib.AbstractContextManager:
+     |  
+###
+     |  __enter__(self)
+     |      Return `self` upon entering the runtime context.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Class methods inherited from contextlib.AbstractContextManager:
+     |  
+     |  __class_getitem__ = GenericAlias(...) from abc.ABCMeta
+     |      Represent a PEP 585 generic type
+     |      
+     |      E.g. for t = list[int], t.__origin__ is list and t.__args__ is (int,).
+     |  
+###
+     |  __subclasshook__(C) from abc.ABCMeta
+     |      Abstract classes can override this to customize issubclass().
+     |      
+     |      This is invoked early on by abc.ABCMeta.__subclasscheck__().
+     |      It should return True, False or NotImplemented.  If it returns
+     |      NotImplemented, the normal algorithm is used.  Otherwise, it
+     |      overrides the normal algorithm (and the outcome is cached).
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors inherited from contextlib.AbstractContextManager:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
+
+DATA
+    IMG_HEIGHT = 480
+    IMG_WIDTH = 640
+    METRE_MAX = 3.0
+
+FILE
+    /home/ars4041/RoboFleet_WebServer/backend/code_files/robot.py
+
+
