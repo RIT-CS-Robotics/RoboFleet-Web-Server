@@ -1,7 +1,7 @@
 /**
  * Functionality: Python Robot API Resource component for RoboFleet (robotics-project.gccis.rit.edu)
  * 
- * @file status_frontend/src/components/resources/PythonAPIComponent.jsx
+ * @file status_frontend/src/components/resources/python_api/PythonAPIComponent.jsx
  * @author Aidan Sanderson
  * @date 8/6/2026
  */

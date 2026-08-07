@@ -1,41 +1,41 @@
 /**
  * Functionality: Song List component for Resources page for RoboFleet (robotics-project.gccis.rit.edu)
  * 
- * @file status_frontend/src/components/resources/SongsComponent.jsx
+ * @file status_frontend/src/components/resources/songs/SongsComponent.jsx
  * @author Aidan Sanderson
  * @date 8/6/2026
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './SongsComponent.css';
+import rawSongList from './songs.txt?raw'; // The song list
 
 /**
  * Song List component for Resource page
  */
 export default function SongsComponent() {
 
-  const songs = [
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" },
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" },
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" },
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" },
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" },
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" },
-    { title: "Song 1", id: "1" },
-    { title: "Song 2", id: "2" },
-    { title: "Song 3", id: "3" }
-  ];
+  const [songs, setSongs] = useState([]);
+
+  /**
+   * builds the list of songs from the raw song list text file and sets them for the useState variable.
+   */
+  function buildSongList() {
+    const splitSongList = rawSongList.split('\n'); // Seperates songs
+    const cleanSongList = splitSongList.map(item => item.trim().split('.')); // splits each song by a . character
+    const songsToDisplay = [];
+    for (const part of cleanSongList) {
+      const song = {title: part[1], id: part[0]}; // places the song title with its ID
+      songsToDisplay.push(song);
+    }
+    setSongs(songsToDisplay);
+  }
+
+  /**
+   * Loads the song list on the page load.
+   */
+  useEffect( () => {
+    buildSongList();
+  }, []);
 
     /**
     * Copies a clicken song id to the users clipboard.

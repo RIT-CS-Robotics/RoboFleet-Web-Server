@@ -1,19 +1,18 @@
 /**
  * Functionality: Styling for the Song List Resource component for RoboFleet (robotics-project.gccis.rit.edu)
  *
- * @file status_frontend/src/components/resources/SongsComponent.css
+ * @file status_frontend/src/components/resources/songs/SongsComponent.css
  * @author Aidan Sanderson
  * @date 8/6/2026
  *
  * @disclosure Base styling generated with AI (Google Gemini)
  */
 
-/* Main Layout Wrapper - Hybrid resolution rules for all screen sizes */
+/* Main Layout Wrapper - Full width edge-to-edge configuration */
 .songs-container {
   padding: 16px 24px;
-  width: 100%; /* Fluid percentage scales smoothly on laptops/small screens */
-  max-width: 1350px; /* Hard pixel ceiling prevents over-stretching on 4K/ultrawide monitors */
-  margin: 0 auto; /* Centers the workspace container on larger viewports */
+  width: 100%; /* Stretches fluids across all screens */
+  margin: 0;   /* Removes centering margins to allow edge-to-edge layout */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -40,10 +39,9 @@
   margin-bottom: 28px; /* Breathing room before the content begins */
 }
 
-/* Restricts panel width to prevent stretching across ultrawide displays */
+/* Panel Setup - Expanded to take up 100% of the page width */
 .songs-list-panel {
-  max-width: 600px; /* Squeezes the components into a clean central pane */
-  margin: 0 auto;   /* Perfectly centers the component in your stage view */
+  width: 100%; /* FIXED: Forces the song list panel to span the entire screen width */
   margin-bottom: 40px; /* Adds breathing room between the list and the footer */
 }
 
@@ -61,7 +59,7 @@
   align-items: center;
   padding: 10px 12px; /* Uniform interior spacing box padding */
   font-family: var(--font-sans);
-  font-size: 20px; 
+  font-size: 20px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -76,7 +74,7 @@
 
 /* Anchors the header width directly above the ID boxes */
 .header-id {
-  width: 70px; 
+  width: 140px; /* FIXED: Widened to match the full-width layout profile */
   text-align: center;
 }
 
@@ -93,7 +91,7 @@
 /* Individual feature list line tracks - WHITE TEXT */
 .songs-list li {
   font-family: var(--font-mono); /* Uses terminal text formatting */
-  font-size: 18px; 
+  font-size: 18px;
   color: var(--text-main); /* Restored to white/main text color */
   background-color: rgba(255, 255, 255, 0.02); /* Subtle tracking row tint */
   border: 1px solid rgba(30, 41, 59, 0.5); /* Soft matching divider line */
@@ -104,6 +102,16 @@
   justify-content: space-between; /* Pushes Title left and ID box right */
   gap: 12px;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Clean text handling for wide layouts */
+.song-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Shortens extremely long song names with dots (...) */
+  padding-right: 12px;
+  text-align: left;
 }
 
 /* Cyber accent hover state for list rows */
@@ -119,9 +127,9 @@
 /* STYLIZED ID BOX WITH BUTTON RESET AND HOVER ACTION */
 .song-id-box {
   display: inline-block;
-  width: 70px; /* Scaled precisely to align beneath the column headers */
+  width: 140px; /* FIXED: Widened to match the new header sizing */
   text-align: center;
-  padding: 4px 0;
+  padding: 6px 0;
   background-color: rgba(30, 41, 59, 0.4); /* Darkened slightly for clearer contrast */
   border: 1px solid rgba(56, 189, 248, 0.3); /* Enhanced border opacity hint */
   border-radius: 4px;
@@ -147,6 +155,7 @@
   padding: 16px 0 8px 0; /* Padding adjustments handle balanced container spacing */
   background-color: var(--bg-primary); /* Keeps scrolling items hidden behind the bar canvas mask */
   flex-shrink: 0; /* Structural rule: Prevents browser from ever compressing footer */
+  width: 100%;
 }
 
 /* Professor Email Contact Section */

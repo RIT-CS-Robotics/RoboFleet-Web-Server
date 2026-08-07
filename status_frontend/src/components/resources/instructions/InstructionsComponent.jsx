@@ -1,7 +1,7 @@
 /**
  * Functionality: Instructions Resource component for RoboFleet (robotics-project.gccis.rit.edu)
  * 
- * @file status_frontend/src/components/resources/InstructionsComponent.jsx
+ * @file status_frontend/src/components/resources/instructions/InstructionsComponent.jsx
  * @author Aidan Sanderson
  * @date 8/6/2026
  */

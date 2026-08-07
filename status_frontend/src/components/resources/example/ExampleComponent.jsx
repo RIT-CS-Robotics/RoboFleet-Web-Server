@@ -1,7 +1,7 @@
 /**
  * Functionality: Example Code Resource component for RoboFleet (robotics-project.gccis.rit.edu)
  * 
- * @file status_frontend/src/components/resources/ExampleComponent.jsx
+ * @file status_frontend/src/components/resources/example/ExampleComponent.jsx
  * @author Aidan Sanderson
  * @date 8/6/2026
  */
@@ -17,7 +17,7 @@ export default function ExampleComponent() {
 
   const javaCode = `TO BE ADDED SOON`;
 
-      /**
+    /**
     * Copies robot code to the users clipboard.
     * 
     * @param {String} codeType: The type of code being copied (PYTHON or JAVA).
