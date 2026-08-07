@@ -398,14 +398,21 @@ crontab -e
 
 ## 📄 Step 10: Generating the Robot API docs
 
-### Python
-
 * Comment out any imports that cause problems while doing this step, then un-comment them once finished.
 
 * Run the following commands
 
-cd RoboFleet_WebServer/backend/code_files
+First go to the code_file directory in the backend.
 
+```bash
+cd RoboFleet_WebServer/backend/code_files
+```
+
+### Python
+
+Enter the following to generate the Python docs in the correct place (/RoboFleet_WebServer/status_frontend/src/components/resources/python_api)
+
+```bash
 python3 -m pydoc robot | python3 -c "
 import sys, re
 
@@ -419,9 +426,17 @@ for line in sys.stdin:
         
     sys.stdout.write(clean_line)
 " > ../../status_frontend/src/components/resources/python_api/python_docs.txt
-
+```
 
 ### Java
+
+Enter the following to generate the Java docs in the correct place (/RoboFleet_WebServer/status_frontend/src/components/resources/java_api)
+
+```bash
+To be added soon...
+```
+
+---
 
 ## 📦 Critical Package Manifest & Dependencies
 Below is an index of core installation modules and libraries critical to the initialization of the stack.
