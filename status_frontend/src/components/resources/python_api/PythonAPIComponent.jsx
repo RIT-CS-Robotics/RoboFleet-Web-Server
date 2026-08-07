@@ -7,7 +7,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import './PythonAPIComponent.css';
-import rawAPI from './api_docs/python_docs.txt?raw'; // The robot.py documentation
+import rawAPI from './python_docs.txt?raw'; // The robot.py documentation
 
 /**
  * Python Robot API Component for Resources Page
@@ -48,7 +48,7 @@ export default function PythonAPIComponent() {
   return (
     <div className="python-api-container">
         <header className="python-api-header">
-          <h2>RoboFleet robot.py API</h2>
+          <h2>robot.py API</h2>
         </header>
 
         <div className="scroll-container">

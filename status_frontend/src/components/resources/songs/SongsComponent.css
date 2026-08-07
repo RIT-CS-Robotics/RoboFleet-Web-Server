@@ -44,6 +44,7 @@
 .songs-list-panel {
   max-width: 600px; /* Squeezes the components into a clean central pane */
   margin: 0 auto;   /* Perfectly centers the component in your stage view */
+  margin-bottom: 40px; /* Adds breathing room between the list and the footer */
 }
 
 /* Dynamic Panel Section Headings */

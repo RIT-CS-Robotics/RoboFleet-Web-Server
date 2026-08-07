@@ -7,11 +7,11 @@
  */
 import { useState, useEffect } from 'react';
 import './Resources.css';
-import InstructionsComponent from '../components/resources/InstructionsComponent';
-import PythonAPIComponent from '../components/resources/PythonAPIComponent';
-import JavaAPIComponent from '../components/resources/JavaAPIComponent';
-import SongsComponent from '../components/resources/SongsComponent';
-import ExampleComponent from '../components/resources/ExampleComponent';
+import InstructionsComponent from '../components/resources/instructions/InstructionsComponent';
+import PythonAPIComponent from '../components/resources/python_api/PythonAPIComponent';
+import JavaAPIComponent from '../components/resources/java_api/JavaAPIComponent';
+import SongsComponent from '../components/resources/songs/SongsComponent';
+import ExampleComponent from '../components/resources/example/ExampleComponent';
 
 /**
  * Resources page

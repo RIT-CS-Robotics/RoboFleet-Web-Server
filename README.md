@@ -401,9 +401,10 @@ crontab -e
 ### Python
 
 * Comment out any imports that cause problems while doing this step, then un-comment them once finished.
+
 * Run the following commands
 
-cd ./RoboFleet_WebServer/backend/code_files
+cd RoboFleet_WebServer/backend/code_files
 
 python3 -m pydoc robot | python3 -c "
 import sys, re
@@ -417,7 +418,7 @@ for line in sys.stdin:
         print('###')
         
     sys.stdout.write(clean_line)
-" > ../../status_frontend/src/components/resources/api_docs/python_docs.txt
+" > ../../status_frontend/src/components/resources/python_api/python_docs.txt
 
 
 ### Java
