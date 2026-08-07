@@ -485,28 +485,6 @@ return (
 
       {/* Side-by-side layout columns */} 
       <div className="sidebar-split-layout-row"> 
-        {/* SUBCOLUMN LEFT: Shortened Instructions & Dropdown */} 
-        <div className="sidebar-left-subcolumn"> 
-          {/* Robot Selection Dropdown - Positioned directly under instructions */} 
-          <div className="robot-selector-group"> 
-            <label className="robot-selector-label">Target Robot:</label> 
-            <select 
-            value={selectedRobot} 
-            onChange={(e) => setSelectedRobot(e.target.value)} 
-            onFocus={initRobots}
-            className="robot-select-dropdown"> 
-            <option value='any' >Any</option>
-              {robots.map((robot, index) => ( 
-                <option key={index} value={robot}> 
-                  {robot} 
-                </option> 
-              ))} 
-            </select> 
-          </div> 
-        </div> 
-
-        {/* SUBCOLUMN RIGHT: Logs Box */} 
-        <div className="sidebar-right-subcolumn"> 
           {/* Logs section floats up to the top level */} 
           <div className="scroll-panel-section elevated-log-track"> 
             <h3 className="scroll-panel-title">Logs:</h3> 
@@ -583,8 +561,22 @@ return (
               </svg> 
               <span>Export Code</span> 
             </button> 
+          </div>
+          <div className="robot-selector-group"> 
+            <label className="robot-selector-label">Target Robot:</label> 
+            <select 
+            value={selectedRobot} 
+            onChange={(e) => setSelectedRobot(e.target.value)} 
+            onFocus={initRobots}
+            className="robot-select-dropdown"> 
+            <option value='any' >Any</option>
+              {robots.map((robot, index) => ( 
+                <option key={index} value={robot}> 
+                  {robot} 
+                </option> 
+              ))} 
+            </select> 
           </div> 
-        </div> 
       </div> 
 
       {/* Logout button spanning beneath both layout lanes */} 
@@ -653,7 +645,4 @@ return (
     </form> 
   </div>
 );
-
-
-
 }
