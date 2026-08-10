@@ -97,7 +97,7 @@ public class Validator {
             // Process Hijacking / Command Execution
             "Runtime", "getRuntime", "ProcessBuilder", "exec",
             // Thread Manipulations
-            "Thread", "ThreadGroup", "ClassLoader", "System",
+            "Thread", "ThreadGroup", "ClassLoader",
             // Destructive Robot Commands
             "destroy_node", "publish"
         );

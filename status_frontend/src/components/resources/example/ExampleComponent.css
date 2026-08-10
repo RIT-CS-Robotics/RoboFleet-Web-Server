@@ -88,8 +88,8 @@
   margin: 0 0 32px 0;
   text-align: left;              /* Natively left-aligns the code blocks */
   white-space: pre;              /* Instructs the browser engine to respect manual spaces and \n lines */
-  overflow-x: auto;              /* Adds smooth horizontal scroll track bars if text runs long */
-  overflow-y: auto;              /* Localizes internal scrolling for very large incoming text lines */
+  overflow-x: hidden;            /* CHANGED: Completely disables horizontal scrolling and hides text overflow */
+  overflow-y: hidden;            /* CHANGED: Completely disables vertical scrolling and hides text overflow */
   width: 100%;
   line-height: 1.6;
   flex: 1;                       /* FORCES BOX FILLING: Stretches the block to occupy identical internal heights */

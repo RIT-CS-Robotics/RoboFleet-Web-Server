@@ -13,9 +13,25 @@ import './ExampleComponent.css';
  */
 export default function ExampleComponent() {
 
-  const pythonCode = `from robot import Robot\n\nwith Robot() as rob:\n    print("Robot rotating 360 degrees!")\n    rob.rotate(360)\n    print("Robot finished rotating!")`
+  const pythonCode = 
+`from robot import Robot
 
-  const javaCode = `TO BE ADDED SOON`;
+with Robot() as rob:
+    print("Robot rotating 360 degrees!")
+    rob.rotate(360)
+    print("Robot finished rotating!")`;
+
+  const javaCode = 
+`import robot.Robot;
+
+public class RobotRotate {
+    public static void main(String[] args) {
+      Robot rob = new Robot();
+      System.out.println("Robot rotating 360 degrees!");
+      rob.rotate(360);
+      System.out.println("Robot finished rotating!");
+    }
+}`;
 
     /**
     * Copies robot code to the users clipboard.
