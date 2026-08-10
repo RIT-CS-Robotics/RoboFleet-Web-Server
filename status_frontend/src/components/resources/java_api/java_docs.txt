@@ -1,0 +1,152 @@
+Help on Java class Robot:
+
+METHODS
+###
+    |  public Detection (String item, double x, double y)
+    |  
+###
+    |  public Robot () throws IOException
+    |      Create a new Robot object and connect to the robot.
+    |      @throws IOException
+    |  
+###
+    |  public String speak(String message, int voiceId)
+    |      Tell the robot to speak aloud (using tts) the given message.
+    |      @param message the message to speak
+    |      @param voiceId the voice to use
+    |  
+###
+    |  public String speak(String message)
+    |      Default speak command.
+    |      @param message the message to speak
+    |  
+###
+    |  public String listen(int listenTimeout, int phraseTimeout)
+    |      Listen until provided timeouts.
+    |      @param listenTimeout time to wait for robot to hear someone speak before giving up
+    |      @param phraseTimeout time to wait for person to finish speaking before timing out
+    |      @return phrase heard by robot or null
+    |  
+###
+    |  public String listen()
+    |      Default listen command.
+    |      @return phrase heard by robot or null
+    |  
+###
+    |  public String listenUntil(List<String> lst, int listenTimeout, int phraseTimeout)
+    |      Listen until robot hears a certain phrase.
+    |      @param listenTimeout time to wait for robot to hear someone speak before giving up
+    |      @param phraseTimeout time to wait for person to finish speaking before timing out
+    |      @return phrase heard by robot or null
+    |  
+###
+    |  public String listenUntil(List<String> lst)
+    |  
+###
+    |  public HashSet<String> objectsSeen()
+    |      Return a set of all the objects seen in frame, otherwise
+    |      an empty set.
+    |      @return HashSet<String> of objects seen
+    |  
+###
+    |  public ArrayList<Detection> getObjectScan()
+    |  
+###
+    |  public List<List<Double>> scanFor(String item)
+    |      Return a set of all the people  seen in frame, otherwise
+    |      an empty set.
+    |      @return HashSet<String> of people seen
+    |  
+###
+    |  public HashSet<String> whosThere()
+    |      Return a set of all the people  seen in frame, otherwise
+    |      an empty set.
+    |      @return HashSet<String> of people seen
+    |  
+###
+    |  public ArrayList<Detection> getTargets() throws IOException
+    |      Returns a list of Detections of all the people seen and their x, y coordinates.
+    |      @return ArrayList<Detection> of all people seen (including unknown)
+    |  
+###
+    |  private ArrayList<Detection> parseTupleList (String response)
+    |      Helper function to parse a list of tuples.
+    |  
+###
+    |  private List<List<Double>> parseScanList (String response)
+    |      Parser for list of lists - getLaserScan() and scanFor().
+    |      @param response the string to parse
+    |      @return a list of List<Double>
+    |  
+###
+    |  public boolean is_traveling()
+    |  
+###
+    |  public String getDestName()
+    |  
+###
+    |  public double[] getDestPos()
+    |  
+###
+    |  public double[] getPos()
+    |      Get the current position of the robot.
+    |      @return [x, y] coordinates of robot.
+    |  
+###
+    |  public ArrayList<Double> getLaserScan()
+    |      Get the laser scan.
+    |      @return list of double (metre distances)
+    |  
+###
+    |  public void halt()
+    |      Clear the movement queue and halt the current movement immediately.
+    |  
+###
+    |  public void rotate(double degrees)
+    |  
+###
+    |  public void move(double metres) throws InterruptedException, IOException
+    |      Travel given distance in a straight line in front of the robot, considering KeepoutZones
+    |      and obstacles.
+    |      @param metres the distance to travel
+    |  
+###
+    |  public void move_to(double metres) throws IOException
+    |      Create a path plan and go distance provided, if/until valid.
+    |      @param metres the distance to navigate forward to
+    |  
+###
+    |  public void nav_to(String location) throws IOException
+    |      Create a path plan and go to location, if in database.
+    |      @param location to navigate to
+    |  
+###
+    |  public void go_to(double x, double y) throws IOException
+    |      Create a path plan and go to given (x, y) coordinates, if valid.
+    |      @param x coordinate
+    |      @param y coordinate
+    |  
+###
+    |  private void sendCommand(String command, String type) throws IOException
+    |  
+###
+    |  private void listener()
+    |      Handle communication sent back from the robot (listener)
+    |      and blocking commands.
+    |  
+###
+    |  private void queueExecutor()
+    |      Handle non blocking commands. Each command is put into a
+    |      queue. Once one is done, the next one is sent to Nav2 and
+    |      executes accordingy.
+    |      @return
+    |  
+###
+    |  private void playList()
+    |  
+###
+    |  private boolean pendingWork()
+    |  
+###
+    |  public void close() throws Exception
+    |  

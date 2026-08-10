@@ -33,8 +33,8 @@ async function refreshOnRestart() {
         if (fs.existsSync(codeDir)) {
             const files = fs.readdirSync(codeDir);
             for (const file of files) {
-                // Only target temporary scripts, never touches the validator or robot scripts
-                if ( (file.startsWith('tmp') || file.endsWith('.class') ) && file !== 'validator.py' && file !== 'robot.py' && file !== 'Validator.java' && file !== 'Robot.java') {
+                // Only target temporary scripts, never touches the validator or robot scripts or update_docs.sh
+                if ( (file.startsWith('tmp') || file.endsWith('.class') ) && file !== 'validator.py' && file !== 'robot.py' && file !== 'Validator.java' && file !== 'Robot.java' && file !== 'update_docs.sh') {
                     fs.rmSync(path.join(codeDir, file), {recursive: true, force: true});
                 }
             }

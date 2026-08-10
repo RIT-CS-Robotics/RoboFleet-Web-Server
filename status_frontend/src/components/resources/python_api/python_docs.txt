@@ -1,7 +1,7 @@
-Help on module robot:
+Help on module clone:
 
 NAME
-    robot
+    clone
 
 CLASSES
     builtins.object
@@ -222,6 +222,6 @@ DATA
     METRE_MAX = 3.0
 
 FILE
-    /home/ars4041/RoboFleet_WebServer/backend/code_files/robot.py
+    /home/ars4041/RoboFleet_WebServer/backend/code_files/clone.py
 
 

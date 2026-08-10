@@ -398,8 +398,6 @@ crontab -e
 
 ## 📄 Step 10: Generating the Robot API docs
 
-* Comment out any imports that cause problems while doing this step, then un-comment them once finished.
-
 * Run the following commands
 
 First go to the code_file directory in the backend.
@@ -408,33 +406,13 @@ First go to the code_file directory in the backend.
 cd RoboFleet_WebServer/backend/code_files
 ```
 
-### Python
-
-Enter the following to generate the Python docs in the correct place (/RoboFleet_WebServer/status_frontend/src/components/resources/python_api)
+Next run the update_docs.sh executable shell script to update the documentation for the Resource frontend page.
 
 ```bash
-python3 -m pydoc robot | python3 -c "
-import sys, re
-
-for line in sys.stdin:
-    # Clean up hidden terminal text-bolding artifacts
-    clean_line = re.sub(r'.\x08', '', line)
-    
-    # Matches lines having optional spaces, a pipe, exactly two spaces, and a valid Python function signature
-    if re.search(r'^\s*\|\s{2}[a-zA-Z_][a-zA-Z0-9_]*\(', clean_line):
-        print('###')
-        
-    sys.stdout.write(clean_line)
-" > ../../status_frontend/src/components/resources/python_api/python_docs.txt
+./update_docs.sh
 ```
 
-### Java
-
-Enter the following to generate the Java docs in the correct place (/RoboFleet_WebServer/status_frontend/src/components/resources/java_api)
-
-```bash
-To be added soon...
-```
+If import problems happen go into ./update_docs.sh and update the Python robot.py cloning to include/exclude whatever is needed.
 
 ---
 
