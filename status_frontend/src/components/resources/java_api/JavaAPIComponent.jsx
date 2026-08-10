@@ -29,11 +29,11 @@ export default function JavaAPIComponent() {
    */
   function buildAPI() {
     const cleanRawAPI = rawAPI.replace(/\|/g, ''); // Regex cleanup to delete | characters
-    const functions = cleanRawAPI.split('###'); // Seperates functions
+    const functions = cleanRawAPI.split('###'); // Seperates methods
 
     const cleanFunctions = functions
       .map(item => item.trim())
-      .filter(item => show.has(item.match(/^[^(]*/)?.[0]?.trim())); // Regex checking for function names leading up to the first ( in each string
+      .filter(item => show.has(item.match(/([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/)?.[1]?.trim())); // Regex checking for method names leading up to the first ( in each string and ignoring method modifiers
 
     setAPI(cleanFunctions);
   }
@@ -55,7 +55,7 @@ export default function JavaAPIComponent() {
           {API.map((funcText, index) => (
             <div key={index} className="function-box">
               {/* Pulls out the first line of doc text (the function name) */}
-              <h3 className="function-title-label">{funcText.split('\n')[0].split('(')[0]}</h3>
+              <h3 className="function-title-label">{funcText.split('\n')[0].split(' ')[2].split('(')[0]}</h3>
 
               {/* The function doc */}
               <div className='doc-box'>

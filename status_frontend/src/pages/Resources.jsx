@@ -35,7 +35,7 @@ export default function Resources() {
             className={`menu-btn ${activeTab === 'apiPY' ? 'active' : ''}`} 
             onClick={() => setActiveTab('apiPY')}
           >
-            Robot.py API
+            robot.py API
           </button>
           <button 
             className={`menu-btn ${activeTab === 'apiJAVA' ? 'active' : ''}`} 
