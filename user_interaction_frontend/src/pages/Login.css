@@ -19,17 +19,18 @@
   box-sizing: border-box;
 }
 
-/* Transformed into the standalone card module */
+/* Add a margin shift directly to the box to nudge everything upward */
 .login-box {
-  padding: 50px 30px; /* Increased internal container depth spacing */
+  margin-top: -8vh; /* Dynamically pulls the core assembly up from the centerline */
+  padding: 50px 30px; 
   font-family: var(--font-sans);
-  background-color: var(--bg-secondary); /* Dark Onyx workspace block */
-  max-width: 500px; /* Expanded box scale width from 400px to 500px */
+  background-color: var(--bg-secondary); 
+  max-width: 500px; 
   width: 100%;
   text-align: center;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); /* Slightly amplified cyber glow */
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.12); 
   box-sizing: border-box;
 }
 

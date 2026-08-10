@@ -2,9 +2,9 @@
 Functionality: Validates RoboFleet Python code to check for syntax errors and illegal actions and 
 returns the validation result as success or failure to decide to run the code or not.
 
-@file backend/code_files/validator.py
-@author Aidan Sanderson
-@date 7/1/2026
+File: backend/code_files/validator.py
+Author: Aidan Sanderson
+Date: 7/1/2026
 """
 
 import sys
@@ -18,17 +18,20 @@ class check(Enum):
     INVALID = 1
 
 ### Helper functions ###
-
-"""
-Constructs the ast tree for validation.
-
-@param: file_path - The file path for the code to validate.
-@return: The ast tree of the code from the code file.
-
-@except: SyntaxError - The code has a syntax error (returns None for failed validation).
-@except: Exception - The code has a file reading error (returns None for failed validation).
-"""
 def get_tree(file_path):
+    """Constructs the ast tree for validation.
+
+    Args:
+        file_path (string): The file path for the code to validate.
+
+    Returns:
+        AST: The ast tree of the code from the code file.
+
+    Raises:
+        SyntaxError: The code has a syntax error (returns None for failed validation).
+        Exception: The code has a file reading error (returns None for failed validation).
+    """
+
     try:
         with open(file_path, 'r', encoding='utf-8') as code_file:
             code = code_file.read()
@@ -48,13 +51,16 @@ def get_tree(file_path):
 ### Validation functions ###
 ### NOTE: IMPLEMENT NEEDED VALIDATION FUNCTIONS HERE WITH THE AST TREE AS THE PARAMETER ###
 
-"""
-Checks the code for any illegal imports or calls.
-
-@param: tree - The ast tree for the code to validate for.
-@return: check.INVALID for any illegal imports or calls, check.VALID otherwise.
-"""
 def validate_illegal(tree):
+    """Checks the code for any illegal imports or calls.
+
+    Args:
+        tree (AST): The ast tree for the code to validate for.
+    
+    Returns:
+        Enum: check.INVALID for any illegal imports or calls, check.VALID otherwise.
+    """
+
     ### NOTE: ADD ALLOWED MODULES HERE ###
     allowed_modules = {
     'robot', 'time', 'math', 'random', 'collections'
@@ -126,14 +132,17 @@ def validate_illegal(tree):
     print("VALIDATE ILLEGAL: PASSED", file=sys.stdout)
     return check.VALID
 
-"""
-Runs the validation tests to validate the code.
-
-@argv[1]: The code file to validate code from.
-@exit(0): Exit success for successful validation (check.VALID).
-@exit(1): Exit failure for failed validation (check.INVALID).
-"""
 def main():
+    """Main function, runs the validation tests to validate the code.
+
+    Args:
+        argv[1] (string): The code file path to validate code from.
+
+    Exits:
+        Success (exit(0)): Exit success for successful validation (check.VALID).
+        Failure (exit(1)): Exit failure for failed validation (check.INVALID).
+    """
+
     # checks for correct number of args
     if len(sys.argv) != 2:
         print("VALIDATION ERROR: Missing file path argument.", file=sys.stderr)
