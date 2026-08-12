@@ -5,6 +5,7 @@ The complete backend and frontend architecture for the RoboFleet Project, hosted
 ---
 
 ## 📂 Website Architecture
+```text
 
 RoboFleet_WebServer/
 ├── backend/                         # Node.js Express Backend Service
@@ -39,6 +40,8 @@ RoboFleet_WebServer/
     │   ├── pages/                   # Individual frontend pages
     │   └── Utilities.jsx            # Shared utility functions and logic
     └── package.json                 # Interface isolated configuration
+
+```
 
 ---
 
