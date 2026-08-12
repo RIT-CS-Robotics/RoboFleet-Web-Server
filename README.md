@@ -6,18 +6,22 @@ The complete backend and frontend architecture for the RoboFleet Project, hosted
 
 ## 📂 Website Architecture
 
-```text
 RoboFleet_WebServer/
 ├── backend/                         # Node.js Express Backend Service
 │   ├── certificates/                # Service SSL/IdP SAML Certs (Root Ignored)
 │   ├── code_files/                  # Temporary runtime storage & core assets for running student code for the robots
+│   │   ├── robot.py                 # Python Robot API
+│   │   ├── Robot.java               # Java Robot API
+│   │   ├── validator.py             # Validator script for student Python code
+│   │   ├── Validator.java           # Validator script for student Java code
+│   │   └── update_docs.sh           # Updates the frontend resources page documentation for robot.py and Robot.java API's
 │   ├── docker/                      # Multi-language sandbox isolation container assets
 │   │   ├── Dockerfile               # Base dependencies installer (Python, Headless Java JVM)
 │   │   └── entrypoint.sh            # Smart internal routing script (detects language and builds RAM sandbox)
 │   ├── user_logs/                   # Dynamic log directories per student
 │   ├── src/                         # Source Code
 │   │   ├── app.js                   # Core API Hub & Routing Gateway
-│   │   ├── destinations.js          # Coordinate-to-Room Mapping Engine
+│   │   ├── destinations.js          # Coordinate-to-Location Mapping Engine
 │   │   ├── logs.js                  # File logging for student code
 │   │   ├── robocom.js               # Docker process spawning controller to run the robots from student code
 │   │   └── samlConfig.js            # Shibboleth Authentication Layer (saml2)
@@ -25,12 +29,16 @@ RoboFleet_WebServer/
 │   └── users.json                   # User credentials database
 ├── status_frontend/                 # Vite + React Robot Monitoring Dashboard (root app)
 │   ├── src/                         # App views & dashboard grids
+│   │   ├── assets/                  # Static assets used by the status frontend
+│   │   ├── components/              # Reusable React components
+│   │   └── pages/                   # Individual frontend pages
 │   └── package.json                 # Status isolated configuration
 └── user_interaction_frontend/       # Vite + React User Control Console
     ├── src/                         # User inputs & code submission deck
+    │   ├── assets/                  # Static assets used by the user interaction frontend
+    │   ├── pages/                   # Individual frontend pages
+    │   └── Utilities.jsx            # Shared utility functions and logic
     └── package.json                 # Interface isolated configuration
-
-```
 
 ---
 
