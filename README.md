@@ -401,9 +401,12 @@ sudo systemctl restart nginx
 To make sure the backend does not get overloaded with cleanup bugs, force a fresh backend restart once pere week.
 
 ### In a terminal run the following crontab command and then paste in the following line
-crontab -e
 
-0 0 1,8,15,22 * * /bin/bash -i -c "pm2 flush && pm2 restart robotics-api"
+```bash
+crontab -e
+```
+
+#### 0 0 1,8,15,22 * * /bin/bash -i -c "pm2 flush && pm2 restart robotics-api"
 
 ---
 
